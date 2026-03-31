@@ -86,6 +86,7 @@ function createInitialState() {
     budget: 250,
     coverage: 0,
     encryption: false,
+    securityConfigured: false,
     supplies: 0,
     nodesDeployed: [],
     hardware: null,
@@ -233,7 +234,7 @@ async function typeBlock(lines, className = "", runToken = currentRunToken) {
 function updateStats() {
   dom.budget.textContent = `$${state.budget}`;
   dom.coverage.textContent = `${Math.max(0, state.coverage)}%`;
-  dom.encryption.textContent = state.encryption ? "AES-256" : "PUBLIC";
+  dom.encryption.textContent = !state.securityConfigured ? "OFF" : state.encryption ? "AES-256" : "PUBLIC";
   dom.supplies.textContent = String(state.supplies);
   dom.hardware.textContent = state.hardware || "Not selected";
   dom.nodes.textContent = String(state.nodesDeployed.length);
@@ -601,9 +602,11 @@ async function actWorkbench(runToken) {
 
   if (securityChoice === "secure") {
     state.encryption = true;
+    state.securityConfigured = true;
     await typeLine("AES-256 channel key burned into memory. Your network now has a spine.", "success", runToken);
   } else {
     state.encryption = false;
+    state.securityConfigured = true;
     state.publicChannel = true;
     await typeLine("Public channel selected. Anyone nearby can hear whatever Ridgecrest says to itself.", "alert", runToken);
   }
