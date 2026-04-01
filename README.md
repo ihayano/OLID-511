@@ -1,6 +1,6 @@
 # Ian Hayano OLID-511 — Project Mesh: Ridgecrest
 
-**Repository:** [github.com/ihayano/OLID-511-2](https://github.com/ihayano/OLID-511-2)
+**Repository:** https://github.com/ihayano/OLID-511
 
 A single-page, choice-driven survival story game: you are a student building a community decentralized communication network before a storm hits Ridgecrest. Budget, node inventory, travel time, add-ons, and install choices shape coverage, supplies, and which ending you get.
 
