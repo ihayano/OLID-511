@@ -1,16 +1,19 @@
-# Project Mesh: Ridgecrest
+# OLID-511-2 — Project Mesh: Ridgecrest
+
+**Repository:** [github.com/ihayano/OLID-511-2](https://github.com/ihayano/OLID-511-2)
 
 A single-page, choice-driven **Meshtastic / LoRa** story game: you are a student building a community mesh before a storm hits Ridgecrest. Budget, node inventory, travel time, add-ons, and install choices shape coverage, supplies, and which ending you get.
 
 ## Play
 
-1. Serve the folder over HTTP (browsers often block some features when opening `index.html` as a file).
-2. Open the URL in a modern browser.
+1. Clone this repo (or download the ZIP).
+2. Serve the folder over HTTP (browsers often block some features when opening `index.html` as a file).
+3. Open the URL in a modern browser.
 
 ### Python
 
 ```powershell
-cd path\to\OLID-511-2-cursor-project-mesh-foundation-a34a
+cd OLID-511-2
 python -m http.server 8000
 ```
 
@@ -64,29 +67,6 @@ Outputs:
 
 - `reports/monte_carlo_report.md`
 - `reports/monte_carlo_report.json`
-
-## Publish to GitHub (on your machine)
-
-This workspace may not have `git` in PATH. On your PC (with [Git](https://git-scm.com/downloads) installed):
-
-1. Create an empty repository on GitHub (no README, or accept default—see merge note below).
-2. In PowerShell:
-
-```powershell
-cd "C:\Users\hayan\OneDrive\Desktop\OLID-511-2-cursor-project-mesh-foundation-a34a"
-
-git init
-git add .
-git commit -m "Initial commit: Project Mesh Ridgecrest"
-
-git branch -M main
-git remote add origin https://github.com/YOUR_USERNAME/YOUR_REPO.git
-git push -u origin main
-```
-
-Replace `YOUR_USERNAME` and `YOUR_REPO` with your GitHub user and repository name. Use SSH if you prefer: `git@github.com:YOUR_USERNAME/YOUR_REPO.git`.
-
-If GitHub already has commits (e.g. you added a README there first), use `git pull origin main --rebase` before pushing, or follow GitHub’s “push an existing repository” instructions.
 
 ## License
 
