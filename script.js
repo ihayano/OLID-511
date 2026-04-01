@@ -1,0 +1,1660 @@
+const locationDefinitions = [
+  {
+    key: "science",
+    title: "Campus Science Building",
+    contact: "Dr. Watanabe",
+    elevation: "Maximum elevation",
+    detail: "Critical line-of-sight point inside town.",
+    outsideTown: false,
+  },
+  {
+    key: "valley",
+    title: "Valley West",
+    contact: "Luz and Diego",
+    elevation: "Low elevation",
+    detail: "Residential area surrounded by signal-killing hills.",
+    outsideTown: true,
+  },
+  {
+    key: "sugar",
+    title: "Mitsuwa Market",
+    contact: "Yoshiko",
+    elevation: "Medium elevation",
+    detail: "Classmate with a hatchback and a full gas tank.",
+    outsideTown: false,
+  },
+  {
+    key: "apartments",
+    title: "Tesseract Apartments",
+    contact: "Fiona",
+    elevation: "Medium elevation",
+    detail: "Community garden rooftop and student households.",
+    outsideTown: false,
+  },
+  {
+    key: "radio",
+    title: "Radio Station",
+    contact: "Geo",
+    elevation: "Medium elevation",
+    detail: "Strong reach if you are willing to climb the tower.",
+    outsideTown: false,
+  },
+  {
+    key: "health",
+    title: "Bast Health Center",
+    contact: "Molly",
+    elevation: "Medium elevation",
+    detail: "Dense trees force a cleaner antenna setup.",
+    outsideTown: true,
+  },
+];
+
+const dom = {
+  terminal: document.getElementById("terminal"),
+  choicePanel: document.getElementById("choice-panel"),
+  inputZone: document.getElementById("input-zone"),
+  inputLabel: document.getElementById("input-label"),
+  input: document.getElementById("builder-input"),
+  inputSubmit: document.getElementById("input-submit"),
+  restartButton: document.getElementById("restart-button"),
+  soundToggle: document.getElementById("sound-toggle"),
+  budget: document.getElementById("budget-stat"),
+  coverage: document.getElementById("coverage-stat"),
+  encryption: document.getElementById("encryption-stat"),
+  supplies: document.getElementById("supplies-stat"),
+  hours: document.getElementById("hours-stat"),
+  hardware: document.getElementById("hardware-stat"),
+  nodes: document.getElementById("nodes-stat"),
+  builderBadge: document.getElementById("builder-badge"),
+  mapGrid: document.getElementById("map-grid"),
+  mapSummary: document.getElementById("map-summary"),
+  mapPrev: document.getElementById("map-prev"),
+  mapNext: document.getElementById("map-next"),
+  nodeList: document.getElementById("node-list"),
+  workbenchPanel: document.getElementById("workbench-panel"),
+  workbenchSections: document.getElementById("workbench-sections"),
+  workbenchBudgetHint: document.getElementById("workbench-budget-hint"),
+  workbenchTotalLine: document.getElementById("workbench-total-line"),
+  workbenchConfirm: document.getElementById("workbench-confirm"),
+};
+
+const typingDelay = 8;
+const pauseBetweenLines = 120;
+let audioContext = null;
+let soundEnabled = true;
+let currentRunToken = 0;
+let currentMapIndex = 0;
+
+function createInitialState() {
+  const locationStatuses = {};
+
+  locationDefinitions.forEach((location) => {
+    locationStatuses[location.key] = {
+      status: "pending",
+      note: "No deployment logged yet.",
+      resolved: false,
+    };
+  });
+
+  return {
+    builderName: "UNASSIGNED",
+    budget: 340,
+    coverage: 0,
+    encryption: false,
+    securityConfigured: false,
+    supplies: 0,
+    nodesDeployed: [],
+    nodesAvailable: 0,
+    nodesPurchased: 0,
+    hardware: null,
+    nodeCost: 0,
+    linkQuality: 0,
+    stableFirmware: true,
+    validBand: true,
+    validPreset: true,
+    deadZones: false,
+    valleyWeak: false,
+    healthWeak: false,
+    scienceRoof: false,
+    scienceMissed: false,
+    solarSupport: false,
+    yoshikoDrive: false,
+    batteryFragile: false,
+    hoursRemaining: 84,
+    weatherproofCase: false,
+    solarPanel: false,
+    locationStatuses,
+  };
+}
+
+let state = createInitialState();
+
+function wait(ms) {
+  return new Promise((resolve) => window.setTimeout(resolve, ms));
+}
+
+function getAudioContext() {
+  if (!soundEnabled || !(window.AudioContext || window.webkitAudioContext)) {
+    return null;
+  }
+
+  if (!audioContext) {
+    const AudioCtor = window.AudioContext || window.webkitAudioContext;
+    audioContext = new AudioCtor();
+  }
+
+  if (audioContext.state === "suspended") {
+    audioContext.resume();
+  }
+
+  return audioContext;
+}
+
+function playTone({ frequency, duration, type = "square", gain = 0.015, sweep = 0 }) {
+  const ctx = getAudioContext();
+  if (!ctx) {
+    return;
+  }
+
+  const oscillator = ctx.createOscillator();
+  const volume = ctx.createGain();
+  const now = ctx.currentTime;
+
+  oscillator.type = type;
+  oscillator.frequency.setValueAtTime(frequency, now);
+  if (sweep !== 0) {
+    oscillator.frequency.linearRampToValueAtTime(frequency + sweep, now + duration);
+  }
+
+  volume.gain.setValueAtTime(0.0001, now);
+  volume.gain.exponentialRampToValueAtTime(gain, now + 0.01);
+  volume.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+  oscillator.connect(volume);
+  volume.connect(ctx.destination);
+  oscillator.start(now);
+  oscillator.stop(now + duration + 0.02);
+}
+
+function playTypingClick(index) {
+  if (!soundEnabled || index % 4 !== 0) {
+    return;
+  }
+
+  playTone({ frequency: 110 + (index % 5) * 8, duration: 0.024, gain: 0.008 });
+}
+
+function playMenuBeep() {
+  playTone({ frequency: 440, duration: 0.08, type: "triangle", gain: 0.02, sweep: 60 });
+}
+
+function playAlarm() {
+  playTone({ frequency: 740, duration: 0.22, type: "sawtooth", gain: 0.018, sweep: -180 });
+  window.setTimeout(() => {
+    playTone({ frequency: 620, duration: 0.28, type: "sawtooth", gain: 0.016, sweep: 100 });
+  }, 140);
+}
+
+function clearChoices() {
+  dom.choicePanel.innerHTML = "";
+}
+
+function showInput(label, placeholder = "") {
+  dom.inputZone.classList.remove("hidden");
+  dom.inputLabel.textContent = label;
+  dom.input.placeholder = placeholder;
+  dom.input.value = "";
+  dom.input.focus();
+}
+
+function hideInput() {
+  dom.inputZone.classList.add("hidden");
+  dom.input.value = "";
+}
+
+function appendLineElement(className = "") {
+  const row = document.createElement("p");
+  row.className = `terminal-line ${className}`.trim();
+  dom.terminal.appendChild(row);
+  dom.terminal.scrollTop = dom.terminal.scrollHeight;
+  return row;
+}
+
+async function typeLine(text, className = "", runToken = currentRunToken) {
+  if (runToken !== currentRunToken) {
+    return;
+  }
+
+  const row = appendLineElement(className);
+
+  for (let index = 0; index < text.length; index += 1) {
+    if (runToken !== currentRunToken) {
+      return;
+    }
+
+    row.textContent += text[index];
+    playTypingClick(index);
+    dom.terminal.scrollTop = dom.terminal.scrollHeight;
+    await wait(typingDelay);
+  }
+
+  await wait(pauseBetweenLines);
+}
+
+async function typeBlock(lines, className = "", runToken = currentRunToken) {
+  for (const line of lines) {
+    await typeLine(line, className, runToken);
+  }
+}
+
+function updateStats() {
+  dom.budget.textContent = `$${state.budget}`;
+  dom.coverage.textContent = `${Math.max(0, state.coverage)}%`;
+  dom.encryption.textContent = !state.securityConfigured ? "OFF" : state.encryption ? "AES-256" : "PUBLIC";
+  dom.supplies.textContent = String(state.supplies);
+  dom.hours.textContent = `${state.hoursRemaining}H`;
+  dom.hardware.textContent = state.hardware || "Not selected";
+  dom.nodes.textContent = `${state.nodesDeployed.length} / ${state.nodesPurchased}`;
+  dom.builderBadge.textContent = `Builder: ${state.builderName} // T-${state.hoursRemaining}H`;
+}
+
+function badgeClass(status) {
+  if (status === "deployed") {
+    return "active";
+  }
+  if (status === "skipped") {
+    return "skipped";
+  }
+  if (status === "weak") {
+    return "failed";
+  }
+  return "pending";
+}
+
+function renderMap() {
+  dom.mapGrid.innerHTML = "";
+  let resolvedCount = 0;
+
+  locationDefinitions.forEach((location) => {
+    const info = state.locationStatuses[location.key];
+    if (info.resolved) {
+      resolvedCount += 1;
+    }
+  });
+
+  if (currentMapIndex < 0) {
+    currentMapIndex = 0;
+  }
+  if (currentMapIndex >= locationDefinitions.length) {
+    currentMapIndex = locationDefinitions.length - 1;
+  }
+
+  const location = locationDefinitions[currentMapIndex];
+  const info = state.locationStatuses[location.key];
+  const card = document.createElement("article");
+  card.className = "map-card";
+  card.innerHTML = `
+    <h3>${location.title}</h3>
+    <p>${location.contact} // ${location.elevation}<br />${location.detail}</p>
+    <div class="badge-row">
+      <span class="badge ${badgeClass(info.status)}">${info.status}</span>
+    </div>
+    <p>${info.note}</p>
+  `;
+  dom.mapGrid.appendChild(card);
+
+  dom.mapSummary.textContent = `${resolvedCount} / ${locationDefinitions.length} resolved // ${currentMapIndex + 1}/${locationDefinitions.length}`;
+  dom.mapPrev.disabled = currentMapIndex === 0;
+  dom.mapNext.disabled = currentMapIndex === locationDefinitions.length - 1;
+}
+
+function renderNodeLedger() {
+  dom.nodeList.innerHTML = "";
+
+  if (!state.nodesDeployed.length) {
+    const empty = document.createElement("li");
+    empty.textContent = "No nodes deployed yet.";
+    dom.nodeList.appendChild(empty);
+    return;
+  }
+
+  state.nodesDeployed.forEach((node) => {
+    const item = document.createElement("li");
+    item.innerHTML = `<strong>${node.location}</strong><br />${node.hardware} // ${node.note}`;
+    dom.nodeList.appendChild(item);
+  });
+}
+
+function refreshUi() {
+  updateStats();
+  renderMap();
+  renderNodeLedger();
+}
+
+function changeBudget(amount) {
+  state.budget += amount;
+  refreshUi();
+}
+
+function addCoverage(baseValue) {
+  const adjusted = Math.max(1, baseValue + state.linkQuality);
+  state.coverage = Math.max(0, state.coverage + adjusted);
+  refreshUi();
+  return adjusted;
+}
+
+function addSupplies(count) {
+  state.supplies += count;
+  refreshUi();
+}
+
+function setLocation(key, status, note) {
+  state.locationStatuses[key] = {
+    ...state.locationStatuses[key],
+    status,
+    note,
+    resolved: true,
+  };
+  refreshUi();
+}
+
+function addNode(locationKey, note) {
+  const location = locationDefinitions.find((entry) => entry.key === locationKey);
+  state.nodesDeployed.push({
+    location: location.title,
+    hardware: state.hardware,
+    note,
+  });
+  state.nodesAvailable = Math.max(0, state.nodesAvailable - 1);
+  refreshUi();
+}
+
+function spendTime(hours) {
+  state.hoursRemaining = Math.max(0, state.hoursRemaining - hours);
+  refreshUi();
+}
+
+function hasNodeAvailable() {
+  return state.nodesAvailable > 0;
+}
+
+async function applyTravelIfNeeded(locationKey, runToken) {
+  const location = locationDefinitions.find((entry) => entry.key === locationKey);
+  if (!location || !location.outsideTown) {
+    return true;
+  }
+
+  if (state.yoshikoDrive) {
+    await typeLine(`Yoshiko gives you a free ride to ${location.title}. No travel fee charged.`, "success", runToken);
+    return true;
+  }
+
+  const travelChoice = await promptChoice(
+    [`Travel planning for ${location.title}: choose how to get there.`],
+    [
+      {
+        value: "ride",
+        label: "Pay for a ride",
+        description: "Fast trip outside town for $10.",
+        cost: 10,
+      },
+      {
+        value: "walk",
+        label: "Walk",
+        description: "No money spent, but arrival is delayed.",
+        meta: "Cost: $0 // Time: -6H",
+      },
+    ]
+  );
+
+  if (travelChoice === "ride") {
+    if (state.budget < 10) {
+      await typeLine("You do not have enough cash for a ride. You head out on foot instead.", "warn", runToken);
+      spendTime(6);
+      return true;
+    }
+    changeBudget(-10);
+    await typeLine(`You pay $10 for a ride and reach ${location.title} quickly.`, "system", runToken);
+    return true;
+  }
+
+  spendTime(6);
+  await typeLine(`You walk to ${location.title}. Budget preserved, but the schedule slips by 6 hours.`, "warn", runToken);
+  return true;
+}
+
+function createChoiceButton(option, resolve) {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "choice-card";
+
+  const costText = Number.isFinite(option.cost) ? `Cost: $${option.cost}` : option.meta || "Awaiting choice";
+  button.innerHTML = `
+    <strong>${option.label}</strong>
+    <span>${option.description}</span>
+    <small>${costText}</small>
+  `;
+
+  const disabled = Boolean(option.disabled) || (Number.isFinite(option.cost) && state.budget < option.cost);
+  if (disabled) {
+    button.disabled = true;
+    if (state.budget < option.cost) {
+      button.querySelector("small").textContent = `${costText} // insufficient budget`;
+    }
+  }
+
+  button.addEventListener("click", async () => {
+    playMenuBeep();
+    clearChoices();
+    hideInput();
+    resolve(option.value);
+  });
+
+  dom.choicePanel.appendChild(button);
+}
+
+async function promptChoice(promptLines, options) {
+  await typeBlock(Array.isArray(promptLines) ? promptLines : [promptLines], "prompt");
+
+  return new Promise((resolve) => {
+    clearChoices();
+    options.forEach((option) => createChoiceButton(option, resolve));
+  });
+}
+
+async function promptTextInput(label, placeholder) {
+  await typeLine(label, "prompt");
+  showInput(label, placeholder);
+
+  return new Promise((resolve) => {
+    const submit = () => {
+      const value = dom.input.value.trim();
+      if (!value) {
+        dom.input.focus();
+        return;
+      }
+
+      playMenuBeep();
+      dom.inputSubmit.removeEventListener("click", submit);
+      dom.input.removeEventListener("keydown", onKeyDown);
+      hideInput();
+      resolve(value.toUpperCase());
+    };
+
+    const onKeyDown = (event) => {
+      if (event.key === "Enter") {
+        submit();
+      }
+    };
+
+    dom.inputSubmit.addEventListener("click", submit);
+    dom.input.addEventListener("keydown", onKeyDown);
+  });
+}
+
+async function introSequence(runToken) {
+  await typeBlock(
+    [
+      "Meshtastic is an open-source communication tool that lets small radios relay short messages from node to node.",
+      "It runs over LoRa (Long Range), a low-power radio protocol built for modest data rates across long distances.",
+      "Practical use: when internet or cell service fails, neighbors can still coordinate rides, food, medicine, and check-ins through a local mesh.",
+      "BOOT SEQUENCE // RIDGECREST MUNICIPAL BACKCHANNEL",
+      "NOAA BULLETIN: DERECHO STORM FRONT PROJECTED TO IMPACT IN 72 HOURS.",
+      "Expected effects: grid collapse, cell congestion, road closures, multi-day outage.",
+      "You are one student with a soldering iron, a terminal window, and $340 of precious cash.",
+      "If the power dies, people will need a local mesh to coordinate rides, food, medicine, and shelter.",
+    ],
+    "system",
+    runToken
+  );
+
+  state.builderName = await promptTextInput("Enter your name to begin Project Mesh.", "Ziad");
+  refreshUi();
+
+  await typeBlock(
+    [
+      `${state.builderName} ready. Project Mesh setup logged.`,
+      "Main objective: deploy enough resilient Meshtastic nodes to keep Ridgecrest talking after the grid falls.",
+      "Failure risks: low coverage, weak batteries, broken links, or an open channel that hostile listeners can exploit.",
+    ],
+    "system",
+    runToken
+  );
+}
+
+function getNodeCostForHardware(hw) {
+  if (hw === "heltec") return 30;
+  if (hw === "rak") return 50;
+  return 0;
+}
+
+function getAddOnCost(addOn) {
+  if (addOn === "both") return 80;
+  if (addOn === "case" || addOn === "solar") return 40;
+  return 0;
+}
+
+function workbenchFirmwareCost(firmware) {
+  return firmware === "stable" ? 10 : 0;
+}
+
+function workbenchCartTotal(draft) {
+  const nc = getNodeCostForHardware(draft.hardware);
+  const nodes = draft.nodes != null ? draft.nodes : 0;
+  return nodes * nc + getAddOnCost(draft.addOn) + workbenchFirmwareCost(draft.firmware);
+}
+
+function workbenchMaxNodes(draft, budgetStart) {
+  const nc = getNodeCostForHardware(draft.hardware);
+  if (!nc) return 0;
+  const reserved = getAddOnCost(draft.addOn) + workbenchFirmwareCost(draft.firmware);
+  const left = budgetStart - reserved;
+  if (left < nc) return 0;
+  return Math.min(6, Math.floor(left / nc));
+}
+
+function clampWorkbenchNodes(draft, budgetStart) {
+  const maxN = workbenchMaxNodes(draft, budgetStart);
+  if (draft.nodes != null && draft.nodes > maxN) {
+    draft.nodes = null;
+  }
+}
+
+function closeWorkbenchPanel() {
+  dom.workbenchPanel.classList.add("hidden");
+  dom.workbenchPanel.setAttribute("aria-hidden", "true");
+  dom.workbenchSections.replaceChildren();
+  dom.workbenchConfirm.disabled = true;
+  dom.workbenchConfirm.onclick = null;
+}
+
+function workbenchAddRow(container, title, options, onPick, selectedValue) {
+  const section = document.createElement("div");
+  section.className = "workbench-section";
+  const h = document.createElement("h3");
+  h.className = "workbench-section-title";
+  h.textContent = title;
+  section.appendChild(h);
+  const row = document.createElement("div");
+  row.className = "workbench-row";
+
+  options.forEach((opt) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "choice-card workbench-option";
+    btn.disabled = Boolean(opt.disabled);
+    const small = opt.meta != null && opt.meta !== "" ? `<small>${opt.meta}</small>` : "";
+    btn.innerHTML = `<strong>${opt.label}</strong><span>${opt.description}</span>${small}`;
+    if (selectedValue === opt.value) {
+      btn.classList.add("workbench-selected");
+    }
+    btn.addEventListener("click", () => {
+      if (btn.disabled) return;
+      playMenuBeep();
+      onPick(opt.value);
+    });
+    row.appendChild(btn);
+  });
+
+  section.appendChild(row);
+  container.appendChild(section);
+}
+
+function syncWorkbenchFooter(draft, budgetStart) {
+  const total = workbenchCartTotal(draft);
+  const allSet = Boolean(
+    draft.hardware &&
+      draft.nodes != null &&
+      draft.addOn != null &&
+      draft.firmware &&
+      draft.frequency &&
+      draft.preset &&
+      draft.security
+  );
+  const over = total > budgetStart;
+  if (allSet && !over) {
+    dom.workbenchTotalLine.textContent = `Cart total: $${total} // Cash left after checkout: $${budgetStart - total}`;
+  } else if (over && allSet) {
+    dom.workbenchTotalLine.textContent = `Cart total: $${total} — over budget by $${total - budgetStart}. Adjust selections.`;
+  } else {
+    dom.workbenchTotalLine.textContent = `Cart so far: $${total} // Finish every category to lock in budget.`;
+  }
+  dom.workbenchConfirm.disabled = !allSet || over;
+}
+
+function renderWorkbenchCheckout(draft, budgetStart) {
+  clampWorkbenchNodes(draft, budgetStart);
+  dom.workbenchSections.replaceChildren();
+  const maxN = workbenchMaxNodes(draft, budgetStart);
+
+  workbenchAddRow(
+    dom.workbenchSections,
+    "1) Hardware (sets price per node)",
+    [
+      {
+        value: "heltec",
+        label: "Heltec V3",
+        description: "Cheap and common. Less forgiving if you make mistakes.",
+        meta: "Per node: $30",
+      },
+      {
+        value: "rak",
+        label: "RAK WisBlock",
+        description: "Better radios and power draw; every node costs more.",
+        meta: "Per node: $50 // +1 link quality",
+      },
+    ],
+    (value) => {
+      draft.hardware = value;
+      renderWorkbenchCheckout(draft, budgetStart);
+      syncWorkbenchFooter(draft, budgetStart);
+    },
+    draft.hardware
+  );
+
+  const nodeOptions = [];
+  for (let n = 1; n <= 6; n += 1) {
+    const nc = getNodeCostForHardware(draft.hardware);
+    const nodeLineCost = n * nc;
+    const withExtras = nodeLineCost + getAddOnCost(draft.addOn) + workbenchFirmwareCost(draft.firmware);
+    nodeOptions.push({
+      value: n,
+      label: `${n} node${n === 1 ? "" : "s"}`,
+      description: nc ? `Subtotal ${n} × $${nc} = $${nodeLineCost}` : "Pick hardware first.",
+      meta: !draft.hardware ? "Locked" : withExtras > budgetStart ? "Over budget with current add-on/firmware" : "Within budget",
+      disabled: !draft.hardware || n > maxN,
+    });
+  }
+  workbenchAddRow(
+    dom.workbenchSections,
+    "2) How many nodes to buy (max 6 sites)",
+    nodeOptions,
+    (value) => {
+      draft.nodes = value;
+      renderWorkbenchCheckout(draft, budgetStart);
+      syncWorkbenchFooter(draft, budgetStart);
+    },
+    draft.nodes
+  );
+
+  workbenchAddRow(
+    dom.workbenchSections,
+    "3) Add-ons (need both for science roof + radio tower)",
+    [
+      {
+        value: "both",
+        label: "Weatherproof case + Solar panel",
+        description: "Enables science roof + radio tower installs.",
+        meta: "Cost: $80",
+      },
+      {
+        value: "case",
+        label: "Weatherproof case",
+        description: "Outdoor protection only.",
+        meta: "Cost: $40",
+      },
+      {
+        value: "solar",
+        label: "Solar panel",
+        description: "Power endurance only.",
+        meta: "Cost: $40",
+      },
+      {
+        value: "none",
+        label: "Skip add-ons",
+        description: "Save cash; rooftop/tower installs stay locked.",
+        meta: "Cost: $0",
+      },
+    ],
+    (value) => {
+      draft.addOn = value;
+      renderWorkbenchCheckout(draft, budgetStart);
+      syncWorkbenchFooter(draft, budgetStart);
+    },
+    draft.addOn
+  );
+
+  workbenchAddRow(
+    dom.workbenchSections,
+    "4) Firmware",
+    [
+      {
+        value: "stable",
+        label: "Stable mesh firmware",
+        description: "Trusted build for storm prep.",
+        meta: "Cost: $10",
+      },
+      {
+        value: "alpha",
+        label: "Alpha nightly",
+        description: "Experimental; battery and routing risk.",
+        meta: "Cost: $0",
+      },
+    ],
+    (value) => {
+      draft.firmware = value;
+      renderWorkbenchCheckout(draft, budgetStart);
+      syncWorkbenchFooter(draft, budgetStart);
+    },
+    draft.firmware
+  );
+
+  workbenchAddRow(
+    dom.workbenchSections,
+    "5) Frequency plan",
+    [
+      {
+        value: "us915",
+        label: "US 915 MHz",
+        description: "Legal here; behaves correctly.",
+        meta: "Compliance safe",
+      },
+      {
+        value: "eu868",
+        label: "EU 868 MHz",
+        description: "Wrong region for Ridgecrest.",
+        meta: "Illegal locally // link penalty",
+      },
+      {
+        value: "lab433",
+        label: "433 MHz lab profile",
+        description: "Dangerous experiment.",
+        meta: "Do not do this",
+      },
+    ],
+    (value) => {
+      draft.frequency = value;
+      renderWorkbenchCheckout(draft, budgetStart);
+      syncWorkbenchFooter(draft, budgetStart);
+    },
+    draft.frequency
+  );
+
+  workbenchAddRow(
+    dom.workbenchSections,
+    "6) Mesh preset",
+    [
+      {
+        value: "longfast",
+        label: "Long Range - Fast",
+        description: "Best balance for emergency text across town.",
+        meta: "Recommended",
+      },
+      {
+        value: "balanced",
+        label: "Balanced",
+        description: "Gives up reach.",
+        meta: "Coverage penalty",
+      },
+      {
+        value: "turbo",
+        label: "Turbo throughput",
+        description: "Fast bursts; bad endurance.",
+        meta: "Battery risk",
+      },
+    ],
+    (value) => {
+      draft.preset = value;
+      renderWorkbenchCheckout(draft, budgetStart);
+      syncWorkbenchFooter(draft, budgetStart);
+    },
+    draft.preset
+  );
+
+  workbenchAddRow(
+    dom.workbenchSections,
+    "7) Security",
+    [
+      {
+        value: "secure",
+        label: "Generate AES-256 key",
+        description: "Private channel; safer mutual aid.",
+        meta: "Secure comms",
+      },
+      {
+        value: "public",
+        label: "Leave channel public",
+        description: "Easier to join; anyone can listen.",
+        meta: "Vulnerable",
+      },
+    ],
+    (value) => {
+      draft.security = value;
+      renderWorkbenchCheckout(draft, budgetStart);
+      syncWorkbenchFooter(draft, budgetStart);
+    },
+    draft.security
+  );
+}
+
+function applyWorkbenchSelections(selections) {
+  if (selections.hardware === "heltec") {
+    state.hardware = "Heltec V3";
+    state.nodeCost = 30;
+  } else {
+    state.hardware = "RAK WisBlock";
+    state.nodeCost = 50;
+    state.linkQuality += 1;
+  }
+
+  state.nodesPurchased = selections.nodes;
+  state.nodesAvailable = selections.nodes;
+
+  const addOn = selections.addOn;
+  state.weatherproofCase = addOn === "both" || addOn === "case";
+  state.solarPanel = addOn === "both" || addOn === "solar";
+
+  if (selections.firmware === "stable") {
+    state.stableFirmware = true;
+  } else {
+    state.stableFirmware = false;
+    state.batteryFragile = true;
+    state.linkQuality -= 1;
+  }
+
+  if (selections.frequency === "us915") {
+    state.validBand = true;
+  } else {
+    state.validBand = false;
+    state.linkQuality -= selections.frequency === "eu868" ? 2 : 3;
+  }
+
+  if (selections.preset === "longfast") {
+    state.validPreset = true;
+  } else if (selections.preset === "balanced") {
+    state.validPreset = false;
+    state.linkQuality -= 1;
+  } else {
+    state.validPreset = false;
+    state.batteryFragile = true;
+    state.linkQuality -= 2;
+  }
+
+  if (selections.security === "secure") {
+    state.encryption = true;
+    state.securityConfigured = true;
+  } else {
+    state.encryption = false;
+    state.securityConfigured = true;
+  }
+
+  const total =
+    selections.nodes * state.nodeCost + getAddOnCost(addOn) + workbenchFirmwareCost(selections.firmware);
+  changeBudget(-total);
+}
+
+function runWorkbenchCheckout() {
+  const budgetStart = state.budget;
+  dom.workbenchBudgetHint.textContent = `Starting cash: $${budgetStart}. Choose one option in every section. The cart total includes nodes, add-ons, and paid firmware.`;
+  dom.workbenchPanel.classList.remove("hidden");
+  dom.workbenchPanel.setAttribute("aria-hidden", "false");
+
+  const draft = {
+    hardware: null,
+    nodes: null,
+    addOn: null,
+    firmware: null,
+    frequency: null,
+    preset: null,
+    security: null,
+  };
+
+  return new Promise((resolve) => {
+    renderWorkbenchCheckout(draft, budgetStart);
+    syncWorkbenchFooter(draft, budgetStart);
+
+    dom.workbenchConfirm.onclick = () => {
+      if (dom.workbenchConfirm.disabled) return;
+      playMenuBeep();
+      closeWorkbenchPanel();
+      resolve({ ...draft });
+    };
+  });
+}
+
+async function actWorkbench(runToken) {
+  await typeBlock(
+    [
+      "ACT I // THE WORKBENCH",
+      "The online requisition terminal blinks to life. Every dollar spent here determines what the town gets later.",
+      "Use the workbench panel below to compare every purchase at once, then confirm when the cart fits your budget.",
+    ],
+    "system",
+    runToken
+  );
+
+  const selections = await runWorkbenchCheckout();
+  applyWorkbenchSelections(selections);
+
+  const addOnLabel =
+    selections.addOn === "both"
+      ? "weatherproof case + solar panel"
+      : selections.addOn === "case"
+        ? "weatherproof case only"
+        : selections.addOn === "solar"
+          ? "solar panel only"
+          : "no add-ons";
+
+  await typeBlock(
+    [
+      `Build locked: ${state.hardware}, ${selections.nodes} node${selections.nodes === 1 ? "" : "s"}, ${addOnLabel}.`,
+      selections.firmware === "stable"
+        ? "Stable firmware flashed ($10)."
+        : "Alpha firmware flashed — watch battery and routing.",
+      selections.frequency === "us915"
+        ? "Frequency plan: US 915 MHz."
+        : `Frequency plan: ${selections.frequency} — expect link pain.`,
+      `Mesh preset: ${selections.preset}. Security: ${selections.security === "secure" ? "AES-256" : "public channel"}.`,
+      `Cash after checkout: $${state.budget}.`,
+    ],
+    "success",
+    runToken
+  );
+}
+
+async function deployScience(runToken) {
+  if (!hasNodeAvailable()) {
+    setLocation("science", "skipped", "No nodes remaining to place at this site.");
+    await typeLine("No nodes left in your inventory. You cannot deploy at the science building.", "alert", runToken);
+    return;
+  }
+  await typeBlock(
+    [
+      "Destination: Campus Science Building.",
+      "Dr. Watanabe leans in the observatory doorway, unimpressed by panic and very impressed by evidence.",
+      '"Give me one reason this belongs on my roof," he says.',
+    ],
+    "system",
+    runToken
+  );
+
+  const choice = await promptChoice(
+    ["Make your case."],
+    [
+      {
+        value: "data",
+        label: "Appeal to telemetry and survival data",
+        description: "Promise live weather relays, outage mapping, and a resilient data path for the whole town.",
+        meta: state.weatherproofCase && state.solarPanel ? "Uses 1 node // Roof install enabled" : "Requires case + solar for roof install",
+        disabled: !(state.weatherproofCase && state.solarPanel),
+      },
+      {
+        value: "emotion",
+        label: "Make an emotional plea",
+        description: "Ask him to do it because people are scared and you need kindness right now.",
+        meta: "Uses 1 node",
+      },
+      {
+        value: "jargon",
+        label: "Use pure radio jargon",
+        description: "Launch into packet-routing terms and hope technical vocabulary carries the moment.",
+        meta: "Uses 1 node",
+      },
+      {
+        value: "skip",
+        label: "Skip this site",
+        description: "Walk away from the town's best elevation point.",
+        meta: "No cost",
+      },
+    ]
+  );
+
+  if (choice === "skip") {
+    state.scienceMissed = true;
+    setLocation("science", "skipped", "Critical high-elevation site abandoned.");
+    await typeLine("You leave the science building dark. Full town coverage is no longer achievable.", "alert", runToken);
+    return;
+  }
+
+  if (choice === "data") {
+    const gain = addCoverage(12);
+    state.scienceRoof = true;
+    addNode("science", `roof mount secured with professor approval (+${gain}% coverage)`);
+    setLocation("science", "deployed", "Roof access granted. Ridgecrest now has a real spine.");
+    await typeLine('"Watanabe nods once. "That is an actual argument." He unlocks the roof hatch for you.', "success", runToken);
+  } else {
+    const gain = addCoverage(5);
+    state.scienceRoof = false;
+    addNode("science", `dorm window fallback placement (+${gain}% coverage)`);
+    setLocation("science", "weak", "Fallback placement in a dorm window limits the network horizon.");
+    await typeLine("He refuses roof access. You settle for a dorm window and lose the best line-of-sight in town.", "warn", runToken);
+  }
+}
+
+async function deployValley(runToken) {
+  if (!hasNodeAvailable()) {
+    setLocation("valley", "skipped", "No nodes remaining to place at this site.");
+    await typeLine("No nodes left in your inventory. Valley West stays offline.", "alert", runToken);
+    return;
+  }
+  await typeBlock(
+    [
+      "Destination: Valley West.",
+      "Luz and Diego meet you on their porch while hills crowd every approach to the neighborhood.",
+      "A standard node will struggle here unless you spend more on the link.",
+    ],
+    "system",
+    runToken
+  );
+
+  const basicCost = 0;
+  const highGainCost = 20;
+  const solarCost = 25;
+  const choice = await promptChoice(
+    ["Choose the Valley West deployment package."],
+    [
+      {
+        value: "basic",
+        label: "Basic node only",
+        description: "Cheapest path, but the hills will likely carve out a dead zone.",
+        meta: "Uses 1 node // no add-on cost",
+      },
+      {
+        value: "highgain",
+        label: "Node + high-gain antenna",
+        description: "Stabilizes the valley link and pushes farther toward rural outskirts.",
+        cost: highGainCost,
+      },
+      {
+        value: "solar",
+        label: "Node + solar repeater",
+        description: "Best reach and long-tail resilience when the outage stretches past the first night.",
+        cost: solarCost,
+      },
+      {
+        value: "skip",
+        label: "Skip this site",
+        description: "Leave the valley district isolated behind terrain.",
+        meta: "No cost",
+      },
+    ]
+  );
+
+  if (choice === "skip") {
+    setLocation("valley", "skipped", "Valley West remains outside the mesh.");
+    await typeLine("You keep your cash, but the valley edge falls off the map.", "warn", runToken);
+    return;
+  }
+
+  if (choice === "basic") {
+    changeBudget(-basicCost);
+    const gain = addCoverage(4);
+    addSupplies(1);
+    state.deadZones = true;
+    state.valleyWeak = true;
+    addNode("valley", `residential install, but the hills choke the signal (+${gain}% coverage)`);
+    setLocation("valley", "weak", "Node deployed, yet terrain still creates a valley dead zone.");
+    await typeLine("The house line joins the mesh, and Luz hands you a warm mug from the kitchen. The western edge still drops packets into silence.", "warn", runToken);
+    return;
+  }
+
+  if (choice === "highgain") {
+    changeBudget(-highGainCost);
+    const gain = addCoverage(8);
+    addSupplies(1);
+    addNode("valley", `high-gain residential relay clears the hills (+${gain}% coverage)`);
+    setLocation("valley", "deployed", "High-gain antenna punches the valley back into town.");
+    await typeLine("Diego helps you sight the antenna line. The western district finally links cleanly to Ridgecrest proper.", "success", runToken);
+    return;
+  }
+
+  changeBudget(-solarCost);
+  const gain = addCoverage(10);
+  addSupplies(1);
+  state.solarSupport = true;
+  addNode("valley", `solar repeater mounted on a valley rooftop (+${gain}% coverage)`);
+  setLocation("valley", "deployed", "Solar repeater gives the valley independent staying power.");
+  await typeLine("The repeater drinks afternoon sun and throws packets across the low ground like a promise.", "success", runToken);
+}
+
+async function deploySugar(runToken) {
+  if (!hasNodeAvailable()) {
+    setLocation("sugar", "skipped", "No nodes remaining to place at this site.");
+    await typeLine("No nodes left in your inventory. Yoshiko keeps her keys.", "alert", runToken);
+    return;
+  }
+  await typeBlock(
+    [
+      "Destination: Mitsuwa Market.",
+      "Yoshiko eyes your gear, then your empty wallet, then tosses you her keys.",
+      '"You put a node here, I drive you wherever else you need to go," she says.',
+    ],
+    "system",
+    runToken
+  );
+
+  const choice = await promptChoice(
+    ["Accept Yoshiko's deal?"],
+    [
+      {
+        value: "deploy",
+        label: "Trade a node for logistics support",
+        description: "Place a node at Mitsuwa, earn supplies, and let Yoshiko absorb later travel costs.",
+        meta: "Uses 1 node",
+      },
+      {
+        value: "skip",
+        label: "Skip Mitsuwa Market",
+        description: "Save the node cost, but lose transport help and a busy community stop.",
+        meta: "No cost",
+      },
+    ]
+  );
+
+  if (choice === "skip") {
+    setLocation("sugar", "skipped", "No node placed at Mitsuwa Market. Yoshiko keeps her keys.");
+    await typeLine("You pass on Mitsuwa. The next deployments stay slower and more expensive in spirit, if not on paper.", "warn", runToken);
+    return;
+  }
+
+  const gain = addCoverage(5);
+  addSupplies(1);
+  state.yoshikoDrive = true;
+  addNode("sugar", `Mitsuwa node online; Yoshiko now gives you free rides outside town (+${gain}% coverage)`);
+  setLocation("sugar", "deployed", "Mitsuwa Market linked. Yoshiko starts driving your route.");
+  await typeLine("Yoshiko tops off her tank and waves you in. The market goes live, and your out-of-town travel rides are now free.", "success", runToken);
+}
+
+async function deployApartments(runToken) {
+  if (!hasNodeAvailable()) {
+    setLocation("apartments", "skipped", "No nodes remaining to place at this site.");
+    await typeLine("No nodes left in your inventory. The apartments remain unlinked.", "alert", runToken);
+    return;
+  }
+  await typeBlock(
+    [
+      "Destination: Tesseract Apartments.",
+      "Fiona meets you by the community garden with a crate of peppers, canned beans, and one stubborn smile.",
+    ],
+    "system",
+    runToken
+  );
+
+  const choice = await promptChoice(
+    ["Trade a node for food and rooftop access?"],
+    [
+      {
+        value: "deploy",
+        label: "Deploy apartment node",
+        description: "Extend the mesh to several families and bring home garden supplies.",
+        meta: "Uses 1 node",
+      },
+      {
+        value: "skip",
+        label: "Skip this site",
+        description: "Leave student housing without a relay and forfeit the food trade.",
+        meta: "No cost",
+      },
+    ]
+  );
+
+  if (choice === "skip") {
+    setLocation("apartments", "skipped", "Apartment block left off-network.");
+    await typeLine("You keep moving. Fiona watches you go with a basket that could have mattered later.", "warn", runToken);
+    return;
+  }
+
+  const gain = addCoverage(5);
+  addSupplies(3);
+  addNode("apartments", `garden roof relay installed (+${gain}% coverage)`);
+  setLocation("apartments", "deployed", "Apartment rooftop linked. Food stores rise with trust.");
+  await typeLine("The garden node comes online. Fiona sends you off with extra supplies from the rooftop harvest.", "success", runToken);
+}
+
+async function deployRadio(runToken) {
+  if (!hasNodeAvailable()) {
+    setLocation("radio", "skipped", "No nodes remaining to place at this site.");
+    await typeLine("No nodes left in your inventory. The station cannot be linked.", "alert", runToken);
+    return;
+  }
+  await typeBlock(
+    [
+      "Destination: Radio Station.",
+      "Geo unlocks a side gate and points toward the tower with a grin that says he would climb it himself if you asked.",
+    ],
+    "system",
+    runToken
+  );
+
+  const choice = await promptChoice(
+    ["How bold do you get?"],
+    [
+      {
+        value: "tower",
+        label: "Climb the tower",
+        description: "High risk, high payoff. Best possible reach from the station.",
+        meta: state.weatherproofCase && state.solarPanel ? "Uses 1 node // Tower install enabled" : "Requires case + solar for tower install",
+        disabled: !(state.weatherproofCase && state.solarPanel),
+      },
+      {
+        value: "lobby",
+        label: "Mount it inside the lobby",
+        description: "Safer, faster, and much worse for network geometry.",
+        meta: "Uses 1 node",
+      },
+      {
+        value: "skip",
+        label: "Skip this site",
+        description: "Save money and let the radio station fend for itself.",
+        meta: "No cost",
+      },
+    ]
+  );
+
+  if (choice === "skip") {
+    setLocation("radio", "skipped", "Broadcast hub never linked into the mesh.");
+    await typeLine("You leave the station behind. The town loses a strong mid-grid relay point.", "warn", runToken);
+    return;
+  }
+
+  if (choice === "tower") {
+    spendTime(4);
+    const gain = addCoverage(7);
+    addNode("radio", `tower-top mount with Geo spotting the climb (+${gain}% coverage)`);
+    setLocation("radio", "deployed", "Tower node mounted above the station roofline.");
+    await typeLine("The tower sways, your hands shake, and the new relay paints a clean arc across central Ridgecrest. The climb costs 4 precious hours.", "success", runToken);
+    return;
+  }
+
+  const gain = addCoverage(4);
+  addNode("radio", `interior station mount with reduced reach (+${gain}% coverage)`);
+  setLocation("radio", "weak", "Safe install completed, but the station never reaches full potential.");
+  await typeLine("You take the safe route. Geo does not judge you, but the coverage map absolutely does.", "warn", runToken);
+}
+
+async function deployHealth(runToken) {
+  if (!hasNodeAvailable()) {
+    setLocation("health", "skipped", "No nodes remaining to place at this site.");
+    await typeLine("No nodes left in your inventory. The clinic stays outside the mesh.", "alert", runToken);
+    return;
+  }
+  await typeBlock(
+    [
+      "Destination: Bast Health Center.",
+      "Molly leads you behind the building where trees and wet branches turn the air into a green wall.",
+      "Dense foliage here demands better hardware than a naked stock antenna.",
+    ],
+    "system",
+    runToken
+  );
+
+  const basicCost = 0;
+  const highGainCost = 20;
+  const choice = await promptChoice(
+    ["Choose the clinic deployment package."],
+    [
+      {
+        value: "basic",
+        label: "Basic node only",
+        description: "Cheaper, but leaves the clinic half-hidden behind the trees.",
+        meta: "Uses 1 node // no add-on cost",
+      },
+      {
+        value: "highgain",
+        label: "Node + high-gain antenna",
+        description: "Cuts through the foliage and gives the clinic a dependable route.",
+        cost: highGainCost,
+      },
+      {
+        value: "skip",
+        label: "Skip this site",
+        description: "Save money and accept a medical blind spot during the outage.",
+        meta: "No cost",
+      },
+    ]
+  );
+
+  if (choice === "skip") {
+    setLocation("health", "skipped", "Health center left outside the mesh.");
+    await typeLine("You save the money. The clinic vanishes behind branches and static.", "warn", runToken);
+    return;
+  }
+
+  if (choice === "basic") {
+    changeBudget(-basicCost);
+    const gain = addCoverage(4);
+    state.deadZones = true;
+    state.healthWeak = true;
+    addNode("health", `clinic node deployed, but the foliage still blocks clean traffic (+${gain}% coverage)`);
+    setLocation("health", "weak", "Node deployed, yet foliage still causes a medical dead zone.");
+    await typeLine("Molly thanks you anyway. The clinic joins the map, but every tree between you and town remains an enemy.", "warn", runToken);
+    return;
+  }
+
+  changeBudget(-highGainCost);
+  const gain = addCoverage(8);
+  addNode("health", `high-gain clinic relay clears the tree line (+${gain}% coverage)`);
+  setLocation("health", "deployed", "Clinic relay pushes cleanly through the canopy.");
+  await typeLine("The upgraded antenna slices through the foliage. Bast Health now has a reliable lifeline.", "success", runToken);
+}
+
+async function actDeployment(runToken) {
+  await typeBlock(
+    [
+      "ACT II // COMMUNITY DEPLOYMENT",
+      "Ridgecrest is on the map. Choose your route carefully: every stop costs money, shapes the mesh, and changes who survives the outage together.",
+    ],
+    "system",
+    runToken
+  );
+
+  const handlers = {
+    science: deployScience,
+    valley: deployValley,
+    sugar: deploySugar,
+    apartments: deployApartments,
+    radio: deployRadio,
+    health: deployHealth,
+  };
+
+  let deploying = true;
+
+  while (deploying) {
+    const pendingLocations = locationDefinitions.filter((location) => !state.locationStatuses[location.key].resolved);
+
+    if (!pendingLocations.length) {
+      break;
+    }
+
+    const selected = await promptChoice(
+      ["Select your next deployment target or lock the current network and move to diagnostics."],
+      [
+        ...pendingLocations.map((location) => ({
+          value: location.key,
+          label: location.title,
+          description: `${location.contact}. ${location.detail}`,
+          meta: `${location.elevation}`,
+        })),
+        {
+          value: "finish",
+          label: "Run diagnostics now",
+          description: "Stop deploying and find out whether the current mesh can survive the storm.",
+          meta: "Advance to Act III",
+        },
+      ]
+    );
+
+    if (selected === "finish") {
+      deploying = false;
+      await typeLine("You close the deployment ledger and queue a town-wide ping test.", "system", runToken);
+      break;
+    }
+
+    await applyTravelIfNeeded(selected, runToken);
+    const handler = handlers[selected];
+    await handler(runToken);
+  }
+}
+
+async function actDiagnostics(runToken) {
+  await typeBlock(
+    [
+      "ACT III // CRISIS AND TROUBLESHOOTING",
+      "You run a full network ping sweep as thunder stacks itself over the horizon.",
+    ],
+    "system",
+    runToken
+  );
+
+  const issues = [];
+
+  if (state.valleyWeak) {
+    issues.push("Valley West packets fade into the surrounding hills.");
+  }
+  if (state.healthWeak) {
+    issues.push("Bast Health traffic is vanishing into foliage.");
+  }
+
+  if (issues.length) {
+    state.deadZones = true;
+    await typeBlock(issues, "warn", runToken);
+
+    const patchChoice = await promptChoice(
+      ["Emergency field fix available for $40. Do you pay it?"],
+      [
+        {
+          value: "patch",
+          label: "Pay the $40 emergency fix",
+          description: "Rush the right antennas into place before the storm front lands.",
+          cost: 40,
+        },
+        {
+          value: "accept",
+          label: "Proceed with dead zones",
+          description: "Save the money and accept that some people will drop off the network.",
+          meta: "No cost",
+        },
+      ]
+    );
+
+    if (patchChoice === "patch" && state.budget >= 40) {
+      changeBudget(-40);
+      state.deadZones = false;
+      state.valleyWeak = false;
+      state.healthWeak = false;
+      const gain = addCoverage(6);
+      if (state.locationStatuses.valley.status === "weak") {
+        setLocation("valley", "deployed", "Emergency field fix restored clean valley routing.");
+      }
+      if (state.locationStatuses.health.status === "weak") {
+        setLocation("health", "deployed", "Emergency field fix restored clinic routing.");
+      }
+      await typeLine(`You burn $40 on a last-minute rescue and claw back +${gain}% coverage before the rain starts.`, "success", runToken);
+    } else {
+      await typeLine("You keep the cash. The dead zones stay exactly where the map warned they would.", "warn", runToken);
+    }
+  } else {
+    await typeLine("Ping sweep returns green across every deployed corridor. No dead zones detected.", "success", runToken);
+  }
+
+  if (!state.validBand) {
+    await typeLine("Secondary warning: the radios are operating on the wrong regional band, lowering town-wide efficiency.", "warn", runToken);
+  }
+
+  if (!state.validPreset) {
+    await typeLine("Secondary warning: your preset choice is costing either range or battery endurance exactly when you need both.", "warn", runToken);
+  }
+
+  playAlarm();
+  await typeBlock(
+    [
+      "Storm alert: derecho leading edge detected.",
+      "Grid instability spikes. Lights flicker across Ridgecrest and then vanish sector by sector.",
+      "Project Mesh becomes the only thing still awake.",
+    ],
+    "alert",
+    runToken
+  );
+}
+
+async function actMutualAid(runToken) {
+  await typeBlock(
+    [
+      "Mutual aid request incoming.",
+      "Lina from two streets over asks for access so she can text family and trade outage updates through the mesh.",
+    ],
+    "system",
+    runToken
+  );
+
+  const choice = await promptChoice(
+    ["Grant Lina access to the network?"],
+    [
+      {
+        value: "grant",
+        label: "Grant network access",
+        description: "Share the mesh, prove its value, and trust your community to carry it forward.",
+        meta: "Earn supplies",
+      },
+      {
+        value: "deny",
+        label: "Keep the network closed",
+        description: "Protect your limited resources and avoid another user on an already stressed system.",
+        meta: "No supply gain",
+      },
+    ]
+  );
+
+  if (choice === "grant") {
+    addSupplies(1);
+    await typeLine("Lina sends her message and returns with a bottle of wine (+1 supplies). Mutual aid becomes more than a slogan.", "success", runToken);
+  } else {
+    await typeLine("You keep the network private and controlled. The system stays lean, but the street feels colder.", "warn", runToken);
+  }
+}
+
+function determineEnding() {
+  const coverage = state.coverage;
+  const lowCoverage = coverage < 20;
+  const supplyShortage = state.supplies < 2;
+  const configFailure = !state.validBand || !state.validPreset || !state.stableFirmware;
+  const coverageStrong = coverage >= 35;
+  const scienceReady = state.scienceRoof && !state.scienceMissed;
+
+  if (coverageStrong && state.encryption && state.supplies > 0 && !state.deadZones && scienceReady) {
+    return {
+      className: "success",
+      lines: [
+        "ENDING A // THE RESILIENT UTOPIA",
+        `Encrypted traffic hums through ${state.nodesDeployed.length} deployed nodes while Ridgecrest reorganizes itself around mutual aid instead of panic.`,
+        state.solarSupport
+          ? "Your solar-backed valley repeater keeps the mesh alive long after the blackout should have broken it."
+          : "Even without a solar repeater on every line, your disciplined build keeps the network standing when the town needs it most.",
+        "Neighbors use the channel to coordinate medicine, hot food, and shelter. By sunrise, the outage feels less like collapse and more like a town learning to move together.",
+      ],
+    };
+  }
+
+  if (state.encryption && coverage >= 22 && (state.deadZones || !scienceReady || !state.validBand || !state.validPreset)) {
+    return {
+      className: "warn",
+      lines: [
+        "ENDING B // THE FRACTURED LIFELINE",
+        "Your encrypted network works, but not for everyone who needed it.",
+        "Some blocks stay connected while the valley edge, clinic corridor, or weakened relay path drops into silence.",
+        "Ridgecrest survives in pockets. The people close to you make it through the night together, and the people just beyond your best signal do not hear the call.",
+      ],
+    };
+  }
+
+  if (!state.encryption && coverage >= 22) {
+    return {
+      className: "warn",
+      lines: [
+        "ENDING C // THE OPEN FREQUENCY",
+        "The mesh spreads across town, and people absolutely use it.",
+        "But the public channel means every anxious rumor, supply handoff, and family check-in leaks into the open air for anyone listening.",
+        "You built a lifeline, then left it unshielded. Ridgecrest remembers the help and the vulnerability in equal measure.",
+      ],
+    };
+  }
+
+  if (lowCoverage && supplyShortage && (state.batteryFragile || configFailure || !state.solarSupport)) {
+    return {
+      className: "alert",
+      lines: [
+        "ENDING D // THE DARK AGE",
+        "Coverage never reached far enough, supplies stayed thin, and your weakest hardware choices fail exactly when the storm settles in.",
+        "Basic batteries drain, unstable links vanish, and the terminal log fills with silence faster than messages.",
+        "Project Mesh collapses before Ridgecrest can rely on it. Everyone waits in the dark for outside help that is still days away.",
+      ],
+    };
+  }
+
+  return {
+    className: "warn",
+    lines: [
+      "ENDING B // THE FRACTURED LIFELINE",
+      "The network helps, but only in fragments.",
+      "You proved the concept, but a missing high point, missing supplies, or too many skipped deployments leaves Ridgecrest unevenly connected.",
+      "People remember your effort. They also remember where the signal stopped.",
+    ],
+  };
+}
+
+async function showEnding(runToken) {
+  const ending = determineEnding();
+  await typeBlock(ending.lines, ending.className, runToken);
+  await typeLine(
+    `Final stats // Budget: $${state.budget} // Coverage: ${state.coverage}% // Encryption: ${state.encryption ? "ON" : "OFF"} // Supplies: ${state.supplies}`,
+    ending.className,
+    runToken
+  );
+
+  clearChoices();
+  const restartButton = document.createElement("button");
+  restartButton.type = "button";
+  restartButton.className = "choice-card";
+  restartButton.innerHTML = `
+    <strong>Start a new run</strong>
+    <span>Reset the terminal and try to secure Ridgecrest with a different route.</span>
+    <small>Replay</small>
+  `;
+  restartButton.addEventListener("click", () => {
+    playMenuBeep();
+    startGame();
+  });
+  dom.choicePanel.appendChild(restartButton);
+}
+
+async function runGame(runToken) {
+  await introSequence(runToken);
+  await actWorkbench(runToken);
+  await actDeployment(runToken);
+  await actDiagnostics(runToken);
+  await actMutualAid(runToken);
+  await showEnding(runToken);
+}
+
+function resetState() {
+  state = createInitialState();
+  currentMapIndex = 0;
+  dom.terminal.innerHTML = "";
+  clearChoices();
+  hideInput();
+  closeWorkbenchPanel();
+  refreshUi();
+}
+
+function bindControls() {
+  dom.restartButton.addEventListener("click", () => {
+    playMenuBeep();
+    startGame();
+  });
+
+  dom.soundToggle.addEventListener("click", () => {
+    soundEnabled = !soundEnabled;
+    dom.soundToggle.textContent = `Sound: ${soundEnabled ? "ON" : "OFF"}`;
+    if (soundEnabled) {
+      playMenuBeep();
+    }
+  });
+
+  dom.mapPrev.addEventListener("click", () => {
+    if (currentMapIndex > 0) {
+      currentMapIndex -= 1;
+      playMenuBeep();
+      renderMap();
+    }
+  });
+
+  dom.mapNext.addEventListener("click", () => {
+    if (currentMapIndex < locationDefinitions.length - 1) {
+      currentMapIndex += 1;
+      playMenuBeep();
+      renderMap();
+    }
+  });
+}
+
+async function startGame() {
+  currentRunToken += 1;
+  const runToken = currentRunToken;
+  resetState();
+
+  await runGame(runToken);
+}
+
+bindControls();
+refreshUi();
+startGame();

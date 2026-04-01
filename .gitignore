@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.Python
+.venv/
+venv/
+env/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.log
+.idea/
+.vscode/
+
+# Optional: uncomment to exclude generated Monte Carlo reports (re-run tools to regenerate)
+# reports/monte_carlo_report.md
+# reports/monte_carlo_report.json

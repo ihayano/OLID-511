@@ -1,0 +1,240 @@
+{
+  "meta": {
+    "project": "Project Mesh: Ridgecrest",
+    "version": "1.0.0"
+  },
+  "global": {
+    "starting_budget": 340,
+    "starting_hours": 84,
+    "deployable_location_count": 6,
+    "finish_early_probability": 0.18
+  },
+  "workbench": {
+    "hardware": {
+      "heltec": {
+        "label": "Heltec V3",
+        "node_cost": 30,
+        "link_quality_delta": 0
+      },
+      "rak": {
+        "label": "RAK WisBlock",
+        "node_cost": 50,
+        "link_quality_delta": 1
+      }
+    },
+    "node_purchase": {
+      "display_options": [2, 3, 4, 5, 6, 7, 8],
+      "fallback_min_purchase": 1
+    },
+    "firmware": {
+      "stable": {
+        "fee": 10,
+        "stable_firmware": true,
+        "battery_fragile": false,
+        "link_quality_delta": 0
+      },
+      "alpha": {
+        "fee": 0,
+        "stable_firmware": false,
+        "battery_fragile": true,
+        "link_quality_delta": -1
+      }
+    },
+    "frequency_plan": {
+      "us915": {
+        "valid_band": true,
+        "link_quality_delta": 0
+      },
+      "eu868": {
+        "valid_band": false,
+        "link_quality_delta": -2
+      },
+      "lab433": {
+        "valid_band": false,
+        "link_quality_delta": -3
+      }
+    },
+    "preset": {
+      "longfast": {
+        "valid_preset": true,
+        "battery_fragile": false,
+        "link_quality_delta": 0
+      },
+      "balanced": {
+        "valid_preset": false,
+        "battery_fragile": false,
+        "link_quality_delta": -1
+      },
+      "turbo": {
+        "valid_preset": false,
+        "battery_fragile": true,
+        "link_quality_delta": -2
+      }
+    },
+    "security": {
+      "secure": {
+        "encryption": true,
+        "public_channel": false
+      },
+      "public": {
+        "encryption": false,
+        "public_channel": true
+      }
+    },
+    "add_ons": {
+      "weatherproof_case": {
+        "fee": 40
+      },
+      "solar_panel": {
+        "fee": 40
+      },
+      "requires_both_for": {
+        "science_roof": true,
+        "radio_tower": true
+      }
+    }
+  },
+  "travel": {
+    "outside_town_ride_cost": 10,
+    "outside_town_walk_hours": 6,
+    "outside_town_locations": ["valley", "health"]
+  },
+  "deployments": {
+    "science": {
+      "options": {
+        "data": {
+          "uses_node": true,
+          "coverage_base": 12,
+          "science_roof": true
+        },
+        "emotion": {
+          "uses_node": true,
+          "coverage_base": 5,
+          "science_roof": false
+        },
+        "jargon": {
+          "uses_node": true,
+          "coverage_base": 5,
+          "science_roof": false
+        },
+        "skip": {
+          "uses_node": false,
+          "science_missed": true
+        }
+      }
+    },
+    "valley": {
+      "options": {
+        "basic": {
+          "uses_node": true,
+          "add_on_cost": 0,
+          "coverage_base": 4,
+          "supplies_delta": 1,
+          "dead_zone": true,
+          "valley_weak": true,
+          "solar_support": false
+        },
+        "highgain": {
+          "uses_node": true,
+          "add_on_cost": 20,
+          "coverage_base": 8,
+          "supplies_delta": 1,
+          "dead_zone": false,
+          "valley_weak": false,
+          "solar_support": false
+        },
+        "solar": {
+          "uses_node": true,
+          "add_on_cost": 25,
+          "coverage_base": 10,
+          "supplies_delta": 1,
+          "dead_zone": false,
+          "valley_weak": false,
+          "solar_support": true
+        },
+        "skip": {
+          "uses_node": false
+        }
+      }
+    },
+    "sugar": {
+      "options": {
+        "deploy": {
+          "uses_node": true,
+          "coverage_base": 5,
+          "supplies_delta": 1,
+          "yoshiko_drive": true
+        },
+        "skip": {
+          "uses_node": false
+        }
+      }
+    },
+    "apartments": {
+      "options": {
+        "deploy": {
+          "uses_node": true,
+          "coverage_base": 5,
+          "supplies_delta": 3
+        },
+        "skip": {
+          "uses_node": false
+        }
+      }
+    },
+    "radio": {
+      "options": {
+        "tower": {
+          "uses_node": true,
+          "coverage_base": 7,
+          "time_cost_hours": 4
+        },
+        "lobby": {
+          "uses_node": true,
+          "coverage_base": 4
+        },
+        "skip": {
+          "uses_node": false
+        }
+      }
+    },
+    "health": {
+      "options": {
+        "basic": {
+          "uses_node": true,
+          "add_on_cost": 0,
+          "coverage_base": 4,
+          "dead_zone": true,
+          "health_weak": true
+        },
+        "highgain": {
+          "uses_node": true,
+          "add_on_cost": 20,
+          "coverage_base": 8,
+          "dead_zone": false,
+          "health_weak": false
+        },
+        "skip": {
+          "uses_node": false
+        }
+      }
+    }
+  },
+  "diagnostics": {
+    "emergency_patch_cost": 40,
+    "emergency_patch_coverage_base": 6
+  },
+  "mutual_aid": {
+    "grant_supplies_delta": 1
+  },
+  "ending_thresholds": {
+    "coverage_low": 20,
+    "coverage_good": 22,
+    "coverage_strong": 35,
+    "minimum_supplies_for_no_shortage": 2
+  },
+  "simulation": {
+    "default_runs": 10000,
+    "seed": 42
+  }
+}
