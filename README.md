@@ -29,7 +29,6 @@ Then open [http://localhost:8000](http://localhost:8000).
 - **Travel:** out-of-town sites can cost **$10** for a ride or **0** cash and **6 hours** to walk
 - **Time:** tower climb costs hours; hours remaining appear in the sidebar.
 - **Six locations** with branching text, diagnostics, storm beat, mutual aid, and **multiple endings**.
-- **Sound:** optional UI bleeps via Web Audio API (toggle in header).
 
 ## Features (presentation)
 
@@ -43,7 +42,7 @@ Then open [http://localhost:8000](http://localhost:8000).
 |------|------|
 | `index.html` | Page structure, workbench panel, terminal, sidebar |
 | `styles.css` | Visual design and responsive rules |
-| `script.js` | Game state, encounters, audio, workbench UI |
+| `script.js` | Game state, encounters, and workbench UI |
 | `data/game_constants.json` | Balancing data for Python tools (kept in sync with design intent) |
 | `tools/validate_constants.py` | Validates `game_constants.json` |
 | `tools/simulate_monte_carlo.py` | Monte Carlo + sweep; writes reports under `reports/` |

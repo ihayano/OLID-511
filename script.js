@@ -26,7 +26,7 @@ const locationDefinitions = [
   {
     key: "apartments",
     title: "Tesseract Apartments",
-    contact: "Fiona",
+    contact: "Dalia",
     elevation: "Medium elevation",
     detail: "Community garden rooftop and student households.",
     outsideTown: false,
@@ -42,7 +42,7 @@ const locationDefinitions = [
   {
     key: "health",
     title: "Women's Health Clinic",
-    contact: "Molly",
+    contact: "Yasmin",
     elevation: "Medium elevation",
     detail: "Dense trees force a cleaner antenna setup.",
     outsideTown: true,
@@ -57,7 +57,6 @@ const dom = {
   input: document.getElementById("builder-input"),
   inputSubmit: document.getElementById("input-submit"),
   restartButton: document.getElementById("restart-button"),
-  soundToggle: document.getElementById("sound-toggle"),
   budget: document.getElementById("budget-stat"),
   coverage: document.getElementById("coverage-stat"),
   encryption: document.getElementById("encryption-stat"),
@@ -80,8 +79,6 @@ const dom = {
 
 const typingDelay = 8;
 const pauseBetweenLines = 120;
-let audioContext = null;
-let soundEnabled = true;
 let currentRunToken = 0;
 let currentMapIndex = 0;
 
@@ -133,68 +130,6 @@ function wait(ms) {
   return new Promise((resolve) => window.setTimeout(resolve, ms));
 }
 
-function getAudioContext() {
-  if (!soundEnabled || !(window.AudioContext || window.webkitAudioContext)) {
-    return null;
-  }
-
-  if (!audioContext) {
-    const AudioCtor = window.AudioContext || window.webkitAudioContext;
-    audioContext = new AudioCtor();
-  }
-
-  if (audioContext.state === "suspended") {
-    audioContext.resume();
-  }
-
-  return audioContext;
-}
-
-function playTone({ frequency, duration, type = "square", gain = 0.015, sweep = 0 }) {
-  const ctx = getAudioContext();
-  if (!ctx) {
-    return;
-  }
-
-  const oscillator = ctx.createOscillator();
-  const volume = ctx.createGain();
-  const now = ctx.currentTime;
-
-  oscillator.type = type;
-  oscillator.frequency.setValueAtTime(frequency, now);
-  if (sweep !== 0) {
-    oscillator.frequency.linearRampToValueAtTime(frequency + sweep, now + duration);
-  }
-
-  volume.gain.setValueAtTime(0.0001, now);
-  volume.gain.exponentialRampToValueAtTime(gain, now + 0.01);
-  volume.gain.exponentialRampToValueAtTime(0.0001, now + duration);
-
-  oscillator.connect(volume);
-  volume.connect(ctx.destination);
-  oscillator.start(now);
-  oscillator.stop(now + duration + 0.02);
-}
-
-function playTypingClick(index) {
-  if (!soundEnabled || index % 4 !== 0) {
-    return;
-  }
-
-  playTone({ frequency: 110 + (index % 5) * 8, duration: 0.024, gain: 0.008 });
-}
-
-function playMenuBeep() {
-  playTone({ frequency: 440, duration: 0.08, type: "triangle", gain: 0.02, sweep: 60 });
-}
-
-function playAlarm() {
-  playTone({ frequency: 740, duration: 0.22, type: "sawtooth", gain: 0.018, sweep: -180 });
-  window.setTimeout(() => {
-    playTone({ frequency: 620, duration: 0.28, type: "sawtooth", gain: 0.016, sweep: 100 });
-  }, 140);
-}
-
 function clearChoices() {
   dom.choicePanel.innerHTML = "";
 }
@@ -233,7 +168,6 @@ async function typeLine(text, className = "", runToken = currentRunToken) {
     }
 
     row.textContent += text[index];
-    playTypingClick(index);
     dom.terminal.scrollTop = dom.terminal.scrollHeight;
     await wait(typingDelay);
   }
@@ -444,7 +378,6 @@ function createChoiceButton(option, resolve) {
   }
 
   button.addEventListener("click", async () => {
-    playMenuBeep();
     clearChoices();
     hideInput();
     resolve(option.value);
@@ -474,7 +407,6 @@ async function promptTextInput(label, placeholder) {
         return;
       }
 
-      playMenuBeep();
       dom.inputSubmit.removeEventListener("click", submit);
       dom.input.removeEventListener("keydown", onKeyDown);
       hideInput();
@@ -590,7 +522,6 @@ function workbenchAddRow(container, title, options, onPick, selectedValue) {
     }
     btn.addEventListener("click", () => {
       if (btn.disabled) return;
-      playMenuBeep();
       onPick(opt.value);
     });
     row.appendChild(btn);
@@ -905,7 +836,6 @@ function runWorkbenchCheckout() {
 
     dom.workbenchConfirm.onclick = () => {
       if (dom.workbenchConfirm.disabled) return;
-      playMenuBeep();
       closeWorkbenchPanel();
       resolve({ ...draft });
     };
@@ -1164,7 +1094,7 @@ async function deployApartments(runToken) {
   await typeBlock(
     [
       "Destination: Tesseract Apartments.",
-      "Fiona meets you by the community garden with a crate of peppers, canned beans, and one stubborn smile.",
+      "Dalia meets you by the community garden with a crate of peppers, canned beans, and one stubborn smile.",
     ],
     "system",
     runToken
@@ -1190,7 +1120,7 @@ async function deployApartments(runToken) {
 
   if (choice === "skip") {
     setLocation("apartments", "skipped", "Apartment block left off-network.");
-    await typeLine("You keep moving. Fiona watches you go with a basket that could have mattered later.", "warn", runToken);
+    await typeLine("You keep moving. Dalia watches you go with a basket that could have mattered later.", "warn", runToken);
     return;
   }
 
@@ -1198,7 +1128,7 @@ async function deployApartments(runToken) {
   addSupplies(3);
   addNode("apartments", `garden roof relay installed (+${gain}% coverage)`);
   setLocation("apartments", "deployed", "Apartment rooftop linked. Food stores rise with trust.");
-  await typeLine("The garden node comes online. Fiona sends you off with extra supplies from the rooftop harvest.", "success", runToken);
+  await typeLine("The garden node comes online. Dalia sends you off with extra supplies from the rooftop harvest.", "success", runToken);
 }
 
 async function deployRadio(runToken) {
@@ -1271,7 +1201,7 @@ async function deployHealth(runToken) {
   await typeBlock(
     [
       "Destination: Women's Health Clinic.",
-      "Molly leads you behind the building where trees and wet branches turn the air into a green wall.",
+      "Yasmin leads you behind the building where trees and wet branches turn the air into a green wall.",
       "Dense foliage here demands better hardware than a naked stock antenna.",
     ],
     "system",
@@ -1317,7 +1247,7 @@ async function deployHealth(runToken) {
     state.healthWeak = true;
     addNode("health", `clinic node deployed, but the foliage still blocks clean traffic (+${gain}% coverage)`);
     setLocation("health", "weak", "Node deployed, yet foliage still causes a medical dead zone.");
-    await typeLine("Molly thanks you anyway. The clinic joins the map, but every tree between you and town remains an enemy.", "warn", runToken);
+    await typeLine("Yasmin thanks you anyway. The clinic joins the map, but every tree between you and town remains an enemy.", "warn", runToken);
     return;
   }
 
@@ -1455,7 +1385,6 @@ async function actDiagnostics(runToken) {
     await typeLine("Secondary warning: your preset choice is costing either range or battery endurance exactly when you need both.", "warn", runToken);
   }
 
-  playAlarm();
   await typeBlock(
     [
       "Storm alert: derecho leading edge detected.",
@@ -1471,14 +1400,14 @@ async function actMutualAid(runToken) {
   await typeBlock(
     [
       "Mutual aid request incoming.",
-      "Lina from two streets over asks for access so she can text family and trade outage updates through the mesh.",
+      "Mina from two streets over asks for access so she can text family and trade outage updates through the mesh.",
     ],
     "system",
     runToken
   );
 
   const choice = await promptChoice(
-    ["Grant Lina access to the network?"],
+    ["Grant Mina access to the network?"],
     [
       {
         value: "grant",
@@ -1497,7 +1426,7 @@ async function actMutualAid(runToken) {
 
   if (choice === "grant") {
     addSupplies(1);
-    await typeLine("Lina sends her message and returns with a bottle of wine (+1 supplies). Mutual aid becomes more than a slogan.", "success", runToken);
+    await typeLine("Mina sends her message and returns with a bottle of wine (+1 supplies). Mutual aid becomes more than a slogan.", "success", runToken);
   } else {
     await typeLine("You keep the network private and controlled. The system stays lean, but the street feels colder.", "warn", runToken);
   }
@@ -1591,7 +1520,6 @@ async function showEnding(runToken) {
     <small>Replay</small>
   `;
   restartButton.addEventListener("click", () => {
-    playMenuBeep();
     startGame();
   });
   dom.choicePanel.appendChild(restartButton);
@@ -1618,22 +1546,12 @@ function resetState() {
 
 function bindControls() {
   dom.restartButton.addEventListener("click", () => {
-    playMenuBeep();
     startGame();
-  });
-
-  dom.soundToggle.addEventListener("click", () => {
-    soundEnabled = !soundEnabled;
-    dom.soundToggle.textContent = `Sound: ${soundEnabled ? "ON" : "OFF"}`;
-    if (soundEnabled) {
-      playMenuBeep();
-    }
   });
 
   dom.mapPrev.addEventListener("click", () => {
     if (currentMapIndex > 0) {
       currentMapIndex -= 1;
-      playMenuBeep();
       renderMap();
     }
   });
@@ -1641,7 +1559,6 @@ function bindControls() {
   dom.mapNext.addEventListener("click", () => {
     if (currentMapIndex < locationDefinitions.length - 1) {
       currentMapIndex += 1;
-      playMenuBeep();
       renderMap();
     }
   });
