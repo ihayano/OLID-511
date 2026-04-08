@@ -21,14 +21,14 @@ Then open [http://localhost:8000](http://localhost:8000).
 
 ## Features (gameplay)
 
-- **Named locations** in the story include the **International Grocery** (Yoshiko), **Women’s Health Clinic**, and **Dr. Ansari** at the observatory—see `script.js` for full copy.
+- **Named locations** in the story include the **International Grocery**, **Women’s Health Clinic**, and **Science Building** `script.js` for full copy.
 - **Intro primer** on Meshtastic, LoRa, and why a local mesh matters in outages.
 - **Workbench checkout (single screen):** pick hardware, how many nodes (1–6), add-ons (weatherproof case / solar / both / none), paid stable firmware, regional band, mesh preset, and encryption—in one scrollable panel with a **live cart total** and **Confirm build**.
 - **Add-on gate:** science-building **roof** and radio **tower** installs require **both** the weatherproof case and solar panel (or those options stay disabled).
 - **Node inventory:** nodes are bought up front; deployments consume one node each.
-- **Travel:** out-of-town sites can cost **$10** for a ride or **0** cash and **6 hours** to walk; Yoshiko’s International Grocery deal can unlock **free rides** for those trips.
+- **Travel:** out-of-town sites can cost **$10** for a ride or **0** cash and **6 hours** to walk
 - **Time:** tower climb costs hours; hours remaining appear in the sidebar.
-- **Six locations** with branching text, diagnostics, storm beat, mutual aid (Lina), and **multiple endings**.
+- **Six locations** with branching text, diagnostics, storm beat, mutual aid, and **multiple endings**.
 - **Sound:** optional UI bleeps via Web Audio API (toggle in header).
 
 ## Features (presentation)
