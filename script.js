@@ -508,13 +508,13 @@ async function introSequence(runToken) {
     runToken
   );
 
-  state.builderName = await promptTextInput("Enter your name to begin Project Mesh.", "Ziad");
+  state.builderName = await promptTextInput("Enter your name to begin Project Intermesh.", "Ziad");
   refreshUi();
 
   await typeBlock(
     [
-      `${state.builderName} ready. Project Mesh setup logged.`,
-      "Main objective: deploy enough resilient Meshtastic nodes to keep Ridgecrest talking after the grid falls.",
+      `${state.builderName} ready. Project Intermesh setup logged.`,
+      "Main objective: deploy enough resilient Meshtastic nodes to keep people talking after the grid falls.",
       "Failure risks: low coverage, weak batteries, broken links, or an open channel that hostile listeners can exploit.",
     ],
     "system",
@@ -752,7 +752,7 @@ function renderWorkbenchCheckout(draft, budgetStart) {
       {
         value: "eu868",
         label: "EU 868 MHz",
-        description: "Wrong region for Ridgecrest.",
+        description: "Wrong region for this area.",
         meta: "Illegal locally // link penalty",
       },
       {
@@ -1010,7 +1010,7 @@ async function deployScience(runToken) {
     const gain = addCoverage(12);
     state.scienceRoof = true;
     addNode("science", `roof mount secured with professor approval (+${gain}% coverage)`);
-    setLocation("science", "deployed", "Roof access granted. Ridgecrest now has a real spine.");
+    setLocation("science", "deployed", "Roof access granted. The network now has a real spine.");
     await typeLine('"Ansari nods once. "That is an actual argument." He unlocks the roof hatch for you.', "success", runToken);
   } else {
     const gain = addCoverage(5);
@@ -1094,7 +1094,7 @@ async function deployValley(runToken) {
     addSupplies(1);
     addNode("valley", `high-gain residential relay clears the hills (+${gain}% coverage)`);
     setLocation("valley", "deployed", "High-gain antenna punches the valley back into town.");
-    await typeLine("Diego helps you sight the antenna line. The western district finally links cleanly to Ridgecrest proper.", "success", runToken);
+    await typeLine("Diego helps you sight the antenna line. The western district finally links cleanly to the main network.", "success", runToken);
     return;
   }
 
@@ -1252,7 +1252,7 @@ async function deployRadio(runToken) {
     const gain = addCoverage(7);
     addNode("radio", `tower-top mount with Geo spotting the climb (+${gain}% coverage)`);
     setLocation("radio", "deployed", "Tower node mounted above the station roofline.");
-    await typeLine("The tower sways, your hands shake, and the new relay paints a clean arc across central Ridgecrest. The climb costs 4 precious hours.", "success", runToken);
+    await typeLine("The tower sways, your hands shake, and the new relay paints a clean arc across the city center. The climb costs 4 precious hours.", "success", runToken);
     return;
   }
 
@@ -1332,7 +1332,7 @@ async function actDeployment(runToken) {
   await typeBlock(
     [
       "ACT II // COMMUNITY DEPLOYMENT",
-      "Ridgecrest is on the map. Choose your route carefully: every stop costs money, shapes the mesh, and changes who survives the outage together.",
+      "Your city is on the map. Choose your route carefully: every stop costs money, shapes the mesh, and changes who survives the outage together.",
     ],
     "system",
     runToken
@@ -1459,8 +1459,8 @@ async function actDiagnostics(runToken) {
   await typeBlock(
     [
       "Storm alert: derecho leading edge detected.",
-      "Grid instability spikes. Lights flicker across Ridgecrest and then vanish sector by sector.",
-      "Project Mesh becomes the only thing still awake.",
+      "Grid instability spikes. Lights flicker across the city and then vanish sector by sector.",
+      "Project Intermesh becomes the only thing still awake.",
     ],
     "alert",
     runToken
@@ -1516,7 +1516,7 @@ function determineEnding() {
       className: "success",
       lines: [
         "ENDING A // THE RESILIENT UTOPIA",
-        `Encrypted traffic hums through ${state.nodesDeployed.length} deployed nodes while Ridgecrest reorganizes itself around mutual aid instead of panic.`,
+        `Encrypted traffic hums through ${state.nodesDeployed.length} deployed nodes while the city reorganizes itself around mutual aid instead of panic.`,
         state.solarSupport
           ? "Your solar-backed valley repeater keeps the mesh alive long after the blackout should have broken it."
           : "Even without a solar repeater on every line, your disciplined build keeps the network standing when the town needs it most.",
@@ -1532,7 +1532,7 @@ function determineEnding() {
         "ENDING B // THE FRACTURED LIFELINE",
         "Your encrypted network works, but not for everyone who needed it.",
         "Some blocks stay connected while the valley edge, clinic corridor, or weakened relay path drops into silence.",
-        "Ridgecrest survives in pockets. The people close to you make it through the night together, and the people just beyond your best signal do not hear the call.",
+        "The city survives in pockets. The people close to you make it through the night together, and the people just beyond your best signal do not hear the call.",
       ],
     };
   }
@@ -1544,7 +1544,7 @@ function determineEnding() {
         "ENDING C // THE OPEN FREQUENCY",
         "The mesh spreads across town, and people absolutely use it.",
         "But the public channel means every anxious rumor, supply handoff, and family check-in leaks into the open air for anyone listening.",
-        "You built a lifeline, then left it unshielded. Ridgecrest remembers the help and the vulnerability in equal measure.",
+        "You built a lifeline, then left it unshielded. The city remembers the help and the vulnerability in equal measure.",
       ],
     };
   }
@@ -1556,7 +1556,7 @@ function determineEnding() {
         "ENDING D // THE DARK AGE",
         "Coverage never reached far enough, supplies stayed thin, and your weakest hardware choices fail exactly when the storm settles in.",
         "Basic batteries drain, unstable links vanish, and the terminal log fills with silence faster than messages.",
-        "Project Mesh collapses before Ridgecrest can rely on it. Everyone waits in the dark for outside help that is still days away.",
+        "Project Intermesh collapses before people can rely on it. Everyone waits in the dark for outside help that is still days away.",
       ],
     };
   }
@@ -1566,7 +1566,7 @@ function determineEnding() {
     lines: [
       "ENDING B // THE FRACTURED LIFELINE",
       "The network helps, but only in fragments.",
-      "You proved the concept, but a missing high point, missing supplies, or too many skipped deployments leaves Ridgecrest unevenly connected.",
+      "You proved the concept, but a missing high point, missing supplies, or too many skipped deployments leaves the city unevenly connected.",
       "People remember your effort. They also remember where the signal stopped.",
     ],
   };
@@ -1587,7 +1587,7 @@ async function showEnding(runToken) {
   restartButton.className = "choice-card";
   restartButton.innerHTML = `
     <strong>Start a new run</strong>
-    <span>Reset the terminal and try to secure Ridgecrest with a different route.</span>
+    <span>Reset the terminal and try to secure the city with a different route.</span>
     <small>Replay</small>
   `;
   restartButton.addEventListener("click", () => {

@@ -1,4 +1,4 @@
-# Project Mesh Monte Carlo Report
+# Project Intermesh Monte Carlo Report
 
 - Runs: **2000**
 - Seed: **99**

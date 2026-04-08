@@ -325,7 +325,7 @@ def write_report(report_path: Path, baseline: dict, sweep_results: list[dict], r
     current = next((r for r in sweep_results if r["is_current_config"]), None)
 
     lines = []
-    lines.append("# Project Mesh Monte Carlo Report")
+    lines.append("# Project Intermesh Monte Carlo Report")
     lines.append("")
     lines.append(f"- Runs: **{runs}**")
     lines.append(f"- Seed: **{seed}**")
@@ -370,7 +370,7 @@ def write_report(report_path: Path, baseline: dict, sweep_results: list[dict], r
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Monte Carlo simulator for Project Mesh balancing.")
+    parser = argparse.ArgumentParser(description="Monte Carlo simulator for Project Intermesh balancing.")
     parser.add_argument("--config", default="data/game_constants.json", help="Path to constants JSON")
     parser.add_argument("--runs", type=int, default=10000, help="Number of Monte Carlo runs")
     parser.add_argument("--seed", type=int, default=42, help="Random seed")
