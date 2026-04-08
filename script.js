@@ -2,7 +2,7 @@ const locationDefinitions = [
   {
     key: "science",
     title: "Campus Science Building",
-    contact: "Dr. Watanabe",
+    contact: "Dr. Ansari",
     elevation: "Maximum elevation",
     detail: "Critical line-of-sight point inside town.",
     outsideTown: false,
@@ -17,7 +17,7 @@ const locationDefinitions = [
   },
   {
     key: "sugar",
-    title: "Mitsuwa Market",
+    title: "International Grocery",
     contact: "Yoshiko",
     elevation: "Medium elevation",
     detail: "Classmate with a hatchback and a full gas tank.",
@@ -41,7 +41,7 @@ const locationDefinitions = [
   },
   {
     key: "health",
-    title: "Bast Health Center",
+    title: "Women's Health Clinic",
     contact: "Molly",
     elevation: "Medium elevation",
     detail: "Dense trees force a cleaner antenna setup.",
@@ -961,7 +961,7 @@ async function deployScience(runToken) {
   await typeBlock(
     [
       "Destination: Campus Science Building.",
-      "Dr. Watanabe leans in the observatory doorway, unimpressed by panic and very impressed by evidence.",
+      "Dr. Ansari leans in the observatory doorway, unimpressed by panic and very impressed by evidence.",
       '"Give me one reason this belongs on my roof," he says.',
     ],
     "system",
@@ -1011,7 +1011,7 @@ async function deployScience(runToken) {
     state.scienceRoof = true;
     addNode("science", `roof mount secured with professor approval (+${gain}% coverage)`);
     setLocation("science", "deployed", "Roof access granted. Ridgecrest now has a real spine.");
-    await typeLine('"Watanabe nods once. "That is an actual argument." He unlocks the roof hatch for you.', "success", runToken);
+    await typeLine('"Ansari nods once. "That is an actual argument." He unlocks the roof hatch for you.', "success", runToken);
   } else {
     const gain = addCoverage(5);
     state.scienceRoof = false;
@@ -1115,7 +1115,7 @@ async function deploySugar(runToken) {
   }
   await typeBlock(
     [
-      "Destination: Mitsuwa Market.",
+      "Destination: International Grocery.",
       "Yoshiko eyes your gear, then your empty wallet, then tosses you her keys.",
       '"You put a node here, I drive you wherever else you need to go," she says.',
     ],
@@ -1129,12 +1129,12 @@ async function deploySugar(runToken) {
       {
         value: "deploy",
         label: "Trade a node for logistics support",
-        description: "Place a node at Mitsuwa, earn supplies, and let Yoshiko absorb later travel costs.",
+        description: "Place a node at International Grocery, earn supplies, and let Yoshiko absorb later travel costs.",
         meta: "Uses 1 node",
       },
       {
         value: "skip",
-        label: "Skip Mitsuwa Market",
+        label: "Skip International Grocery",
         description: "Save the node cost, but lose transport help and a busy community stop.",
         meta: "No cost",
       },
@@ -1142,16 +1142,16 @@ async function deploySugar(runToken) {
   );
 
   if (choice === "skip") {
-    setLocation("sugar", "skipped", "No node placed at Mitsuwa Market. Yoshiko keeps her keys.");
-    await typeLine("You pass on Mitsuwa. The next deployments stay slower and more expensive in spirit, if not on paper.", "warn", runToken);
+    setLocation("sugar", "skipped", "No node placed at International Grocery. Yoshiko keeps her keys.");
+    await typeLine("You pass on International Grocery. The next deployments stay slower and more expensive in spirit, if not on paper.", "warn", runToken);
     return;
   }
 
   const gain = addCoverage(5);
   addSupplies(1);
   state.yoshikoDrive = true;
-  addNode("sugar", `Mitsuwa node online; Yoshiko now gives you free rides outside town (+${gain}% coverage)`);
-  setLocation("sugar", "deployed", "Mitsuwa Market linked. Yoshiko starts driving your route.");
+  addNode("sugar", `International Grocery node online; Yoshiko now gives you free rides outside town (+${gain}% coverage)`);
+  setLocation("sugar", "deployed", "International Grocery linked. Yoshiko starts driving your route.");
   await typeLine("Yoshiko tops off her tank and waves you in. The market goes live, and your out-of-town travel rides are now free.", "success", runToken);
 }
 
@@ -1270,7 +1270,7 @@ async function deployHealth(runToken) {
   }
   await typeBlock(
     [
-      "Destination: Bast Health Center.",
+      "Destination: Women's Health Clinic.",
       "Molly leads you behind the building where trees and wet branches turn the air into a green wall.",
       "Dense foliage here demands better hardware than a naked stock antenna.",
     ],
@@ -1325,7 +1325,7 @@ async function deployHealth(runToken) {
   const gain = addCoverage(8);
   addNode("health", `high-gain clinic relay clears the tree line (+${gain}% coverage)`);
   setLocation("health", "deployed", "Clinic relay pushes cleanly through the canopy.");
-  await typeLine("The upgraded antenna slices through the foliage. Bast Health now has a reliable lifeline.", "success", runToken);
+  await typeLine("The upgraded antenna slices through the foliage. Women's Health Clinic now has a reliable lifeline.", "success", runToken);
 }
 
 async function actDeployment(runToken) {
@@ -1402,7 +1402,7 @@ async function actDiagnostics(runToken) {
     issues.push("Valley West packets fade into the surrounding hills.");
   }
   if (state.healthWeak) {
-    issues.push("Bast Health traffic is vanishing into foliage.");
+    issues.push("Women's Health Clinic traffic is vanishing into foliage.");
   }
 
   if (issues.length) {
