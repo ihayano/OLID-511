@@ -65,7 +65,6 @@ const dom = {
   hardware: document.getElementById("hardware-stat"),
   nodes: document.getElementById("nodes-stat"),
   builderBadge: document.getElementById("builder-badge"),
-  nodeList: document.getElementById("node-list"),
   workbenchPanel: document.getElementById("workbench-panel"),
   workbenchSections: document.getElementById("workbench-sections"),
   workbenchBudgetHint: document.getElementById("workbench-budget-hint"),
@@ -276,26 +275,8 @@ async function playBootSequence(runToken) {
   dom.bootScreen.setAttribute("aria-hidden", "true");
 }
 
-function renderNodeLedger() {
-  dom.nodeList.innerHTML = "";
-
-  if (!state.nodesDeployed.length) {
-    const empty = document.createElement("li");
-    empty.textContent = "No nodes deployed yet.";
-    dom.nodeList.appendChild(empty);
-    return;
-  }
-
-  state.nodesDeployed.forEach((node) => {
-    const item = document.createElement("li");
-    item.innerHTML = `<strong>${node.location}</strong><br />${node.hardware} // ${node.note}`;
-    dom.nodeList.appendChild(item);
-  });
-}
-
 function refreshUi() {
   updateStats();
-  renderNodeLedger();
 }
 
 function changeBudget(amount) {
