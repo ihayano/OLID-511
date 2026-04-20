@@ -75,12 +75,20 @@ const dom = {
   workbenchBudgetHint: document.getElementById("workbench-budget-hint"),
   workbenchTotalLine: document.getElementById("workbench-total-line"),
   workbenchConfirm: document.getElementById("workbench-confirm"),
+  themeToggle: document.getElementById("theme-toggle"),
+  bootScreen: document.getElementById("boot-screen"),
 };
 
-const typingDelay = 8;
-const pauseBetweenLines = 120;
+const typingDelay = 22;
+const pauseBetweenLines = 220;
+const bootLineRevealDelay = 420;
+const bootExitDelay = 1100;
+const themeStorageKey = "project-intermesh-theme";
+const hotkeyLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 let currentRunToken = 0;
 let currentMapIndex = 0;
+let activeCursorRow = null;
+let activeHotkeys = new Map();
 
 function createInitialState() {
   const locationStatuses = {};
@@ -130,8 +138,59 @@ function wait(ms) {
   return new Promise((resolve) => window.setTimeout(resolve, ms));
 }
 
+function setActiveCursor(row) {
+  if (activeCursorRow && activeCursorRow !== row) {
+    activeCursorRow.classList.remove("typing");
+  }
+
+  activeCursorRow = row || null;
+
+  if (activeCursorRow) {
+    activeCursorRow.classList.add("typing");
+  }
+}
+
 function clearChoices() {
+  clearActiveHotkeys();
   dom.choicePanel.innerHTML = "";
+}
+
+function clearActiveHotkeys() {
+  activeHotkeys.forEach((button) => {
+    button.classList.remove("is-hotkey-focus");
+  });
+  activeHotkeys = new Map();
+}
+
+function assignHotkey(button, index) {
+  const hotkey = hotkeyLetters[index];
+  if (!hotkey) {
+    button.dataset.hotkey = "";
+    return;
+  }
+
+  button.dataset.hotkey = `[${hotkey}]`;
+
+  if (!button.disabled) {
+    activeHotkeys.set(hotkey.toLowerCase(), button);
+  }
+}
+
+function bindButtonChoice(button, onPick) {
+  button.addEventListener("click", () => {
+    if (button.disabled) {
+      return;
+    }
+
+    clearActiveHotkeys();
+    hideInput();
+    onPick();
+  });
+}
+
+function clearTerminal() {
+  setActiveCursor(null);
+  dom.terminal.innerHTML = "";
 }
 
 function showInput(label, placeholder = "") {
@@ -161,9 +220,11 @@ async function typeLine(text, className = "", runToken = currentRunToken) {
   }
 
   const row = appendLineElement(className);
+  setActiveCursor(row);
 
   for (let index = 0; index < text.length; index += 1) {
     if (runToken !== currentRunToken) {
+      setActiveCursor(null);
       return;
     }
 
@@ -172,6 +233,7 @@ async function typeLine(text, className = "", runToken = currentRunToken) {
     await wait(typingDelay);
   }
 
+  setActiveCursor(null);
   await wait(pauseBetweenLines);
 }
 
@@ -190,6 +252,55 @@ function updateStats() {
   dom.hardware.textContent = state.hardware || "Not selected";
   dom.nodes.textContent = `${state.nodesDeployed.length} / ${state.nodesPurchased}`;
   dom.builderBadge.textContent = `Builder: ${state.builderName} // T-${state.hoursRemaining}H`;
+}
+
+function applyTheme(theme) {
+  const nextTheme = theme === "amber" ? "amber" : "green";
+  document.body.dataset.theme = nextTheme;
+  dom.themeToggle.textContent = `Theme: ${nextTheme.toUpperCase()}`;
+  window.localStorage.setItem(themeStorageKey, nextTheme);
+}
+
+function toggleTheme() {
+  const currentTheme = document.body.dataset.theme === "amber" ? "amber" : "green";
+  applyTheme(currentTheme === "green" ? "amber" : "green");
+}
+
+function initializeTheme() {
+  const storedTheme = window.localStorage.getItem(themeStorageKey);
+  applyTheme(storedTheme === "amber" ? "amber" : "green");
+}
+
+async function playBootSequence(runToken) {
+  if (runToken !== currentRunToken) {
+    return;
+  }
+
+  dom.bootScreen.classList.add("boot-screen--visible");
+  dom.bootScreen.setAttribute("aria-hidden", "false");
+
+  const lines = Array.from(dom.bootScreen.querySelectorAll(".boot-screen__line"));
+  lines.forEach((line) => {
+    line.classList.remove("is-visible");
+  });
+
+  for (const line of lines) {
+    if (runToken !== currentRunToken) {
+      return;
+    }
+
+    line.classList.add("is-visible");
+    await wait(bootLineRevealDelay);
+  }
+
+  await wait(bootExitDelay);
+
+  if (runToken !== currentRunToken) {
+    return;
+  }
+
+  dom.bootScreen.classList.remove("boot-screen--visible");
+  dom.bootScreen.setAttribute("aria-hidden", "true");
 }
 
 function badgeClass(status) {
@@ -214,32 +325,22 @@ function renderMap() {
     if (info.resolved) {
       resolvedCount += 1;
     }
+    const card = document.createElement("article");
+    card.className = "map-card";
+    card.innerHTML = `
+      <h3>${location.title}</h3>
+      <p>${location.contact} // ${location.elevation}<br />${location.detail}</p>
+      <div class="badge-row">
+        <span class="badge ${badgeClass(info.status)}">${info.status}</span>
+      </div>
+      <p>${info.note}</p>
+    `;
+    dom.mapGrid.appendChild(card);
   });
 
-  if (currentMapIndex < 0) {
-    currentMapIndex = 0;
-  }
-  if (currentMapIndex >= locationDefinitions.length) {
-    currentMapIndex = locationDefinitions.length - 1;
-  }
-
-  const location = locationDefinitions[currentMapIndex];
-  const info = state.locationStatuses[location.key];
-  const card = document.createElement("article");
-  card.className = "map-card";
-  card.innerHTML = `
-    <h3>${location.title}</h3>
-    <p>${location.contact} // ${location.elevation}<br />${location.detail}</p>
-    <div class="badge-row">
-      <span class="badge ${badgeClass(info.status)}">${info.status}</span>
-    </div>
-    <p>${info.note}</p>
-  `;
-  dom.mapGrid.appendChild(card);
-
-  dom.mapSummary.textContent = `${resolvedCount} / ${locationDefinitions.length} resolved // ${currentMapIndex + 1}/${locationDefinitions.length}`;
-  dom.mapPrev.disabled = currentMapIndex === 0;
-  dom.mapNext.disabled = currentMapIndex === locationDefinitions.length - 1;
+  dom.mapSummary.textContent = `${resolvedCount} / ${locationDefinitions.length} resolved`;
+  dom.mapPrev.disabled = true;
+  dom.mapNext.disabled = true;
 }
 
 function renderNodeLedger() {
@@ -357,7 +458,7 @@ async function applyTravelIfNeeded(locationKey, runToken) {
   return true;
 }
 
-function createChoiceButton(option, resolve) {
+function createChoiceButton(option, resolve, index) {
   const button = document.createElement("button");
   button.type = "button";
   button.className = "choice-card";
@@ -377,11 +478,8 @@ function createChoiceButton(option, resolve) {
     }
   }
 
-  button.addEventListener("click", async () => {
-    clearChoices();
-    hideInput();
-    resolve(option.value);
-  });
+  assignHotkey(button, index);
+  bindButtonChoice(button, () => resolve(option.value));
 
   dom.choicePanel.appendChild(button);
 }
@@ -391,7 +489,7 @@ async function promptChoice(promptLines, options) {
 
   return new Promise((resolve) => {
     clearChoices();
-    options.forEach((option) => createChoiceButton(option, resolve));
+    options.forEach((option, index) => createChoiceButton(option, resolve, index));
   });
 }
 
@@ -493,6 +591,7 @@ function clampWorkbenchNodes(draft, budgetStart) {
 }
 
 function closeWorkbenchPanel() {
+  clearActiveHotkeys();
   dom.workbenchPanel.classList.add("hidden");
   dom.workbenchPanel.setAttribute("aria-hidden", "true");
   dom.workbenchSections.replaceChildren();
@@ -500,7 +599,7 @@ function closeWorkbenchPanel() {
   dom.workbenchConfirm.onclick = null;
 }
 
-function workbenchAddRow(container, title, options, onPick, selectedValue) {
+function workbenchAddRow(container, title, options, onPick, selectedValue, hotkeyOffset) {
   const section = document.createElement("div");
   section.className = "workbench-section";
   const h = document.createElement("h3");
@@ -510,7 +609,7 @@ function workbenchAddRow(container, title, options, onPick, selectedValue) {
   const row = document.createElement("div");
   row.className = "workbench-row";
 
-  options.forEach((opt) => {
+  options.forEach((opt, index) => {
     const btn = document.createElement("button");
     btn.type = "button";
     btn.className = "choice-card workbench-option";
@@ -520,15 +619,14 @@ function workbenchAddRow(container, title, options, onPick, selectedValue) {
     if (selectedValue === opt.value) {
       btn.classList.add("workbench-selected");
     }
-    btn.addEventListener("click", () => {
-      if (btn.disabled) return;
-      onPick(opt.value);
-    });
+    assignHotkey(btn, hotkeyOffset + index);
+    bindButtonChoice(btn, () => onPick(opt.value));
     row.appendChild(btn);
   });
 
   section.appendChild(row);
   container.appendChild(section);
+  return hotkeyOffset + options.length;
 }
 
 function syncWorkbenchFooter(draft, budgetStart) {
@@ -554,11 +652,13 @@ function syncWorkbenchFooter(draft, budgetStart) {
 }
 
 function renderWorkbenchCheckout(draft, budgetStart) {
+  clearActiveHotkeys();
   clampWorkbenchNodes(draft, budgetStart);
   dom.workbenchSections.replaceChildren();
   const maxN = workbenchMaxNodes(draft, budgetStart);
+  let hotkeyIndex = 0;
 
-  workbenchAddRow(
+  hotkeyIndex = workbenchAddRow(
     dom.workbenchSections,
     "1) Hardware (sets price per node)",
     [
@@ -580,7 +680,8 @@ function renderWorkbenchCheckout(draft, budgetStart) {
       renderWorkbenchCheckout(draft, budgetStart);
       syncWorkbenchFooter(draft, budgetStart);
     },
-    draft.hardware
+    draft.hardware,
+    hotkeyIndex
   );
 
   const nodeOptions = [];
@@ -596,7 +697,7 @@ function renderWorkbenchCheckout(draft, budgetStart) {
       disabled: !draft.hardware || n > maxN,
     });
   }
-  workbenchAddRow(
+  hotkeyIndex = workbenchAddRow(
     dom.workbenchSections,
     "2) How many nodes to buy (max 6 sites)",
     nodeOptions,
@@ -605,10 +706,11 @@ function renderWorkbenchCheckout(draft, budgetStart) {
       renderWorkbenchCheckout(draft, budgetStart);
       syncWorkbenchFooter(draft, budgetStart);
     },
-    draft.nodes
+    draft.nodes,
+    hotkeyIndex
   );
 
-  workbenchAddRow(
+  hotkeyIndex = workbenchAddRow(
     dom.workbenchSections,
     "3) Add-ons (need both for science roof + radio tower)",
     [
@@ -642,10 +744,11 @@ function renderWorkbenchCheckout(draft, budgetStart) {
       renderWorkbenchCheckout(draft, budgetStart);
       syncWorkbenchFooter(draft, budgetStart);
     },
-    draft.addOn
+    draft.addOn,
+    hotkeyIndex
   );
 
-  workbenchAddRow(
+  hotkeyIndex = workbenchAddRow(
     dom.workbenchSections,
     "4) Firmware",
     [
@@ -667,10 +770,11 @@ function renderWorkbenchCheckout(draft, budgetStart) {
       renderWorkbenchCheckout(draft, budgetStart);
       syncWorkbenchFooter(draft, budgetStart);
     },
-    draft.firmware
+    draft.firmware,
+    hotkeyIndex
   );
 
-  workbenchAddRow(
+  hotkeyIndex = workbenchAddRow(
     dom.workbenchSections,
     "5) Frequency plan",
     [
@@ -698,10 +802,11 @@ function renderWorkbenchCheckout(draft, budgetStart) {
       renderWorkbenchCheckout(draft, budgetStart);
       syncWorkbenchFooter(draft, budgetStart);
     },
-    draft.frequency
+    draft.frequency,
+    hotkeyIndex
   );
 
-  workbenchAddRow(
+  hotkeyIndex = workbenchAddRow(
     dom.workbenchSections,
     "6) Mesh preset",
     [
@@ -729,7 +834,8 @@ function renderWorkbenchCheckout(draft, budgetStart) {
       renderWorkbenchCheckout(draft, budgetStart);
       syncWorkbenchFooter(draft, budgetStart);
     },
-    draft.preset
+    draft.preset,
+    hotkeyIndex
   );
 
   workbenchAddRow(
@@ -754,7 +860,8 @@ function renderWorkbenchCheckout(draft, budgetStart) {
       renderWorkbenchCheckout(draft, budgetStart);
       syncWorkbenchFooter(draft, budgetStart);
     },
-    draft.security
+    draft.security,
+    hotkeyIndex
   );
 }
 
@@ -834,6 +941,7 @@ function runWorkbenchCheckout() {
     renderWorkbenchCheckout(draft, budgetStart);
     syncWorkbenchFooter(draft, budgetStart);
 
+    dom.workbenchConfirm.dataset.hotkey = "[ENTER]";
     dom.workbenchConfirm.onclick = () => {
       if (dom.workbenchConfirm.disabled) return;
       closeWorkbenchPanel();
@@ -843,6 +951,7 @@ function runWorkbenchCheckout() {
 }
 
 async function actWorkbench(runToken) {
+  clearTerminal();
   await typeBlock(
     [
       "ACT I // THE WORKBENCH",
@@ -1259,6 +1368,7 @@ async function deployHealth(runToken) {
 }
 
 async function actDeployment(runToken) {
+  clearTerminal();
   await typeBlock(
     [
       "ACT II // COMMUNITY DEPLOYMENT",
@@ -1317,6 +1427,7 @@ async function actDeployment(runToken) {
 }
 
 async function actDiagnostics(runToken) {
+  clearTerminal();
   await typeBlock(
     [
       "ACT III // CRISIS AND TROUBLESHOOTING",
@@ -1397,6 +1508,7 @@ async function actDiagnostics(runToken) {
 }
 
 async function actMutualAid(runToken) {
+  clearTerminal();
   await typeBlock(
     [
       "Mutual aid request incoming.",
@@ -1502,6 +1614,7 @@ function determineEnding() {
 }
 
 async function showEnding(runToken) {
+  clearTerminal();
   const ending = determineEnding();
   await typeBlock(ending.lines, ending.className, runToken);
   await typeLine(
@@ -1537,6 +1650,8 @@ async function runGame(runToken) {
 function resetState() {
   state = createInitialState();
   currentMapIndex = 0;
+  clearActiveHotkeys();
+  setActiveCursor(null);
   dom.terminal.innerHTML = "";
   clearChoices();
   hideInput();
@@ -1549,18 +1664,44 @@ function bindControls() {
     startGame();
   });
 
+  dom.themeToggle.addEventListener("click", () => {
+    toggleTheme();
+  });
+
   dom.mapPrev.addEventListener("click", () => {
-    if (currentMapIndex > 0) {
-      currentMapIndex -= 1;
-      renderMap();
-    }
   });
 
   dom.mapNext.addEventListener("click", () => {
-    if (currentMapIndex < locationDefinitions.length - 1) {
-      currentMapIndex += 1;
-      renderMap();
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.defaultPrevented) {
+      return;
     }
+
+    const target = event.target;
+    const editingInput =
+      target instanceof HTMLElement &&
+      (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable);
+
+    if (editingInput) {
+      return;
+    }
+
+    if (event.key === "Enter" && !dom.workbenchConfirm.disabled && !dom.workbenchPanel.classList.contains("hidden")) {
+      dom.workbenchConfirm.click();
+      return;
+    }
+
+    const hotkeyTarget = activeHotkeys.get(event.key.toLowerCase());
+    if (!hotkeyTarget) {
+      return;
+    }
+
+    event.preventDefault();
+    hotkeyTarget.classList.add("is-hotkey-focus");
+    window.setTimeout(() => hotkeyTarget.classList.remove("is-hotkey-focus"), 120);
+    hotkeyTarget.click();
   });
 }
 
@@ -1568,10 +1709,12 @@ async function startGame() {
   currentRunToken += 1;
   const runToken = currentRunToken;
   resetState();
+  await playBootSequence(runToken);
 
   await runGame(runToken);
 }
 
 bindControls();
+initializeTheme();
 refreshUi();
 startGame();
