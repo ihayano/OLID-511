@@ -107,27 +107,24 @@ def summarize(runs: list[dict]) -> dict:
         return mean(values) if values else 0.0
 
     hardware_counter: Counter[str] = Counter()
-    band_counter: Counter[str] = Counter()
-    preset_counter: Counter[str] = Counter()
     firmware_counter: Counter[str] = Counter()
-    security_counter: Counter[str] = Counter()
-    add_on_counter: Counter[str] = Counter()
+    cases_counter: Counter[int] = Counter()
+    solar_counter: Counter[int] = Counter()
+    cat_carrier_counter: Counter[str] = Counter()
     nodes_purchased_values: list[int] = []
 
     for r in completed:
         wb = _event(r, "workbench_committed") or {}
         if wb.get("hardware"):
             hardware_counter[wb["hardware"]] += 1
-        if wb.get("frequency"):
-            band_counter[wb["frequency"]] += 1
-        if wb.get("preset"):
-            preset_counter[wb["preset"]] += 1
         if wb.get("firmware"):
             firmware_counter[wb["firmware"]] += 1
-        if wb.get("security"):
-            security_counter[wb["security"]] += 1
-        if wb.get("add_on"):
-            add_on_counter[wb["add_on"]] += 1
+        if isinstance(wb.get("weatherproof_cases"), int):
+            cases_counter[wb["weatherproof_cases"]] += 1
+        if isinstance(wb.get("solar_panels"), int):
+            solar_counter[wb["solar_panels"]] += 1
+        if "cat_carrier" in wb:
+            cat_carrier_counter["yes" if wb["cat_carrier"] else "no"] += 1
         if isinstance(wb.get("nodes_purchased"), int):
             nodes_purchased_values.append(wb["nodes_purchased"])
 
@@ -157,11 +154,10 @@ def summarize(runs: list[dict]) -> dict:
         "avg_nodes_used": avg("nodes_used"),
         "avg_nodes_purchased": mean(nodes_purchased_values) if nodes_purchased_values else 0.0,
         "hardware": dict(hardware_counter),
-        "band": dict(band_counter),
-        "preset": dict(preset_counter),
         "firmware": dict(firmware_counter),
-        "security": dict(security_counter),
-        "add_ons": dict(add_on_counter),
+        "weatherproof_cases": {str(k): v for k, v in cases_counter.items()},
+        "solar_panels": {str(k): v for k, v in solar_counter.items()},
+        "cat_carrier": dict(cat_carrier_counter),
         "location_outcomes": {loc: dict(counter) for loc, counter in location_outcomes.items()},
         "travel_walks": dict(travel_walks),
         "diagnostics": {
@@ -206,11 +202,10 @@ def render_markdown(summary: dict) -> str:
     lines.append("")
     total = summary["finished_runs"]
     lines.append(f"- Hardware: {_top_n(summary['hardware'], total)}")
-    lines.append(f"- Frequency band: {_top_n(summary['band'], total)}")
-    lines.append(f"- Preset: {_top_n(summary['preset'], total)}")
     lines.append(f"- Firmware: {_top_n(summary['firmware'], total)}")
-    lines.append(f"- Security: {_top_n(summary['security'], total)}")
-    lines.append(f"- Add-ons: {_top_n(summary['add_ons'], total)}")
+    lines.append(f"- Weatherproof cases purchased: {_top_n(summary['weatherproof_cases'], total)}")
+    lines.append(f"- Solar panels purchased: {_top_n(summary['solar_panels'], total)}")
+    lines.append(f"- Portable cat carrier: {_top_n(summary['cat_carrier'], total)}")
     lines.append("")
     lines.append("## Per-location outcomes")
     lines.append("")
@@ -231,7 +226,7 @@ def render_markdown(summary: dict) -> str:
     lines.append("")
     lines.append("## Use with the Monte Carlo report")
     lines.append("")
-    lines.append("Compare the ending percentages above to `reports/monte_carlo_report.md`. Large gaps mean the simulator's uniform choice priors do not match how real players play -- feed the observed `hardware`/`band`/`preset`/`firmware` rates back into `tools/simulate_monte_carlo.py` as weighted choices to re-balance.")
+    lines.append("Compare the ending percentages above to `reports/monte_carlo_report.md`. Large gaps mean the simulator's uniform choice priors do not match how real players play -- feed the observed `hardware`/`firmware`/add-on rates back into `tools/simulate_monte_carlo.py` as weighted choices to re-balance.")
     lines.append("")
     return "\n".join(lines)
 

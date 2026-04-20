@@ -125,8 +125,9 @@ function createInitialState() {
     yoshikoDrive: false,
     batteryFragile: false,
     hoursRemaining: 84,
-    weatherproofCase: false,
-    solarPanel: false,
+    weatherproofCases: 0,
+    solarPanels: 0,
+    catCarrier: false,
     locationStatuses,
   };
 }
@@ -529,14 +530,20 @@ async function introSequence(runToken) {
 
 function getNodeCostForHardware(hw) {
   if (hw === "heltec") return 30;
+  if (hw === "tbeam") return 40;
   if (hw === "rak") return 50;
   return 0;
 }
 
-function getAddOnCost(addOn) {
-  if (addOn === "both") return 80;
-  if (addOn === "case" || addOn === "solar") return 40;
-  return 0;
+const CASE_UNIT_COST = 40;
+const SOLAR_UNIT_COST = 40;
+const CAT_CARRIER_COST = 50;
+
+function getAddOnCost(draft) {
+  const cases = draft.cases || 0;
+  const solar = draft.solar || 0;
+  const carrier = draft.catCarrier === "yes" ? CAT_CARRIER_COST : 0;
+  return cases * CASE_UNIT_COST + solar * SOLAR_UNIT_COST + carrier;
 }
 
 function workbenchFirmwareCost(firmware) {
@@ -546,13 +553,13 @@ function workbenchFirmwareCost(firmware) {
 function workbenchCartTotal(draft) {
   const nc = getNodeCostForHardware(draft.hardware);
   const nodes = draft.nodes != null ? draft.nodes : 0;
-  return nodes * nc + getAddOnCost(draft.addOn) + workbenchFirmwareCost(draft.firmware);
+  return nodes * nc + getAddOnCost(draft) + workbenchFirmwareCost(draft.firmware);
 }
 
 function workbenchMaxNodes(draft, budgetStart) {
   const nc = getNodeCostForHardware(draft.hardware);
   if (!nc) return 0;
-  const reserved = getAddOnCost(draft.addOn) + workbenchFirmwareCost(draft.firmware);
+  const reserved = getAddOnCost(draft) + workbenchFirmwareCost(draft.firmware);
   const left = budgetStart - reserved;
   if (left < nc) return 0;
   return Math.min(6, Math.floor(left / nc));
@@ -606,21 +613,26 @@ function syncWorkbenchFooter(draft, budgetStart) {
   const allSet = Boolean(
     draft.hardware &&
       draft.nodes != null &&
-      draft.addOn != null &&
-      draft.firmware &&
-      draft.frequency &&
-      draft.preset &&
-      draft.security
+      draft.cases != null &&
+      draft.solar != null &&
+      draft.catCarrier != null &&
+      draft.firmware
   );
   const over = total > budgetStart;
   if (allSet && !over) {
     dom.workbenchTotalLine.textContent = `Cart total: $${total} // Cash left after checkout: $${budgetStart - total}`;
   } else if (over && allSet) {
-    dom.workbenchTotalLine.textContent = `Cart total: $${total} — over budget by $${total - budgetStart}. Adjust selections.`;
+    dom.workbenchTotalLine.textContent = `Cart total: $${total} -- over budget by $${total - budgetStart}. Adjust selections.`;
   } else {
     dom.workbenchTotalLine.textContent = `Cart so far: $${total} // Finish every category to lock in budget.`;
   }
   dom.workbenchConfirm.disabled = !allSet || over;
+}
+
+function countMeta(count, unitCost, siteLabel) {
+  if (count === 0) return "Cost: $0";
+  if (count === 1) return `Cost: $${unitCost} // covers one of ${siteLabel}`;
+  return `Cost: $${unitCost * count} // covers both ${siteLabel}`;
 }
 
 function renderWorkbenchCheckout(draft, budgetStart) {
@@ -637,6 +649,12 @@ function renderWorkbenchCheckout(draft, budgetStart) {
         label: "Heltec V3",
         description: "Cheap and common. Less forgiving if you make mistakes.",
         meta: "Per node: $30",
+      },
+      {
+        value: "tbeam",
+        label: "LilyGO T-Beam",
+        description: "GPS-equipped all-rounder. Middle of the pack on cost and reach.",
+        meta: "Per node: $40",
       },
       {
         value: "rak",
@@ -657,12 +675,12 @@ function renderWorkbenchCheckout(draft, budgetStart) {
   for (let n = 1; n <= 6; n += 1) {
     const nc = getNodeCostForHardware(draft.hardware);
     const nodeLineCost = n * nc;
-    const withExtras = nodeLineCost + getAddOnCost(draft.addOn) + workbenchFirmwareCost(draft.firmware);
+    const withExtras = nodeLineCost + getAddOnCost(draft) + workbenchFirmwareCost(draft.firmware);
     nodeOptions.push({
       value: n,
       label: `${n} node${n === 1 ? "" : "s"}`,
       description: nc ? `Subtotal ${n} × $${nc} = $${nodeLineCost}` : "Pick hardware first.",
-      meta: !draft.hardware ? "Locked" : withExtras > budgetStart ? "Over budget with current add-on/firmware" : "Within budget",
+      meta: !draft.hardware ? "Locked" : withExtras > budgetStart ? "Over budget with current add-ons/firmware" : "Within budget",
       disabled: !draft.hardware || n > maxN,
     });
   }
@@ -680,44 +698,94 @@ function renderWorkbenchCheckout(draft, budgetStart) {
 
   workbenchAddRow(
     dom.workbenchSections,
-    "3) Add-ons (need both for science roof + radio tower)",
+    "3) Weatherproof cases",
     [
       {
-        value: "both",
-        label: "Weatherproof case + Solar panel",
-        description: "Enables science roof + radio tower installs.",
-        meta: "Cost: $80",
+        value: 0,
+        label: "0 cases",
+        description: "Skip weatherproofing.",
+        meta: countMeta(0, CASE_UNIT_COST, ""),
       },
       {
-        value: "case",
-        label: "Weatherproof case",
-        description: "Outdoor protection only.",
-        meta: "Cost: $40",
+        value: 1,
+        label: "1 case",
+        description: "Protects one outdoor install (roof OR tower).",
+        meta: countMeta(1, CASE_UNIT_COST, "science roof or radio tower"),
       },
       {
-        value: "solar",
-        label: "Solar panel",
-        description: "Power endurance only.",
-        meta: "Cost: $40",
-      },
-      {
-        value: "none",
-        label: "Skip add-ons",
-        description: "Save cash; rooftop/tower installs stay locked.",
-        meta: "Cost: $0",
+        value: 2,
+        label: "2 cases",
+        description: "Enough outdoor protection for science roof AND radio tower.",
+        meta: countMeta(2, CASE_UNIT_COST, "science roof and radio tower"),
       },
     ],
     (value) => {
-      draft.addOn = value;
+      draft.cases = value;
       renderWorkbenchCheckout(draft, budgetStart);
       syncWorkbenchFooter(draft, budgetStart);
     },
-    draft.addOn
+    draft.cases
   );
 
   workbenchAddRow(
     dom.workbenchSections,
-    "4) Firmware",
+    "4) Solar panels",
+    [
+      {
+        value: 0,
+        label: "0 panels",
+        description: "Skip solar.",
+        meta: countMeta(0, SOLAR_UNIT_COST, ""),
+      },
+      {
+        value: 1,
+        label: "1 panel",
+        description: "Powers one outdoor install (roof OR tower).",
+        meta: countMeta(1, SOLAR_UNIT_COST, "science roof or radio tower"),
+      },
+      {
+        value: 2,
+        label: "2 panels",
+        description: "Powers both science roof AND radio tower.",
+        meta: countMeta(2, SOLAR_UNIT_COST, "science roof and radio tower"),
+      },
+    ],
+    (value) => {
+      draft.solar = value;
+      renderWorkbenchCheckout(draft, budgetStart);
+      syncWorkbenchFooter(draft, budgetStart);
+    },
+    draft.solar
+  );
+
+  workbenchAddRow(
+    dom.workbenchSections,
+    "5) Portable cat carrier",
+    [
+      {
+        value: "no",
+        label: "No carrier",
+        description: "Leave the neighborhood cat fund off your cart.",
+        meta: "Cost: $0",
+      },
+      {
+        value: "yes",
+        label: "Buy portable cat carrier",
+        description: "Keep the neighborhood evacuation kit stocked.",
+        meta: `Cost: $${CAT_CARRIER_COST}`,
+      },
+    ],
+    (value) => {
+      draft.catCarrier = value;
+      renderWorkbenchCheckout(draft, budgetStart);
+      syncWorkbenchFooter(draft, budgetStart);
+    },
+    draft.catCarrier
+  );
+
+  workbenchAddRow(
+    dom.workbenchSections,
+    "6) Firmware",
     [
       {
         value: "stable",
@@ -739,99 +807,15 @@ function renderWorkbenchCheckout(draft, budgetStart) {
     },
     draft.firmware
   );
-
-  workbenchAddRow(
-    dom.workbenchSections,
-    "5) Frequency plan",
-    [
-      {
-        value: "us915",
-        label: "US 915 MHz",
-        description: "Legal here; behaves correctly.",
-        meta: "Compliance safe",
-      },
-      {
-        value: "eu868",
-        label: "EU 868 MHz",
-        description: "Wrong region for this area.",
-        meta: "Illegal locally // link penalty",
-      },
-      {
-        value: "lab433",
-        label: "433 MHz lab profile",
-        description: "Dangerous experiment.",
-        meta: "Do not do this",
-      },
-    ],
-    (value) => {
-      draft.frequency = value;
-      renderWorkbenchCheckout(draft, budgetStart);
-      syncWorkbenchFooter(draft, budgetStart);
-    },
-    draft.frequency
-  );
-
-  workbenchAddRow(
-    dom.workbenchSections,
-    "6) Mesh preset",
-    [
-      {
-        value: "longfast",
-        label: "Long Range - Fast",
-        description: "Best balance for emergency text across town.",
-        meta: "Recommended",
-      },
-      {
-        value: "balanced",
-        label: "Balanced",
-        description: "Gives up reach.",
-        meta: "Coverage penalty",
-      },
-      {
-        value: "turbo",
-        label: "Turbo throughput",
-        description: "Fast bursts; bad endurance.",
-        meta: "Battery risk",
-      },
-    ],
-    (value) => {
-      draft.preset = value;
-      renderWorkbenchCheckout(draft, budgetStart);
-      syncWorkbenchFooter(draft, budgetStart);
-    },
-    draft.preset
-  );
-
-  workbenchAddRow(
-    dom.workbenchSections,
-    "7) Security",
-    [
-      {
-        value: "secure",
-        label: "Generate AES-256 key",
-        description: "Private channel; safer mutual aid.",
-        meta: "Secure comms",
-      },
-      {
-        value: "public",
-        label: "Leave channel public",
-        description: "Easier to join; anyone can listen.",
-        meta: "Vulnerable",
-      },
-    ],
-    (value) => {
-      draft.security = value;
-      renderWorkbenchCheckout(draft, budgetStart);
-      syncWorkbenchFooter(draft, budgetStart);
-    },
-    draft.security
-  );
 }
 
 function applyWorkbenchSelections(selections) {
   if (selections.hardware === "heltec") {
     state.hardware = "Heltec V3";
     state.nodeCost = 30;
+  } else if (selections.hardware === "tbeam") {
+    state.hardware = "LilyGO T-Beam";
+    state.nodeCost = 40;
   } else {
     state.hardware = "RAK WisBlock";
     state.nodeCost = 50;
@@ -841,9 +825,9 @@ function applyWorkbenchSelections(selections) {
   state.nodesPurchased = selections.nodes;
   state.nodesAvailable = selections.nodes;
 
-  const addOn = selections.addOn;
-  state.weatherproofCase = addOn === "both" || addOn === "case";
-  state.solarPanel = addOn === "both" || addOn === "solar";
+  state.weatherproofCases = selections.cases;
+  state.solarPanels = selections.solar;
+  state.catCarrier = selections.catCarrier === "yes";
 
   if (selections.firmware === "stable") {
     state.stableFirmware = true;
@@ -853,34 +837,13 @@ function applyWorkbenchSelections(selections) {
     state.linkQuality -= 1;
   }
 
-  if (selections.frequency === "us915") {
-    state.validBand = true;
-  } else {
-    state.validBand = false;
-    state.linkQuality -= selections.frequency === "eu868" ? 2 : 3;
-  }
-
-  if (selections.preset === "longfast") {
-    state.validPreset = true;
-  } else if (selections.preset === "balanced") {
-    state.validPreset = false;
-    state.linkQuality -= 1;
-  } else {
-    state.validPreset = false;
-    state.batteryFragile = true;
-    state.linkQuality -= 2;
-  }
-
-  if (selections.security === "secure") {
-    state.encryption = true;
-    state.securityConfigured = true;
-  } else {
-    state.encryption = false;
-    state.securityConfigured = true;
-  }
+  state.validBand = true;
+  state.validPreset = true;
+  state.encryption = true;
+  state.securityConfigured = true;
 
   const total =
-    selections.nodes * state.nodeCost + getAddOnCost(addOn) + workbenchFirmwareCost(selections.firmware);
+    selections.nodes * state.nodeCost + getAddOnCost(selections) + workbenchFirmwareCost(selections.firmware);
   changeBudget(-total);
 }
 
@@ -893,11 +856,10 @@ function runWorkbenchCheckout() {
   const draft = {
     hardware: null,
     nodes: null,
-    addOn: null,
+    cases: null,
+    solar: null,
+    catCarrier: null,
     firmware: null,
-    frequency: null,
-    preset: null,
-    security: null,
   };
 
   return new Promise((resolve) => {
@@ -931,25 +893,17 @@ async function actWorkbench(runToken) {
     window.IntermeshAnalytics.workbenchCommitted(selections, budgetBefore - state.budget, state.budget);
   }
 
-  const addOnLabel =
-    selections.addOn === "both"
-      ? "weatherproof case + solar panel"
-      : selections.addOn === "case"
-        ? "weatherproof case only"
-        : selections.addOn === "solar"
-          ? "solar panel only"
-          : "no add-ons";
+  const caseLabel = `${selections.cases} weatherproof case${selections.cases === 1 ? "" : "s"}`;
+  const solarLabel = `${selections.solar} solar panel${selections.solar === 1 ? "" : "s"}`;
+  const carrierLabel = selections.catCarrier === "yes" ? "portable cat carrier packed" : "no cat carrier";
 
   await typeBlock(
     [
-      `Build locked: ${state.hardware}, ${selections.nodes} node${selections.nodes === 1 ? "" : "s"}, ${addOnLabel}.`,
+      `Build locked: ${state.hardware}, ${selections.nodes} node${selections.nodes === 1 ? "" : "s"}.`,
+      `Add-ons: ${caseLabel}, ${solarLabel}, ${carrierLabel}.`,
       selections.firmware === "stable"
         ? "Stable firmware flashed ($10)."
-        : "Alpha firmware flashed — watch battery and routing.",
-      selections.frequency === "us915"
-        ? "Frequency plan: US 915 MHz."
-        : `Frequency plan: ${selections.frequency} — expect link pain.`,
-      `Mesh preset: ${selections.preset}. Security: ${selections.security === "secure" ? "AES-256" : "public channel"}.`,
+        : "Alpha firmware flashed -- watch battery and routing.",
       `Cash after checkout: $${state.budget}.`,
     ],
     "success",
@@ -980,8 +934,11 @@ async function deployScience(runToken) {
         value: "data",
         label: "Appeal to telemetry and survival data",
         description: "Promise live weather relays, outage mapping, and a resilient data path for the whole town.",
-        meta: state.weatherproofCase && state.solarPanel ? "Uses 1 node // Roof install enabled" : "Requires case + solar for roof install",
-        disabled: !(state.weatherproofCase && state.solarPanel),
+        meta:
+          state.weatherproofCases >= 1 && state.solarPanels >= 1
+            ? "Uses 1 node + 1 case + 1 solar panel // Roof install enabled"
+            : "Requires 1 case + 1 solar panel for roof install",
+        disabled: !(state.weatherproofCases >= 1 && state.solarPanels >= 1),
       },
       {
         value: "emotion",
@@ -1014,6 +971,8 @@ async function deployScience(runToken) {
   if (choice === "data") {
     const gain = addCoverage(12);
     state.scienceRoof = true;
+    state.weatherproofCases = Math.max(0, state.weatherproofCases - 1);
+    state.solarPanels = Math.max(0, state.solarPanels - 1);
     addNode("science", `roof mount secured with professor approval (+${gain}% coverage)`);
     setLocation("science", "deployed", "Roof access granted. The network now has a real spine.");
     await typeLine('"Ansari nods once. "That is an actual argument." He unlocks the roof hatch for you.', "success", runToken);
@@ -1228,8 +1187,11 @@ async function deployRadio(runToken) {
         value: "tower",
         label: "Climb the tower",
         description: "High risk, high payoff. Best possible reach from the station.",
-        meta: state.weatherproofCase && state.solarPanel ? "Uses 1 node // Tower install enabled" : "Requires case + solar for tower install",
-        disabled: !(state.weatherproofCase && state.solarPanel),
+        meta:
+          state.weatherproofCases >= 1 && state.solarPanels >= 1
+            ? "Uses 1 node + 1 case + 1 solar panel // Tower install enabled"
+            : "Requires 1 case + 1 solar panel for tower install",
+        disabled: !(state.weatherproofCases >= 1 && state.solarPanels >= 1),
       },
       {
         value: "lobby",
@@ -1255,6 +1217,8 @@ async function deployRadio(runToken) {
   if (choice === "tower") {
     spendTime(4);
     const gain = addCoverage(7);
+    state.weatherproofCases = Math.max(0, state.weatherproofCases - 1);
+    state.solarPanels = Math.max(0, state.solarPanels - 1);
     addNode("radio", `tower-top mount with Geo spotting the climb (+${gain}% coverage)`);
     setLocation("radio", "deployed", "Tower node mounted above the station roofline.");
     await typeLine("The tower sways, your hands shake, and the new relay paints a clean arc across the city center. The climb costs 4 precious hours.", "success", runToken);

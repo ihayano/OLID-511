@@ -23,8 +23,8 @@ Then open [http://localhost:8000](http://localhost:8000).
 
 - **Six named locations:** Campus Science Building, Valley West, International Grocery, Tesseract Apartments, Radio Station, and the Women's Health Clinic. Each has its own contact (Dr. Ansari, Luz & Diego, Yoshiko, Dalia, Geo, Yasmin) and its own diagnostic branch.
 - **Intro primer** on Meshtastic, LoRa, and why a local mesh matters in outages.
-- **Single-screen workbench checkout:** pick hardware (Heltec V3 / RAK WisBlock), how many nodes to buy (1–6), add-ons (weatherproof case, solar panel, both, or none), firmware (paid stable vs. free alpha), regional band, mesh preset, and encryption — all in one scrollable panel with a **live cart total** and a **Commit Resources** confirm button.
-- **Add-on gate:** the science-building **roof** install and the radio **tower** install both require the weatherproof case *and* the solar panel; without both, those options stay disabled.
+- **Single-screen workbench checkout:** pick mesh radio hardware (Heltec V3 / LilyGO T-Beam / RAK WisBlock), how many nodes to buy (1–6), up to **2 weatherproof cases** ($40 each), up to **2 solar panels** ($40 each), an optional **portable cat carrier** ($50), and firmware (paid stable vs. free alpha) — all in one scrollable panel with a **live cart total** and a **Commit Resources** confirm button.
+- **Outdoor-install gate:** the science-building **roof** install and the radio **tower** install each consume **1 weatherproof case + 1 solar panel** on deployment. You need all four (2 cases + 2 solar panels) in inventory to enable both sites; a 1+1 loadout forces you to pick one of the two.
 - **Node inventory:** nodes are bought up front; each deployment consumes one node.
 - **Travel costs:** out-of-town sites (Valley West, Women's Health Clinic) cost **$10 for a ride** or **6 hours walking**.
 - **Time pressure:** the radio tower climb costs extra hours; the sidebar shows **hours remaining** at all times.
@@ -60,9 +60,12 @@ These defaults live in `data/game_constants.json` and are mirrored in `script.js
 - Starting budget: **$340**
 - Starting hours: **84**
 - Deployable locations: **6**
-- Valid band: **US915**; all other bands degrade link quality.
-- Valid preset: **LongFast**; Balanced and Turbo degrade link quality and/or battery.
+- Hardware prices per node: Heltec V3 $30, LilyGO T-Beam $40, RAK WisBlock $50 (+1 link quality).
+- Add-on unit prices: weatherproof case $40, solar panel $40, portable cat carrier $50.
+- Firmware: stable $10, alpha free (sets `batteryFragile` and drops link quality).
 - Coverage thresholds for endings: low = 20, good = 22, strong = 35.
+
+Note: the current build implicitly assumes a valid US915 band, LongFast preset, and AES-256 encryption — those are no longer player-facing choices, but the state flags are preserved so the Monte Carlo simulator still exercises them.
 
 ## Balancing with Python
 
@@ -91,7 +94,7 @@ Each run also performs a small grid search over starting budget, starting hours,
 
 `analytics.js` captures a structured log of every run directly in the browser. Nothing leaves the machine by default.
 
-- **Stored events per run:** `run_started`, `workbench_committed`, `location_resolved` (one per deployment site), `diagnostic_triggered`, `mutual_aid_resolved`, `run_ended` (with coverage, budget, supplies, hours, ending letter, and every workbench selection).
+- **Stored events per run:** `run_started`, `workbench_committed` (hardware, node count, weatherproof case count, solar panel count, cat-carrier flag, firmware, cart total, budget after), `location_resolved` (one per deployment site), `diagnostic_triggered`, `mutual_aid_resolved`, `run_ended` (coverage, budget, supplies, hours, ending letter, and every workbench selection).
 - **Persistence:** the last 50 runs are kept in `localStorage` under `project-intermesh-runs`.
 - **Download Log** button in the top bar exports all buffered runs as a single JSON file (`intermesh-runs-<timestamp>.json`). Ideal for class submissions.
 - **Optional cohort tag** via `?cohort=spring26` in the URL, or `window.INTERMESH_COHORT = "..."` before `analytics.js` loads.

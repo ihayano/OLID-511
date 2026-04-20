@@ -139,11 +139,10 @@
       pushEvent("workbench_committed", {
         hardware: selections.hardware,
         nodes_purchased: selections.nodes,
-        add_on: selections.addOn,
+        weatherproof_cases: selections.cases,
+        solar_panels: selections.solar,
+        cat_carrier: selections.catCarrier === "yes",
         firmware: selections.firmware,
-        frequency: selections.frequency,
-        preset: selections.preset,
-        security: selections.security,
         cart_total: cartTotal,
         budget_after: budgetAfter,
       });
