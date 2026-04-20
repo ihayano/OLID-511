@@ -95,7 +95,6 @@ def simulate_one(constants: dict, rng: random.Random) -> dict:
         solar_support=False,
         yoshiko_drive=False,
         battery_fragile=False,
-        public_channel=False,
         encryption=False,
         hours_remaining=g["starting_hours"],
         weatherproof_case=False,
