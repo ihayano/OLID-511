@@ -48,7 +48,6 @@ Then open [http://localhost:8000](http://localhost:8000).
 | `content/strings.json` | Every player-visible string: boot lines, status chip labels, workbench rows, six location handlers, diagnostics, mutual aid, and all four endings. Edit this file to retune narration, labels, or dialogue without touching code. |
 | `analytics.js` | Lightweight run-log analytics: buffers structured events (run started, workbench committed, location resolved, diagnostic, run ended) in `localStorage`, exposes `window.IntermeshAnalytics`, and optionally POSTs to `INTERMESH_ANALYTICS_ENDPOINT` via `navigator.sendBeacon`. |
 | `css/`, `js/` | Vendored Bootstrap 5 (grid + bundle, minified + source maps). |
-| `rqYZNP-800.jpg` | Background / art asset. |
 | `data/game_constants.json` | Balancing data for the Python tools; kept in sync with the design intent of `script.js`. |
 | `tools/validate_constants.py` | Sanity-checks `game_constants.json` (required keys, non-negative costs, deployment coverage, ending thresholds, etc.). |
 | `tools/validate_strings.js` | Checks that every `t("...")` key in `script.js` exists in `content/strings.json` and flags any suspicious hardcoded narration literals in the helper functions. |
