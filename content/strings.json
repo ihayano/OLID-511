@@ -50,7 +50,7 @@
       "BOOT SEQUENCE // RIDGECREST MUNICIPAL BACKCHANNEL",
       "NOAA BULLETIN: DERECHO STORM FRONT PROJECTED TO IMPACT IN 72 HOURS.",
       "Expected effects: grid collapse, cell congestion, road closures, multi-day outage.",
-      "You are one student with a soldering iron, a terminal window, and $340 of precious cash.",
+      "You are one student with a soldering iron, a terminal window, and $400 of precious cash.",
       "If the power dies, people will need a local mesh to coordinate rides, food, medicine, and shelter."
     ],
     "name_prompt": "Enter your name to begin Project Intermesh.",
@@ -81,7 +81,7 @@
     ],
     "budget_hint": "Starting cash: ${budget}. Hardware, node count, and firmware are required. Everything else is optional -- tap twice to clear a selection.",
     "total_ready": "Cart total: ${total} // Cash left after checkout: ${remaining}",
-    "total_over": "Cart total: ${total} -- over budget by ${delta}. Adjust selections.",
+    "total_over": "Cart total: ${total} // Cash left after checkout: -${delta}. Adjust selections.",
     "total_pending": "Cart so far: ${total} // Pick hardware, node count, and firmware to lock in budget.",
     "build_locked": "Build locked: {hardware}, {nodes} node{s}.",
     "extras_none": "Extras: none.",

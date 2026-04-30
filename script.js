@@ -76,7 +76,7 @@ function createInitialState() {
 
   return {
     builderName: "UNASSIGNED",
-    budget: 340,
+    budget: 400,
     coverage: 0,
     encryption: false,
     securityConfigured: false,
