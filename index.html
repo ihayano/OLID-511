@@ -6,6 +6,16 @@
     <title data-string="ui.page_title">Project Intermesh</title>
     <link rel="stylesheet" href="css/bootstrap.min.css" />
     <link rel="stylesheet" href="styles.css" />
+    <!-- SVG filter: phosphor bloom applied to the entire CRT shell -->
+    <svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute">
+      <defs>
+        <filter id="phosphor-bloom" x="-20%" y="-20%" width="140%" height="140%" color-interpolation-filters="sRGB">
+          <feGaussianBlur in="SourceGraphic" stdDeviation="1.8" result="blur"/>
+          <feColorMatrix in="blur" type="saturate" values="3" result="vivid"/>
+          <feBlend in="SourceGraphic" in2="vivid" mode="screen"/>
+        </filter>
+      </defs>
+    </svg>
   </head>
   <body class="intermesh-app">
     <div id="boot-screen" class="boot-screen" aria-hidden="true">
