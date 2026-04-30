@@ -5,9 +5,8 @@
   },
   "global": {
     "starting_budget": 400,
-    "starting_hours": 84,
     "deployable_location_count": 6,
-    "finish_early_probability": 0.18
+    "finish_early_probability": 0.05
   },
   "workbench": {
     "hardware": {
@@ -101,7 +100,6 @@
   },
   "travel": {
     "outside_town_ride_cost": 10,
-    "outside_town_walk_hours": 6,
     "outside_town_locations": ["valley", "health"]
   },
   "deployments": {
@@ -191,8 +189,7 @@
       "options": {
         "tower": {
           "uses_node": true,
-          "coverage_base": 7,
-          "time_cost_hours": 4
+          "coverage_base": 7
         },
         "lobby": {
           "uses_node": true,
@@ -226,7 +223,7 @@
     }
   },
   "diagnostics": {
-    "emergency_patch_cost": 40,
+    "emergency_patch_cost": 30,
     "emergency_patch_coverage_base": 6
   },
   "mutual_aid": {
@@ -235,7 +232,7 @@
   "ending_thresholds": {
     "coverage_low": 20,
     "coverage_good": 22,
-    "coverage_strong": 35,
+    "coverage_strong": 30,
     "minimum_supplies_for_no_shortage": 2
   },
   "simulation": {

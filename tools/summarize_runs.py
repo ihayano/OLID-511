@@ -129,13 +129,10 @@ def summarize(runs: list[dict]) -> dict:
             nodes_purchased_values.append(wb["nodes_purchased"])
 
     location_outcomes: dict[str, Counter] = defaultdict(Counter)
-    travel_walks: Counter[str] = Counter()
     for r in completed:
         for evt in _events(r, "location_resolved"):
             loc = evt.get("location", "unknown")
             location_outcomes[loc][evt.get("outcome", "unknown")] += 1
-            if evt.get("travel_hours_delta") and evt.get("travel_hours_delta") > 0:
-                travel_walks[loc] += 1
 
     diag_events = [evt for r in completed for evt in _events(r, "diagnostic_triggered")]
     diag_total = len(diag_events)
@@ -149,7 +146,6 @@ def summarize(runs: list[dict]) -> dict:
         "ending_rates": ending_rates,
         "avg_coverage": avg("coverage"),
         "avg_budget_left": avg("budget_left"),
-        "avg_hours_left": avg("hours_left"),
         "avg_supplies": avg("supplies"),
         "avg_nodes_used": avg("nodes_used"),
         "avg_nodes_purchased": mean(nodes_purchased_values) if nodes_purchased_values else 0.0,
@@ -159,7 +155,6 @@ def summarize(runs: list[dict]) -> dict:
         "solar_panels": {str(k): v for k, v in solar_counter.items()},
         "cat_carrier": dict(cat_carrier_counter),
         "location_outcomes": {loc: dict(counter) for loc, counter in location_outcomes.items()},
-        "travel_walks": dict(travel_walks),
         "diagnostics": {
             "events": diag_total,
             "with_issue": diag_issue,
@@ -193,7 +188,6 @@ def render_markdown(summary: dict) -> str:
     lines.append("")
     lines.append(f"- Avg coverage: **{summary['avg_coverage']:.2f}**")
     lines.append(f"- Avg budget left: **${summary['avg_budget_left']:.2f}**")
-    lines.append(f"- Avg hours left: **{summary['avg_hours_left']:.2f}H**")
     lines.append(f"- Avg supplies: **{summary['avg_supplies']:.2f}**")
     lines.append(f"- Avg nodes purchased: **{summary['avg_nodes_purchased']:.2f}**")
     lines.append(f"- Avg nodes used: **{summary['avg_nodes_used']:.2f}**")
@@ -213,9 +207,7 @@ def render_markdown(summary: dict) -> str:
         for loc, counter in sorted(summary["location_outcomes"].items()):
             loc_total = sum(counter.values())
             parts = ", ".join(f"{k}={v}" for k, v in sorted(counter.items(), key=lambda kv: kv[1], reverse=True))
-            walks = summary["travel_walks"].get(loc, 0)
-            walk_note = f" (walked {walks}x)" if walks else ""
-            lines.append(f"- `{loc}` (n={loc_total}): {parts}{walk_note}")
+            lines.append(f"- `{loc}` (n={loc_total}): {parts}")
     else:
         lines.append("- No location_resolved events captured.")
     lines.append("")
