@@ -119,9 +119,26 @@ html, body {
   overflow-x: hidden;
 }
 
-button, input { font: inherit; }
-button { cursor: pointer; touch-action: manipulation; }
-.btn, .form-control { border-radius: 0 !important; }
+button {
+  font: inherit;
+  cursor: pointer;
+  touch-action: manipulation;
+  appearance: none;
+  -webkit-appearance: none;
+  border: none;
+  background: none;
+  padding: 0;
+  margin: 0;
+  color: inherit;
+}
+
+input {
+  font: inherit;
+  appearance: none;
+  -webkit-appearance: none;
+  border-radius: 0;
+  margin: 0;
+}
 
 /* ════════════════════════════════════════════════
    FULL-SCREEN CRT OVERLAYS
@@ -273,8 +290,8 @@ h1 {
 }
 
 /* TUI-style [ LABEL ] buttons */
-.secondary-button.btn,
-#input-submit.btn {
+.secondary-button,
+#input-submit {
   border: 1px solid var(--border);
   background: transparent;
   color: var(--text-dim);
@@ -286,10 +303,10 @@ h1 {
   transition: color 60ms, border-color 60ms, text-shadow 60ms;
 }
 
-.secondary-button.btn:hover,
-.secondary-button.btn:focus,
-#input-submit.btn:hover,
-#input-submit.btn:focus {
+.secondary-button:hover,
+.secondary-button:focus,
+#input-submit:hover,
+#input-submit:focus {
   border-color: var(--text);
   color: var(--text-bright);
   text-shadow: 0 0 6px var(--glow-strong);
@@ -478,7 +495,7 @@ h1 {
   gap: 8px;
 }
 
-input.form-control {
+#builder-input {
   flex: 1;
   min-height: 40px;
   border: 1px solid var(--border);
@@ -489,9 +506,9 @@ input.form-control {
   text-shadow: 0 0 5px var(--glow);
 }
 
-input.form-control::placeholder { color: var(--text-dim); opacity: 0.6; }
+#builder-input::placeholder { color: var(--text-dim); opacity: 0.6; }
 
-input.form-control:focus {
+#builder-input:focus {
   border-color: var(--text);
   outline: none;
   box-shadow: 0 0 0 1px var(--glow-strong), 0 0 12px var(--glow-bloom);
@@ -781,7 +798,7 @@ input.form-control:focus {
 }
 
 /* Commit button — styled as a TUI command row */
-.workbench-confirm.btn {
+.workbench-confirm {
   display: flex;
   align-items: baseline;
   gap: 1ch;
@@ -799,15 +816,15 @@ input.form-control:focus {
 }
 
 /* ► prefix on the commit action */
-.workbench-confirm.btn::before {
+.workbench-confirm::before {
   content: "►";
   flex-shrink: 0;
   color: var(--text-dim);
   transition: color 60ms, text-shadow 60ms;
 }
 
-.workbench-confirm.btn:not(:disabled):hover,
-.workbench-confirm.btn:not(:disabled):focus-visible {
+.workbench-confirm:not(:disabled):hover,
+.workbench-confirm:not(:disabled):focus-visible {
   background: var(--btn-hover-bg);
   border-color: var(--text);
   color: var(--text-bright);
@@ -815,33 +832,33 @@ input.form-control:focus {
   box-shadow: 0 0 10px var(--glow), inset 0 0 0 1px var(--glow-strong);
 }
 
-.workbench-confirm.btn:not(:disabled):hover::before,
-.workbench-confirm.btn:not(:disabled):focus-visible::before {
+.workbench-confirm:not(:disabled):hover::before,
+.workbench-confirm:not(:disabled):focus-visible::before {
   color: var(--text-bright);
   text-shadow: 0 0 8px var(--glow-strong);
 }
 
-.workbench-confirm.btn:disabled {
+.workbench-confirm:disabled {
   opacity: 0.30;
   cursor: not-allowed;
 }
 
-.workbench-confirm.btn strong,
-.workbench-confirm.btn span {
+.workbench-confirm strong,
+.workbench-confirm span {
   display: inline;
   font-weight: 400;
   color: inherit;
 }
 
-.workbench-confirm.btn span {
+.workbench-confirm span {
   font-size: 0.84rem;
   color: var(--text-dim);
   text-transform: none;
   letter-spacing: 0;
 }
 
-.workbench-confirm.btn:not(:disabled):hover span,
-.workbench-confirm.btn:not(:disabled):focus-visible span {
+.workbench-confirm:not(:disabled):hover span,
+.workbench-confirm:not(:disabled):focus-visible span {
   color: var(--text-bright);
 }
 
