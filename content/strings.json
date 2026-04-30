@@ -52,7 +52,16 @@
       "You are one student with a soldering iron, a terminal window, and $400 of precious cash.",
       "If the power dies, people will need a local mesh to coordinate rides, food, medicine, and shelter."
     ],
-    "name_prompt": "Enter your name to begin Project Intermesh.",
+    "controls_header": "──[ HOW TO NAVIGATE ]───────────────────────────────────────",
+    "controls_lines": [
+      "MOUSE    Click any option or button to select it.",
+      "[1-9]    Press a number key to pick that choice instantly.",
+      "↑  ↓     Arrow keys move focus up and down the list.",
+      "ENTER    Confirm the highlighted item or workbench loadout.",
+      "TAB      Jump focus between interactive elements."
+    ],
+    "controls_footer": "────────────────────────────────────────────────────────────",
+    "name_prompt": "Enter your callsign to begin Project Intermesh.",
     "name_placeholder": "Ziad",
     "post_name": [
       "{name} ready. Project Intermesh setup logged.",
