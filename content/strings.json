@@ -127,7 +127,6 @@
   "locations": {
     "science": {
       "title": "Campus Science Building",
-      "contact": "Dr. Ansari",
       "elevation": "Maximum elevation",
       "detail": "Critical line-of-sight point inside town.",
       "no_nodes_status": "No nodes remaining to place at this site.",
@@ -164,7 +163,6 @@
     },
     "valley": {
       "title": "Valley West",
-      "contact": "Luz and Diego",
       "elevation": "Low elevation",
       "detail": "Residential area surrounded by signal-killing hills.",
       "no_nodes_status": "No nodes remaining to place at this site.",
@@ -201,7 +199,6 @@
     },
     "sugar": {
       "title": "International Grocery",
-      "contact": "Yoshiko",
       "elevation": "Medium elevation",
       "detail": "Classmate with a hatchback and a full gas tank.",
       "no_nodes_status": "No nodes remaining to place at this site.",
@@ -228,7 +225,6 @@
     },
     "apartments": {
       "title": "Tesseract Apartments",
-      "contact": "Dalia",
       "elevation": "Medium elevation",
       "detail": "Community garden rooftop and student households.",
       "no_nodes_status": "No nodes remaining to place at this site.",
@@ -254,7 +250,6 @@
     },
     "radio": {
       "title": "Radio Station",
-      "contact": "Geo",
       "elevation": "Medium elevation",
       "detail": "Strong reach if you are willing to climb the tower.",
       "no_nodes_status": "No nodes remaining to place at this site.",
@@ -287,7 +282,6 @@
     },
     "health": {
       "title": "Women's Health Clinic",
-      "contact": "Yasmin",
       "elevation": "Medium elevation",
       "detail": "Dense trees force a cleaner antenna setup.",
       "no_nodes_status": "No nodes remaining to place at this site.",
@@ -349,8 +343,6 @@
     "patched_line": "You burn $30 on a last-minute rescue and claw back +{gain}% coverage before the rain starts.",
     "unpatched_line": "You keep the cash. The dead zones stay exactly where the map warned they would.",
     "clean_line": "Ping sweep returns green across every deployed corridor. No dead zones detected.",
-    "band_warning": "Secondary warning: the radios are operating on the wrong regional band, lowering town-wide efficiency.",
-    "preset_warning": "Secondary warning: your preset choice is costing either range or battery endurance exactly when you need both.",
     "storm_alert": [
       "Storm alert: derecho leading edge detected.",
       "Grid instability spikes. Lights flicker across the city and then vanish sector by sector.",
