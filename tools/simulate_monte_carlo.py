@@ -28,7 +28,6 @@ class RunState:
     yoshiko_drive: bool
     battery_fragile: bool
     encryption: bool
-    hours_remaining: int
     weatherproof_case: bool
     solar_panel: bool
 
@@ -54,11 +53,12 @@ def determine_ending(state: RunState, thresholds: dict) -> str:
     config_failure = (not state.valid_band) or (not state.valid_preset) or (not state.stable_firmware)
     coverage_strong = coverage >= thresholds["coverage_strong"]
     science_ready = state.science_roof and (not state.science_missed)
+    science_requirement_met = science_ready or coverage >= 38
 
-    if coverage_strong and state.encryption and state.supplies > 0 and (not state.dead_zones) and science_ready:
+    if coverage_strong and state.encryption and state.supplies > 0 and (not state.dead_zones) and science_requirement_met:
         return "A"
     if state.encryption and coverage >= thresholds["coverage_good"] and (
-        state.dead_zones or (not science_ready) or (not state.valid_band) or (not state.valid_preset)
+        state.dead_zones or (not science_requirement_met) or (not state.valid_band) or (not state.valid_preset)
     ):
         return "B"
     if (not state.encryption) and coverage >= thresholds["coverage_good"]:
@@ -103,7 +103,6 @@ def simulate_one(constants: dict, rng: random.Random, overrides: dict | None = N
         yoshiko_drive=False,
         battery_fragile=False,
         encryption=False,
-        hours_remaining=g["starting_hours"],
         weatherproof_case=False,
         solar_panel=False,
     )
@@ -196,8 +195,6 @@ def simulate_one(constants: dict, rng: random.Random, overrides: dict | None = N
         if location_key in travel["outside_town_locations"] and not state.yoshiko_drive:
             if state.budget >= travel["outside_town_ride_cost"] and rng.random() < 0.5:
                 state.budget -= travel["outside_town_ride_cost"]
-            else:
-                state.hours_remaining = max(0, state.hours_remaining - travel["outside_town_walk_hours"])
 
         if state.nodes_available <= 0:
             continue
@@ -244,7 +241,6 @@ def simulate_one(constants: dict, rng: random.Random, overrides: dict | None = N
             state.nodes_available = max(0, state.nodes_available - 1)
         state.budget -= selected.get("add_on_cost", 0)
         state.supplies += selected.get("supplies_delta", 0)
-        state.hours_remaining = max(0, state.hours_remaining - selected.get("time_cost_hours", 0))
 
         if "coverage_base" in selected:
             state.coverage += adjusted_coverage(selected["coverage_base"], state.link_quality)
@@ -278,7 +274,6 @@ def simulate_one(constants: dict, rng: random.Random, overrides: dict | None = N
     return {
         "ending": ending,
         "budget": state.budget,
-        "hours": state.hours_remaining,
         "coverage": state.coverage,
         "supplies": state.supplies,
         "nodes_used": state.nodes_purchased - state.nodes_available,
@@ -295,7 +290,6 @@ def run_simulation(constants: dict, runs: int, seed: int, overrides: dict | None
         "endings": dict(endings),
         "ending_rates": {k: endings.get(k, 0) / runs for k in ["A", "B", "C", "D"]},
         "avg_budget": mean(o["budget"] for o in outcomes),
-        "avg_hours": mean(o["hours"] for o in outcomes),
         "avg_coverage": mean(o["coverage"] for o in outcomes),
         "avg_supplies": mean(o["supplies"] for o in outcomes),
         "avg_nodes_used": mean(o["nodes_used"] for o in outcomes),
@@ -338,37 +332,42 @@ def stratified_sweep(constants: dict, runs_per_stratum: int, seed: int) -> dict:
 def sweep_tuning(constants: dict, seed: int) -> list[dict]:
     candidates = []
     base_budget = constants["global"]["starting_budget"]
-    base_hours = constants["global"]["starting_hours"]
     base_fiona = constants["deployments"]["apartments"]["options"]["deploy"]["supplies_delta"]
+    budget_values = sorted(
+        {
+            max(100, base_budget - 80),
+            max(100, base_budget - 40),
+            base_budget,
+            base_budget + 20,
+            base_budget + 40,
+            400,
+        }
+    )
 
-    for budget in [280, 300, 320, 340]:
-        for hours in [60, 72, 84]:
-            for fiona_bonus in [1, 2, 3]:
-                cfg = json.loads(json.dumps(constants))
-                cfg["global"]["starting_budget"] = budget
-                cfg["global"]["starting_hours"] = hours
-                cfg["deployments"]["apartments"]["options"]["deploy"]["supplies_delta"] = fiona_bonus
+    for budget in budget_values:
+        for fiona_bonus in [1, 2, 3]:
+            cfg = json.loads(json.dumps(constants))
+            cfg["global"]["starting_budget"] = budget
+            cfg["deployments"]["apartments"]["options"]["deploy"]["supplies_delta"] = fiona_bonus
 
-                result = run_simulation(cfg, runs=2000, seed=seed + budget + hours + fiona_bonus)
-                rates = result["ending_rates"]
-                # Favor strong ending A and penalize failure ending D.
-                score = (rates["A"] * 3.0) + (rates["B"] * 1.0) - (rates["D"] * 4.0)
-                candidates.append(
-                    {
-                        "budget": budget,
-                        "hours": hours,
-                        "fiona_supplies": fiona_bonus,
-                        "score": score,
-                        "a_rate": rates["A"],
-                        "b_rate": rates["B"],
-                        "c_rate": rates["C"],
-                        "d_rate": rates["D"],
-                        "avg_budget": result["avg_budget"],
-                        "avg_hours": result["avg_hours"],
-                        "avg_supplies": result["avg_supplies"],
-                        "is_current_config": budget == base_budget and hours == base_hours and fiona_bonus == base_fiona,
-                    }
-                )
+            result = run_simulation(cfg, runs=2000, seed=seed + budget + fiona_bonus)
+            rates = result["ending_rates"]
+            # Favor strong ending A and penalize failure ending D.
+            score = (rates["A"] * 3.0) + (rates["B"] * 1.0) - (rates["D"] * 4.0)
+            candidates.append(
+                {
+                    "budget": budget,
+                    "fiona_supplies": fiona_bonus,
+                    "score": score,
+                    "a_rate": rates["A"],
+                    "b_rate": rates["B"],
+                    "c_rate": rates["C"],
+                    "d_rate": rates["D"],
+                    "avg_budget": result["avg_budget"],
+                    "avg_supplies": result["avg_supplies"],
+                    "is_current_config": budget == base_budget and fiona_bonus == base_fiona,
+                }
+            )
 
     return sorted(candidates, key=lambda x: x["score"], reverse=True)
 
@@ -425,14 +424,13 @@ def write_report(
     lines.append(f"- Ending D: **{rates['D']:.1%}**")
     lines.append(f"- Avg coverage: **{baseline['avg_coverage']:.2f}**")
     lines.append(f"- Avg budget left: **${baseline['avg_budget']:.2f}**")
-    lines.append(f"- Avg hours left: **{baseline['avg_hours']:.2f}H**")
     lines.append(f"- Avg supplies: **{baseline['avg_supplies']:.2f}**")
     lines.append("")
     lines.append("## Top tuning candidates (grid search)")
     lines.append("")
     for idx, item in enumerate(top, start=1):
         lines.append(
-            f"{idx}. budget=${item['budget']}, hours={item['hours']}, fiona_supplies={item['fiona_supplies']} "
+            f"{idx}. budget=${item['budget']}, fiona_supplies={item['fiona_supplies']} "
             f"| score={item['score']:.3f} | A={item['a_rate']:.1%}, B={item['b_rate']:.1%}, C={item['c_rate']:.1%}, D={item['d_rate']:.1%}"
         )
     lines.append("")
@@ -440,7 +438,7 @@ def write_report(
     lines.append("")
     best = top[0]
     lines.append(
-        f"- Recommended constants: `starting_budget={best['budget']}`, `starting_hours={best['hours']}`, "
+        f"- Recommended constants: `starting_budget={best['budget']}`, "
         f"`apartments.deploy.supplies_delta={best['fiona_supplies']}`."
     )
     if current:

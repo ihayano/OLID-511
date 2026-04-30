@@ -30,8 +30,6 @@ def validate(constants: dict) -> list[str]:
     g = constants["global"]
     if g["starting_budget"] <= 0:
         errors.append("starting_budget must be > 0")
-    if g["starting_hours"] <= 0:
-        errors.append("starting_hours must be > 0")
     if g["deployable_location_count"] <= 0:
         errors.append("deployable_location_count must be > 0")
 
@@ -78,8 +76,6 @@ def validate(constants: dict) -> list[str]:
                     errors.append(f"{location_key}.{option_key} uses_node=true but missing coverage_base")
             if "add_on_cost" in option and option["add_on_cost"] < 0:
                 errors.append(f"{location_key}.{option_key} has negative add_on_cost")
-            if "time_cost_hours" in option and option["time_cost_hours"] < 0:
-                errors.append(f"{location_key}.{option_key} has negative time_cost_hours")
             if "supplies_delta" in option and option["supplies_delta"] < 0:
                 errors.append(f"{location_key}.{option_key} has negative supplies_delta")
 

@@ -35,7 +35,6 @@ const dom = {
   coverage: document.getElementById("coverage-stat"),
   encryption: document.getElementById("encryption-stat"),
   supplies: document.getElementById("supplies-stat"),
-  hours: document.getElementById("hours-stat"),
   hardware: document.getElementById("hardware-stat"),
   nodes: document.getElementById("nodes-stat"),
   builderBadge: document.getElementById("builder-badge"),
@@ -98,7 +97,6 @@ function createInitialState() {
     solarSupport: false,
     yoshikoDrive: false,
     batteryFragile: false,
-    hoursRemaining: 84,
     weatherproofCases: 0,
     solarPanels: 0,
     catCarrier: false,
@@ -203,13 +201,9 @@ function updateStats() {
     ? t("ui.encryption_secure")
     : t("ui.encryption_public");
   dom.supplies.textContent = String(state.supplies);
-  dom.hours.textContent = `${state.hoursRemaining}H`;
   dom.hardware.textContent = state.hardware || t("ui.hardware_unselected");
   dom.nodes.textContent = `${state.nodesDeployed.length} / ${state.nodesPurchased}`;
-  dom.builderBadge.textContent = t("ui.builder_badge", {
-    name: state.builderName,
-    hours: state.hoursRemaining,
-  });
+  dom.builderBadge.textContent = t("ui.builder_badge", { name: state.builderName });
 }
 
 function applyTheme(theme) {
@@ -305,11 +299,6 @@ function addNode(locationKey, note) {
   refreshUi();
 }
 
-function spendTime(hours) {
-  state.hoursRemaining = Math.max(0, state.hoursRemaining - hours);
-  refreshUi();
-}
-
 function hasNodeAvailable() {
   return state.nodesAvailable > 0;
 }
@@ -346,7 +335,6 @@ async function applyTravelIfNeeded(locationKey, runToken) {
   if (travelChoice === "ride") {
     if (state.budget < 10) {
       await typeLine(t("travel.insufficient_cash"), "warn", runToken);
-      spendTime(6);
       return true;
     }
     changeBudget(-10);
@@ -354,7 +342,6 @@ async function applyTravelIfNeeded(locationKey, runToken) {
     return true;
   }
 
-  spendTime(6);
   await typeLine(t("travel.walked", { title: location.title }), "warn", runToken);
   return true;
 }
@@ -1063,7 +1050,6 @@ async function deployRadio(runToken) {
   }
 
   if (choice === "tower") {
-    spendTime(4);
     const gain = addCoverage(7);
     state.weatherproofCases = Math.max(0, state.weatherproofCases - 1);
     state.solarPanels = Math.max(0, state.solarPanels - 1);
@@ -1189,12 +1175,10 @@ async function actDeployment(runToken) {
       budget: state.budget,
       coverage: state.coverage,
       supplies: state.supplies,
-      hours: state.hoursRemaining,
       nodesDeployed: state.nodesDeployed.length,
     };
     await applyTravelIfNeeded(selected, runToken);
     const travelBudgetDelta = state.budget - before.budget;
-    const travelHoursDelta = before.hours - state.hoursRemaining;
 
     const handler = handlers[selected];
     await handler(runToken);
@@ -1206,9 +1190,7 @@ async function actDeployment(runToken) {
         coverage_delta: state.coverage - before.coverage,
         supplies_delta: state.supplies - before.supplies,
         budget_delta: state.budget - before.budget,
-        hours_delta: before.hours - state.hoursRemaining,
         travel_budget_delta: travelBudgetDelta,
-        travel_hours_delta: travelHoursDelta,
         node_consumed: state.nodesDeployed.length > before.nodesDeployed,
       });
     }
@@ -1239,7 +1221,7 @@ async function actDiagnostics(runToken) {
           value: "patch",
           label: t("diagnostics.patch_label"),
           description: t("diagnostics.patch_description"),
-          cost: 40,
+          cost: 30,
         },
         {
           value: "accept",
@@ -1250,8 +1232,8 @@ async function actDiagnostics(runToken) {
       ]
     );
 
-    if (patchChoice === "patch" && state.budget >= 40) {
-      changeBudget(-40);
+    if (patchChoice === "patch" && state.budget >= 30) {
+      changeBudget(-30);
       state.deadZones = false;
       state.valleyWeak = false;
       state.healthWeak = false;
@@ -1264,7 +1246,7 @@ async function actDiagnostics(runToken) {
       }
       await typeLine(t("diagnostics.patched_line", { gain }), "success", runToken);
       if (window.IntermeshAnalytics) {
-        window.IntermeshAnalytics.diagnosticTriggered({ issues, patched: true, coverage_delta: gain, budget_delta: -40 });
+        window.IntermeshAnalytics.diagnosticTriggered({ issues, patched: true, coverage_delta: gain, budget_delta: -30 });
       }
     } else {
       await typeLine(t("diagnostics.unpatched_line"), "warn", runToken);
@@ -1325,10 +1307,12 @@ function determineEnding() {
   const lowCoverage = coverage < 20;
   const supplyShortage = state.supplies < 2;
   const configFailure = !state.validBand || !state.validPreset || !state.stableFirmware;
-  const coverageStrong = coverage >= 35;
+  const coverageStrong = coverage >= 30;
   const scienceReady = state.scienceRoof && !state.scienceMissed;
+  const scienceBypassCoverage = 38;
+  const scienceRequirementMet = scienceReady || coverage >= scienceBypassCoverage;
 
-  if (coverageStrong && state.encryption && state.supplies > 0 && !state.deadZones && scienceReady) {
+  if (coverageStrong && state.encryption && state.supplies > 0 && !state.deadZones && scienceRequirementMet) {
     const bodyKey = state.solarSupport ? "endings.A.body_with_solar" : "endings.A.body_without_solar";
     return {
       className: "success",
@@ -1340,7 +1324,7 @@ function determineEnding() {
     };
   }
 
-  if (state.encryption && coverage >= 22 && (state.deadZones || !scienceReady || !state.validBand || !state.validPreset)) {
+  if (state.encryption && coverage >= 22 && (state.deadZones || !scienceRequirementMet || !state.validBand || !state.validPreset)) {
     return {
       className: "warn",
       letter: "B",
@@ -1380,7 +1364,6 @@ async function showEnding(runToken) {
       ending: ending.letter || "unknown",
       coverage: state.coverage,
       budget_left: state.budget,
-      hours_left: state.hoursRemaining,
       supplies: state.supplies,
       encryption: state.encryption,
       security_configured: state.securityConfigured,
@@ -1502,7 +1485,6 @@ async function startGame() {
   if (window.IntermeshAnalytics) {
     window.IntermeshAnalytics.runStarted({
       starting_budget: state.budget,
-      starting_hours: state.hoursRemaining,
       theme: document.body.dataset.theme || "green",
     });
   }
