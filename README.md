@@ -2,7 +2,7 @@
 
 **Repository:** https://github.com/ihayano/OLID-511
 
-A single-page, choice-driven survival story in which a student racing a major storm builds a decentralized community mesh network with Meshtastic nodes. Budget, node inventory, travel time, add-ons, and install choices shape coverage, supplies, and which ending you get.
+A single-page, choice-driven survival story in which a student racing a major storm builds a decentralized community mesh network with Meshtastic nodes. Budget, node inventory, travel spending, add-ons, and install choices shape coverage, supplies, and which ending you get.
 
 ## Play
 
@@ -21,27 +21,26 @@ Then open [http://localhost:8000](http://localhost:8000).
 
 ## Gameplay at a glance
 
-- **Six named locations:** Campus Science Building, Valley West, International Grocery, Tesseract Apartments, Radio Station, and the Women's Health Clinic. Each has its own contact (Dr. Ansari, Luz & Diego, Yoshiko, Dalia, Geo, Yasmin) and its own diagnostic branch.
+- **Six named locations:** Campus Science Building, Valley West, International Grocery, Tesseract Apartments, Radio Station, and the Women's Health Clinic. Each site has a distinct deployment branch.
 - **Intro primer** on Meshtastic, LoRa, and why a local mesh matters in outages.
 - **Single-screen workbench checkout:** pick mesh radio hardware (Heltec V3 / LilyGO T-Beam / RAK WisBlock), how many nodes to buy (1–6), up to **2 weatherproof cases** ($40 each), up to **2 solar panels** ($40 each), an optional **portable cat carrier** ($50), and firmware (paid stable vs. free alpha) — all in one scrollable panel with a **live cart total** and a **Commit Resources** confirm button.
 - **Outdoor-install gate:** the science-building **roof** install and the radio **tower** install each consume **1 weatherproof case + 1 solar panel** on deployment. You need all four (2 cases + 2 solar panels) in inventory to enable both sites; a 1+1 loadout forces you to pick one of the two.
 - **Node inventory:** nodes are bought up front; each deployment consumes one node.
-- **Travel costs:** out-of-town sites (Valley West, Women's Health Clinic) cost **$10 for a ride** or **6 hours walking**.
-- **Time pressure:** the radio tower climb costs extra hours; the sidebar shows **hours remaining** at all times.
-- **Branching choices** at each location produce diagnostics, mutual-aid beats, and **multiple endings** (A / B / C / D) driven by coverage, encryption, supplies, dead zones, and configuration validity.
+- **Travel choices:** out-of-town sites (Valley West, Women's Health Clinic) offer **$10 rides** or **free walking**.
+- **Branching choices** at each location produce diagnostics, mutual-aid beats, and **multiple endings** (A / B / C / D) driven by coverage, encryption, supplies, and dead zones.
 
 ## Presentation
 
 - **Retro DOS terminal** aesthetic: boot-up splash (`PROJECT INTERMESH DOS TERMINAL v1.0`), VT323 typography, scanline overlay, CRT-style panels.
 - **Two screen themes** toggled from the top bar: **GREEN** (default) and **AMBER**; the choice persists across runs via `localStorage`.
-- **Deployment sidebar:** one location card visible at a time with previous / next arrows, plus a live ledger of deployed nodes.
+- **Terminal-first location picker:** one deployment decision at a time, with status chips and terminal-style prompts.
 - **Responsive layout** that collapses cleanly on narrower screens.
 
 ## Project layout
 
 | Path | Role |
 |------|------|
-| `index.html` | Page structure: boot screen, top bar, status strip, terminal feed, workbench panel, deployment sidebar. |
+| `index.html` | Page structure: boot screen, top bar, status strip, terminal feed, workbench panel, and choice cards. |
 | `styles.css` | CRT / terminal theming, green and amber palettes, scanlines, responsive rules. |
 | `script.js` | All game state, workbench UI, theme toggle, and ending logic. All player-facing prose is read from `content/strings.json` via `t("key")` lookups. |
 | `strings.js` | Tiny loader that fetches `content/strings.json`, exposes `window.GameStrings` with `t(key, vars)` + `format(template, vars)`, and populates static HTML labels tagged with `data-string="key"`. |
@@ -59,15 +58,14 @@ Then open [http://localhost:8000](http://localhost:8000).
 
 These defaults live in `data/game_constants.json` and are mirrored in `script.js`:
 
-- Starting budget: **$340**
-- Starting hours: **84**
+- Starting budget: **$400**
 - Deployable locations: **6**
 - Hardware prices per node: Heltec V3 $30, LilyGO T-Beam $40, RAK WisBlock $50 (+1 link quality).
 - Add-on unit prices: weatherproof case $40, solar panel $40, portable cat carrier $50.
 - Firmware: stable $10, alpha free (sets `batteryFragile` and drops link quality).
-- Coverage thresholds for endings: low = 20, good = 22, strong = 35.
+- Coverage thresholds for endings: low = 20, good = 22, strong = 30.
 
-Note: the current build implicitly assumes a valid US915 band, LongFast preset, and AES-256 encryption — those are no longer player-facing choices, but the state flags are preserved so the Monte Carlo simulator still exercises them.
+Note: the current gameplay flow treats encryption and configuration validity as fixed-safe defaults for players, and balancing now focuses on hardware, firmware, add-ons, and deployment decisions.
 
 ## Balancing with Python
 
@@ -85,7 +83,7 @@ Run a Monte Carlo sweep (example: 10,000 runs):
 python tools/simulate_monte_carlo.py --runs 10000 --seed 42
 ```
 
-By default the simulator also runs a **stratified sweep**: for each workbench decision (hardware, firmware, frequency plan, preset, security, add-ons) it forces each value in turn and runs another 2,000 sims per value with the remaining choices still randomized. The per-stratum ending rates and averages are appended to the markdown report and the JSON output under a `strata` key, making the marginal impact of each decision easy to inspect.
+By default the simulator also runs a **stratified sweep**: for each active workbench decision group (hardware, firmware, add-ons) it forces each value in turn and runs another 2,000 sims per value with the remaining choices still randomized. The per-stratum ending rates and averages are appended to the markdown report and the JSON output under a `strata` key, making the marginal impact of each decision easy to inspect.
 
 ```powershell
 # Smaller / faster run, or turn strata off entirely
@@ -98,7 +96,7 @@ Outputs:
 - `reports/monte_carlo_report.md`
 - `reports/monte_carlo_report.json`
 
-Each run also performs a small grid search over starting budget, starting hours, and the apartments supplies bonus, scoring each combination to favor strong endings and penalize failure endings. Use the report as a balancing target — tweak one lever in `game_constants.json`, re-validate, re-simulate.
+Each run also performs a small grid search over starting budget and the apartments supplies bonus, scoring each combination to favor strong endings and penalize failure endings. Use the report as a balancing target — tweak one lever in `game_constants.json`, re-validate, re-simulate.
 
 ## Editing game text
 
@@ -158,7 +156,7 @@ The loader uses `fetch("content/strings.json")`, which does **not** work over `f
 
 `analytics.js` captures a structured log of every run directly in the browser. Nothing leaves the machine by default.
 
-- **Stored events per run:** `run_started`, `workbench_committed` (hardware, node count, weatherproof case count, solar panel count, cat-carrier flag, firmware, cart total, budget after), `location_resolved` (one per deployment site), `diagnostic_triggered`, `mutual_aid_resolved`, `run_ended` (coverage, budget, supplies, hours, ending letter, and every workbench selection).
+- **Stored events per run:** `run_started`, `workbench_committed` (hardware, node count, weatherproof case count, solar panel count, cat-carrier flag, firmware, cart total, budget after), `location_resolved` (one per deployment site), `diagnostic_triggered`, `mutual_aid_resolved`, `run_ended` (coverage, budget, supplies, ending letter, and every workbench selection).
 - **Persistence:** the last 50 runs are kept in `localStorage` under `project-intermesh-runs`.
 - **Download Log** button in the top bar exports all buffered runs as a single JSON file (`intermesh-runs-<timestamp>.json`). Ideal for class submissions.
 - **Optional cohort tag** via `?cohort=spring26` in the URL, or `window.INTERMESH_COHORT = "..."` before `analytics.js` loads.
