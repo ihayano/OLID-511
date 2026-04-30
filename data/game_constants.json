@@ -4,7 +4,7 @@
     "version": "1.0.0"
   },
   "global": {
-    "starting_budget": 340,
+    "starting_budget": 400,
     "starting_hours": 84,
     "deployable_location_count": 6,
     "finish_early_probability": 0.18
