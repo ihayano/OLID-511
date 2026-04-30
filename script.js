@@ -356,6 +356,7 @@ function createChoiceButton(option, resolve) {
   const button = document.createElement("button");
   button.type = "button";
   button.className = "choice-card";
+  button.dataset.index = choiceIndex;
 
   const costText = Number.isFinite(option.cost)
     ? t("choice_button.cost_format", { amount: option.cost })
@@ -382,6 +383,9 @@ async function promptChoice(promptLines, options) {
   return new Promise((resolve) => {
     clearChoices();
     options.forEach((option) => createChoiceButton(option, resolve));
+    // Auto-focus first enabled choice for keyboard navigation
+    const first = dom.choicePanel.querySelector(".choice-card:not(:disabled)");
+    if (first) requestAnimationFrame(() => first.focus());
   });
 }
 
@@ -493,6 +497,7 @@ function workbenchAddRow(container, title, options, onPick, selectedValue) {
     btn.type = "button";
     btn.className = "workbench-option";
     btn.disabled = Boolean(opt.disabled);
+    btn.dataset.value = String(opt.value);
     const small = opt.meta != null && opt.meta !== "" ? `<small>${opt.meta}</small>` : "";
     btn.innerHTML = `<strong>${opt.label}</strong><span>${opt.description}</span>${small}`;
     if (selectedValue === opt.value) {
@@ -526,7 +531,14 @@ function syncWorkbenchFooter(draft, budgetStart) {
   dom.workbenchConfirm.disabled = !required || over;
 }
 
-function renderWorkbenchCheckout(draft, budgetStart) {
+function renderWorkbenchCheckout(draft, budgetStart, autoFocus = false) {
+  // Remember which workbench option had keyboard focus so we can restore it
+  const focusedEl = document.activeElement;
+  const focusedValue =
+    focusedEl && dom.workbenchPanel.contains(focusedEl)
+      ? focusedEl.dataset.value
+      : null;
+
   clampWorkbenchNodes(draft, budgetStart);
   dom.workbenchSections.replaceChildren();
   const maxN = workbenchMaxNodes(draft, budgetStart);
@@ -675,6 +687,20 @@ function renderWorkbenchCheckout(draft, budgetStart) {
     },
     draft.firmware
   );
+
+  // Restore keyboard focus after re-render, or auto-focus first option on open
+  requestAnimationFrame(() => {
+    if (focusedValue) {
+      const restored = dom.workbenchPanel.querySelector(
+        `.workbench-option[data-value="${focusedValue}"]:not(:disabled)`
+      );
+      if (restored) { restored.focus(); return; }
+    }
+    if (autoFocus) {
+      const first = dom.workbenchPanel.querySelector(".workbench-option:not(:disabled)");
+      if (first) first.focus();
+    }
+  });
 }
 
 function applyWorkbenchSelections(selections) {
@@ -729,7 +755,7 @@ function runWorkbenchCheckout() {
   };
 
   return new Promise((resolve) => {
-    renderWorkbenchCheckout(draft, budgetStart);
+    renderWorkbenchCheckout(draft, budgetStart, true);
     syncWorkbenchFooter(draft, budgetStart);
 
     dom.workbenchConfirm.onclick = () => {
@@ -1446,21 +1472,62 @@ function bindControls() {
   }
 
   document.addEventListener("keydown", (event) => {
-    if (event.defaultPrevented) {
-      return;
-    }
+    if (event.defaultPrevented) return;
 
     const target = event.target;
     const editingInput =
       target instanceof HTMLElement &&
       (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable);
 
-    if (editingInput) {
+    if (editingInput) return;
+
+    const key = event.key;
+
+    // ── Enter: confirm workbench when ready ──────────────────────────
+    if (key === "Enter" && !dom.workbenchConfirm.disabled && !dom.workbenchPanel.classList.contains("hidden")) {
+      event.preventDefault();
+      dom.workbenchConfirm.click();
       return;
     }
 
-    if (event.key === "Enter" && !dom.workbenchConfirm.disabled && !dom.workbenchPanel.classList.contains("hidden")) {
-      dom.workbenchConfirm.click();
+    // ── Number shortcuts 1–9: activate nth choice card ───────────────
+    const num = parseInt(key, 10);
+    if (!isNaN(num) && num >= 1 && num <= 9) {
+      const btn = dom.choicePanel.querySelector(`.choice-card[data-index="${num}"]:not(:disabled)`);
+      if (btn) {
+        event.preventDefault();
+        btn.click();
+        return;
+      }
+    }
+
+    // ── Arrow Up/Down: navigate focusable items in the active panel ───
+    if (key === "ArrowDown" || key === "ArrowUp") {
+      // Build candidate list from whichever panel has content
+      let items = [];
+      const choiceItems = [...dom.choicePanel.querySelectorAll(".choice-card:not(:disabled)")];
+      const workbenchItems = [...dom.workbenchPanel.querySelectorAll(".workbench-option:not(:disabled)")];
+
+      const active = document.activeElement;
+      if (active && dom.workbenchPanel.contains(active)) {
+        items = workbenchItems;
+      } else if (active && dom.choicePanel.contains(active)) {
+        items = choiceItems;
+      } else if (choiceItems.length > 0) {
+        items = choiceItems;
+      } else if (workbenchItems.length > 0) {
+        items = workbenchItems;
+      }
+
+      if (items.length === 0) return;
+      event.preventDefault();
+
+      const currentIdx = items.indexOf(active);
+      const nextIdx =
+        key === "ArrowDown"
+          ? (currentIdx + 1) % items.length
+          : (currentIdx - 1 + items.length) % items.length;
+      items[nextIdx].focus();
     }
   });
 }

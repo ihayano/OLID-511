@@ -608,23 +608,28 @@ h1 {
 }
 
 /* Hover = full-width highlight row */
-.choice-card:not(:disabled):hover,
-.choice-card:not(:disabled):focus-visible {
+.choice-card:not(:disabled):hover {
   background: var(--btn-hover-bg);
   color: var(--text-bright);
   text-shadow: 0 0 5px var(--glow);
   outline: none;
 }
+.choice-card:not(:disabled):hover .choice-key  { text-shadow: 0 0 8px var(--warn); }
+.choice-card:not(:disabled):hover .choice-cost { color: var(--text-bright); }
 
-.choice-card:not(:disabled):hover .choice-key,
-.choice-card:not(:disabled):focus-visible .choice-key {
-  text-shadow: 0 0 8px var(--warn);
-}
-
-.choice-card:not(:disabled):hover .choice-cost,
-.choice-card:not(:disabled):focus-visible .choice-cost {
+/* Keyboard focus — same highlight + distinct left cursor bar */
+.choice-card:not(:disabled):focus-visible {
+  background: var(--btn-hover-bg);
   color: var(--text-bright);
+  text-shadow: 0 0 5px var(--glow);
+  outline: none;
+  box-shadow: inset 3px 0 0 var(--text-bright);
 }
+.choice-card:not(:disabled):focus-visible .choice-key {
+  color: var(--text-bright);
+  text-shadow: 0 0 10px var(--glow-strong);
+}
+.choice-card:not(:disabled):focus-visible .choice-cost { color: var(--text-bright); }
 
 .choice-card:disabled {
   opacity: 0.35;
@@ -765,11 +770,22 @@ h1 {
   text-shadow: 0 0 4px var(--warn);
 }
 
-.workbench-option:not(:disabled):hover,
+.workbench-option:not(:disabled):hover {
+  background: var(--btn-hover-bg);
+  color: var(--text-bright);
+  outline: none;
+}
+
+/* Keyboard focus — inset bar + radio indicator glow */
 .workbench-option:not(:disabled):focus-visible {
   background: var(--btn-hover-bg);
   color: var(--text-bright);
   outline: none;
+  box-shadow: inset 3px 0 0 var(--text-bright);
+}
+.workbench-option:not(:disabled):focus-visible::before {
+  color: var(--text-bright);
+  text-shadow: 0 0 8px var(--glow-strong);
 }
 
 .workbench-option.workbench-selected {
