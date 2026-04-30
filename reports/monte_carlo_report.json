@@ -1,164 +1,478 @@
 {
   "baseline": {
-    "runs": 2000,
+    "runs": 500,
     "endings": {
-      "B": 1348,
-      "D": 600,
-      "C": 49,
-      "A": 3
+      "D": 83,
+      "B": 371,
+      "C": 39,
+      "A": 7
     },
     "ending_rates": {
-      "A": 0.0015,
-      "B": 0.674,
-      "C": 0.0245,
-      "D": 0.3
+      "A": 0.014,
+      "B": 0.742,
+      "C": 0.078,
+      "D": 0.166
     },
-    "avg_budget": 109.135,
-    "avg_hours": 80.516,
-    "avg_coverage": 8.859,
-    "avg_supplies": 2.7315,
-    "avg_nodes_used": 2.4295
+    "avg_budget": 153.6,
+    "avg_coverage": 12.118,
+    "avg_supplies": 3.404,
+    "avg_nodes_used": 3.222
   },
   "top_tuning_candidates": [
     {
-      "budget": 340,
-      "hours": 60,
+      "budget": 360,
       "fiona_supplies": 2,
-      "score": -0.4055000000000002,
-      "a_rate": 0.0025,
-      "b_rate": 0.691,
-      "c_rate": 0.0305,
-      "d_rate": 0.276,
-      "avg_budget": 106.535,
-      "avg_hours": 56.56,
-      "avg_supplies": 2.4125,
+      "score": 0.20200000000000007,
+      "a_rate": 0.003,
+      "b_rate": 0.797,
+      "c_rate": 0.049,
+      "d_rate": 0.151,
+      "avg_budget": 121.3275,
+      "avg_supplies": 2.8585,
       "is_current_config": false
     },
     {
-      "budget": 320,
-      "hours": 84,
-      "fiona_supplies": 2,
-      "score": -0.4245000000000002,
-      "a_rate": 0.0005,
-      "b_rate": 0.692,
-      "c_rate": 0.028,
-      "d_rate": 0.2795,
-      "avg_budget": 90.8125,
-      "avg_hours": 80.789,
-      "avg_supplies": 2.4025,
-      "is_current_config": false
-    },
-    {
-      "budget": 340,
-      "hours": 84,
-      "fiona_supplies": 2,
-      "score": -0.45499999999999996,
-      "a_rate": 0.0005,
-      "b_rate": 0.6815,
-      "c_rate": 0.0335,
-      "d_rate": 0.2845,
-      "avg_budget": 111.2325,
-      "avg_hours": 80.636,
-      "avg_supplies": 2.3695,
-      "is_current_config": false
-    },
-    {
-      "budget": 340,
-      "hours": 84,
+      "budget": 400,
       "fiona_supplies": 3,
-      "score": -0.4554999999999999,
-      "a_rate": 0.001,
-      "b_rate": 0.6835,
-      "c_rate": 0.03,
-      "d_rate": 0.2855,
-      "avg_budget": 106.2375,
-      "avg_hours": 80.519,
-      "avg_supplies": 2.793,
+      "score": 0.15500000000000003,
+      "a_rate": 0.004,
+      "b_rate": 0.783,
+      "c_rate": 0.053,
+      "d_rate": 0.16,
+      "avg_budget": 156.54,
+      "avg_supplies": 3.386,
       "is_current_config": true
     },
     {
-      "budget": 280,
-      "hours": 60,
+      "budget": 440,
       "fiona_supplies": 3,
-      "score": -0.5025,
-      "a_rate": 0.0,
-      "b_rate": 0.6795,
-      "c_rate": 0.025,
-      "d_rate": 0.2955,
-      "avg_budget": 66.62,
-      "avg_hours": 56.425,
-      "avg_supplies": 2.7085,
+      "score": 0.1489999999999999,
+      "a_rate": 0.0055,
+      "b_rate": 0.7685,
+      "c_rate": 0.067,
+      "d_rate": 0.159,
+      "avg_budget": 197.3025,
+      "avg_supplies": 3.381,
+      "is_current_config": false
+    },
+    {
+      "budget": 420,
+      "fiona_supplies": 2,
+      "score": 0.1389999999999999,
+      "a_rate": 0.0125,
+      "b_rate": 0.7695,
+      "c_rate": 0.051,
+      "d_rate": 0.167,
+      "avg_budget": 177.2275,
+      "avg_supplies": 2.8755,
+      "is_current_config": false
+    },
+    {
+      "budget": 440,
+      "fiona_supplies": 2,
+      "score": 0.13349999999999995,
+      "a_rate": 0.009,
+      "b_rate": 0.7685,
+      "c_rate": 0.057,
+      "d_rate": 0.1655,
+      "avg_budget": 197.385,
+      "avg_supplies": 2.866,
+      "is_current_config": false
+    },
+    {
+      "budget": 420,
+      "fiona_supplies": 3,
+      "score": 0.11899999999999988,
+      "a_rate": 0.0085,
+      "b_rate": 0.7615,
+      "c_rate": 0.063,
+      "d_rate": 0.167,
+      "avg_budget": 178.445,
+      "avg_supplies": 3.395,
       "is_current_config": false
     },
     {
       "budget": 320,
-      "hours": 72,
-      "fiona_supplies": 3,
-      "score": -0.5055,
-      "a_rate": 0.0,
-      "b_rate": 0.6765,
-      "c_rate": 0.028,
-      "d_rate": 0.2955,
-      "avg_budget": 93.1325,
-      "avg_hours": 68.869,
-      "avg_supplies": 2.739,
-      "is_current_config": false
-    },
-    {
-      "budget": 340,
-      "hours": 60,
-      "fiona_supplies": 3,
-      "score": -0.512,
-      "a_rate": 0.0015,
-      "b_rate": 0.6695,
-      "c_rate": 0.0325,
-      "d_rate": 0.2965,
-      "avg_budget": 104.615,
-      "avg_hours": 56.504,
-      "avg_supplies": 2.7685,
-      "is_current_config": false
-    },
-    {
-      "budget": 300,
-      "hours": 72,
       "fiona_supplies": 2,
-      "score": -0.514,
-      "a_rate": 0.0005,
-      "b_rate": 0.6725,
-      "c_rate": 0.03,
-      "d_rate": 0.297,
-      "avg_budget": 73.77,
-      "avg_hours": 68.314,
-      "avg_supplies": 2.343,
+      "score": 0.11649999999999994,
+      "a_rate": 0.005,
+      "b_rate": 0.7795,
+      "c_rate": 0.046,
+      "d_rate": 0.1695,
+      "avg_budget": 84.1725,
+      "avg_supplies": 2.7855,
       "is_current_config": false
     },
     {
-      "budget": 320,
-      "hours": 60,
-      "fiona_supplies": 2,
-      "score": -0.518,
-      "a_rate": 0.0005,
-      "b_rate": 0.6725,
-      "c_rate": 0.029,
-      "d_rate": 0.298,
-      "avg_budget": 93.2825,
-      "avg_hours": 56.787,
-      "avg_supplies": 2.3885,
-      "is_current_config": false
-    },
-    {
-      "budget": 340,
-      "hours": 72,
+      "budget": 360,
       "fiona_supplies": 3,
-      "score": -0.5365,
-      "a_rate": 0.001,
-      "b_rate": 0.6725,
-      "c_rate": 0.0235,
-      "d_rate": 0.303,
-      "avg_budget": 109.6475,
-      "avg_hours": 68.524,
-      "avg_supplies": 2.786,
+      "score": 0.10099999999999998,
+      "a_rate": 0.0065,
+      "b_rate": 0.7775,
+      "c_rate": 0.042,
+      "d_rate": 0.174,
+      "avg_budget": 121.32,
+      "avg_supplies": 3.338,
+      "is_current_config": false
+    },
+    {
+      "budget": 420,
+      "fiona_supplies": 1,
+      "score": 0.04249999999999998,
+      "a_rate": 0.0135,
+      "b_rate": 0.74,
+      "c_rate": 0.062,
+      "d_rate": 0.1845,
+      "avg_budget": 173.365,
+      "avg_supplies": 2.3505,
+      "is_current_config": false
+    },
+    {
+      "budget": 400,
+      "fiona_supplies": 2,
+      "score": 0.03400000000000003,
+      "a_rate": 0.009,
+      "b_rate": 0.753,
+      "c_rate": 0.0515,
+      "d_rate": 0.1865,
+      "avg_budget": 155.8075,
+      "avg_supplies": 2.808,
       "is_current_config": false
     }
-  ]
+  ],
+  "strata": {
+    "runs_per_stratum": 2000,
+    "variables": {
+      "hardware": {
+        "heltec": {
+          "runs": 2000,
+          "endings": {
+            "B": 1574,
+            "A": 16,
+            "C": 95,
+            "D": 315
+          },
+          "ending_rates": {
+            "A": 0.008,
+            "B": 0.787,
+            "C": 0.0475,
+            "D": 0.1575
+          },
+          "avg_budget": 196.575,
+          "avg_coverage": 10.9225,
+          "avg_supplies": 3.44,
+          "avg_nodes_used": 3.1935
+        },
+        "tbeam": {
+          "runs": 2000,
+          "endings": {
+            "B": 1544,
+            "C": 90,
+            "D": 352,
+            "A": 14
+          },
+          "ending_rates": {
+            "A": 0.007,
+            "B": 0.772,
+            "C": 0.045,
+            "D": 0.176
+          },
+          "avg_budget": 157.825,
+          "avg_coverage": 10.9455,
+          "avg_supplies": 3.2995,
+          "avg_nodes_used": 3.1635
+        },
+        "rak": {
+          "runs": 2000,
+          "endings": {
+            "B": 1458,
+            "C": 148,
+            "D": 370,
+            "A": 24
+          },
+          "ending_rates": {
+            "A": 0.012,
+            "B": 0.729,
+            "C": 0.074,
+            "D": 0.185
+          },
+          "avg_budget": 121.27,
+          "avg_coverage": 13.174,
+          "avg_supplies": 3.295,
+          "avg_nodes_used": 3.1075
+        }
+      },
+      "firmware": {
+        "stable": {
+          "runs": 2000,
+          "endings": {
+            "B": 1467,
+            "D": 347,
+            "C": 168,
+            "A": 18
+          },
+          "ending_rates": {
+            "A": 0.009,
+            "B": 0.7335,
+            "C": 0.084,
+            "D": 0.1735
+          },
+          "avg_budget": 152.6825,
+          "avg_coverage": 12.7385,
+          "avg_supplies": 3.3665,
+          "avg_nodes_used": 3.153
+        },
+        "alpha": {
+          "runs": 2000,
+          "endings": {
+            "B": 1575,
+            "D": 344,
+            "C": 72,
+            "A": 9
+          },
+          "ending_rates": {
+            "A": 0.0045,
+            "B": 0.7875,
+            "C": 0.036,
+            "D": 0.172
+          },
+          "avg_budget": 162.4325,
+          "avg_coverage": 10.376,
+          "avg_supplies": 3.319,
+          "avg_nodes_used": 3.143
+        }
+      },
+      "frequency_plan": {
+        "us915": {
+          "runs": 2000,
+          "endings": {
+            "B": 1357,
+            "C": 294,
+            "D": 315,
+            "A": 34
+          },
+          "ending_rates": {
+            "A": 0.017,
+            "B": 0.6785,
+            "C": 0.147,
+            "D": 0.1575
+          },
+          "avg_budget": 155.9425,
+          "avg_coverage": 16.93,
+          "avg_supplies": 3.377,
+          "avg_nodes_used": 3.211
+        },
+        "eu868": {
+          "runs": 2000,
+          "endings": {
+            "B": 1584,
+            "D": 355,
+            "C": 57,
+            "A": 4
+          },
+          "ending_rates": {
+            "A": 0.002,
+            "B": 0.792,
+            "C": 0.0285,
+            "D": 0.1775
+          },
+          "avg_budget": 159.0225,
+          "avg_coverage": 10.3145,
+          "avg_supplies": 3.346,
+          "avg_nodes_used": 3.1815
+        },
+        "lab433": {
+          "runs": 2000,
+          "endings": {
+            "B": 1621,
+            "D": 369,
+            "C": 10
+          },
+          "ending_rates": {
+            "A": 0.0,
+            "B": 0.8105,
+            "C": 0.005,
+            "D": 0.1845
+          },
+          "avg_budget": 158.6975,
+          "avg_coverage": 8.0745,
+          "avg_supplies": 3.351,
+          "avg_nodes_used": 3.1495
+        }
+      },
+      "preset": {
+        "longfast": {
+          "runs": 2000,
+          "endings": {
+            "B": 1426,
+            "D": 332,
+            "C": 214,
+            "A": 28
+          },
+          "ending_rates": {
+            "A": 0.014,
+            "B": 0.713,
+            "C": 0.107,
+            "D": 0.166
+          },
+          "avg_budget": 158.8225,
+          "avg_coverage": 14.663,
+          "avg_supplies": 3.341,
+          "avg_nodes_used": 3.216
+        },
+        "balanced": {
+          "runs": 2000,
+          "endings": {
+            "B": 1558,
+            "C": 118,
+            "D": 315,
+            "A": 9
+          },
+          "ending_rates": {
+            "A": 0.0045,
+            "B": 0.779,
+            "C": 0.059,
+            "D": 0.1575
+          },
+          "avg_budget": 156.91,
+          "avg_coverage": 11.732,
+          "avg_supplies": 3.445,
+          "avg_nodes_used": 3.243
+        },
+        "turbo": {
+          "runs": 2000,
+          "endings": {
+            "B": 1605,
+            "D": 341,
+            "A": 5,
+            "C": 49
+          },
+          "ending_rates": {
+            "A": 0.0025,
+            "B": 0.8025,
+            "C": 0.0245,
+            "D": 0.1705
+          },
+          "avg_budget": 158.1525,
+          "avg_coverage": 9.0955,
+          "avg_supplies": 3.358,
+          "avg_nodes_used": 3.146
+        }
+      },
+      "security": {
+        "secure": {
+          "runs": 2000,
+          "endings": {
+            "B": 1622,
+            "D": 348,
+            "A": 30
+          },
+          "ending_rates": {
+            "A": 0.015,
+            "B": 0.811,
+            "C": 0.0,
+            "D": 0.174
+          },
+          "avg_budget": 156.8925,
+          "avg_coverage": 11.9745,
+          "avg_supplies": 3.3585,
+          "avg_nodes_used": 3.209
+        },
+        "public": {
+          "runs": 2000,
+          "endings": {
+            "B": 1441,
+            "D": 317,
+            "C": 242
+          },
+          "ending_rates": {
+            "A": 0.0,
+            "B": 0.7205,
+            "C": 0.121,
+            "D": 0.1585
+          },
+          "avg_budget": 156.1425,
+          "avg_coverage": 12.0845,
+          "avg_supplies": 3.364,
+          "avg_nodes_used": 3.22
+        }
+      },
+      "add_ons": {
+        "none": {
+          "runs": 2000,
+          "endings": {
+            "D": 336,
+            "B": 1601,
+            "C": 63
+          },
+          "ending_rates": {
+            "A": 0.0,
+            "B": 0.8005,
+            "C": 0.0315,
+            "D": 0.168
+          },
+          "avg_budget": 207.9325,
+          "avg_coverage": 10.233,
+          "avg_supplies": 3.4045,
+          "avg_nodes_used": 3.1265
+        },
+        "case": {
+          "runs": 2000,
+          "endings": {
+            "B": 1590,
+            "D": 321,
+            "C": 88,
+            "A": 1
+          },
+          "ending_rates": {
+            "A": 0.0005,
+            "B": 0.795,
+            "C": 0.044,
+            "D": 0.1605
+          },
+          "avg_budget": 165.3475,
+          "avg_coverage": 10.2935,
+          "avg_supplies": 3.431,
+          "avg_nodes_used": 3.142
+        },
+        "solar": {
+          "runs": 2000,
+          "endings": {
+            "B": 1612,
+            "D": 326,
+            "C": 62
+          },
+          "ending_rates": {
+            "A": 0.0,
+            "B": 0.806,
+            "C": 0.031,
+            "D": 0.163
+          },
+          "avg_budget": 166.435,
+          "avg_coverage": 10.1555,
+          "avg_supplies": 3.4535,
+          "avg_nodes_used": 3.154
+        },
+        "both": {
+          "runs": 2000,
+          "endings": {
+            "D": 342,
+            "B": 1463,
+            "A": 33,
+            "C": 162
+          },
+          "ending_rates": {
+            "A": 0.0165,
+            "B": 0.7315,
+            "C": 0.081,
+            "D": 0.171
+          },
+          "avg_budget": 129.265,
+          "avg_coverage": 13.294,
+          "avg_supplies": 3.293,
+          "avg_nodes_used": 3.269
+        }
+      }
+    }
+  }
 }
