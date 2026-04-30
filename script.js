@@ -4,7 +4,6 @@ const outsideTownKeys = new Set(["valley", "health"]);
 let locationDefinitions = locationKeys.map((key) => ({
   key,
   title: key,
-  contact: "",
   elevation: "",
   detail: "",
   outsideTown: outsideTownKeys.has(key),
@@ -16,7 +15,6 @@ function hydrateLocationDefinitions() {
   locationDefinitions = locationKeys.map((key) => ({
     key,
     title: t(`locations.${key}.title`),
-    contact: t(`locations.${key}.contact`),
     elevation: t(`locations.${key}.elevation`),
     detail: t(`locations.${key}.detail`),
     outsideTown: outsideTownKeys.has(key),
@@ -87,8 +85,6 @@ function createInitialState() {
     nodeCost: 0,
     linkQuality: 0,
     stableFirmware: true,
-    validBand: true,
-    validPreset: true,
     deadZones: false,
     valleyWeak: false,
     healthWeak: false,
@@ -702,8 +698,6 @@ function applyWorkbenchSelections(selections) {
     state.linkQuality -= 1;
   }
 
-  state.validBand = true;
-  state.validPreset = true;
   state.encryption = true;
   state.securityConfigured = true;
 
@@ -1261,14 +1255,6 @@ async function actDiagnostics(runToken) {
     }
   }
 
-  if (!state.validBand) {
-    await typeLine(t("diagnostics.band_warning"), "warn", runToken);
-  }
-
-  if (!state.validPreset) {
-    await typeLine(t("diagnostics.preset_warning"), "warn", runToken);
-  }
-
   await typeBlock(t("diagnostics.storm_alert"), "alert", runToken);
 }
 
@@ -1306,7 +1292,7 @@ function determineEnding() {
   const coverage = state.coverage;
   const lowCoverage = coverage < 20;
   const supplyShortage = state.supplies < 2;
-  const configFailure = !state.validBand || !state.validPreset || !state.stableFirmware;
+  const configFailure = !state.stableFirmware;
   const coverageStrong = coverage >= 30;
   const scienceReady = state.scienceRoof && !state.scienceMissed;
   const scienceBypassCoverage = 38;
@@ -1324,7 +1310,7 @@ function determineEnding() {
     };
   }
 
-  if (state.encryption && coverage >= 22 && (state.deadZones || !scienceRequirementMet || !state.validBand || !state.validPreset)) {
+  if (state.encryption && coverage >= 22 && (state.deadZones || !scienceRequirementMet)) {
     return {
       className: "warn",
       letter: "B",
@@ -1370,8 +1356,6 @@ async function showEnding(runToken) {
       hardware: state.hardware,
       nodes_purchased: state.nodesPurchased,
       nodes_used: state.nodesDeployed.length,
-      valid_band: state.validBand,
-      valid_preset: state.validPreset,
       stable_firmware: state.stableFirmware,
       dead_zones: state.deadZones,
       science_roof: state.scienceRoof,

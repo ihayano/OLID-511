@@ -17,8 +17,6 @@ class RunState:
     node_cost: int
     link_quality: int
     stable_firmware: bool
-    valid_band: bool
-    valid_preset: bool
     dead_zones: bool
     valley_weak: bool
     health_weak: bool
@@ -50,7 +48,7 @@ def determine_ending(state: RunState, thresholds: dict) -> str:
     coverage = state.coverage
     low_coverage = coverage < thresholds["coverage_low"]
     supply_shortage = state.supplies < thresholds["minimum_supplies_for_no_shortage"]
-    config_failure = (not state.valid_band) or (not state.valid_preset) or (not state.stable_firmware)
+    config_failure = not state.stable_firmware
     coverage_strong = coverage >= thresholds["coverage_strong"]
     science_ready = state.science_roof and (not state.science_missed)
     science_requirement_met = science_ready or coverage >= 38
@@ -58,7 +56,7 @@ def determine_ending(state: RunState, thresholds: dict) -> str:
     if coverage_strong and state.encryption and state.supplies > 0 and (not state.dead_zones) and science_requirement_met:
         return "A"
     if state.encryption and coverage >= thresholds["coverage_good"] and (
-        state.dead_zones or (not science_requirement_met) or (not state.valid_band) or (not state.valid_preset)
+        state.dead_zones or (not science_requirement_met)
     ):
         return "B"
     if (not state.encryption) and coverage >= thresholds["coverage_good"]:
@@ -92,8 +90,6 @@ def simulate_one(constants: dict, rng: random.Random, overrides: dict | None = N
         node_cost=0,
         link_quality=0,
         stable_firmware=True,
-        valid_band=True,
-        valid_preset=True,
         dead_zones=False,
         valley_weak=False,
         health_weak=False,
@@ -165,22 +161,8 @@ def simulate_one(constants: dict, rng: random.Random, overrides: dict | None = N
     state.battery_fragile = state.battery_fragile or firmware_cfg["battery_fragile"]
     state.link_quality += firmware_cfg["link_quality_delta"]
 
-    # Frequency
-    freq_key = _pick(rng, list(wb["frequency_plan"].keys()), overrides.get("frequency_plan"))
-    freq_cfg = wb["frequency_plan"][freq_key]
-    state.valid_band = freq_cfg["valid_band"]
-    state.link_quality += freq_cfg["link_quality_delta"]
-
-    # Preset
-    preset_key = _pick(rng, list(wb["preset"].keys()), overrides.get("preset"))
-    preset_cfg = wb["preset"][preset_key]
-    state.valid_preset = preset_cfg["valid_preset"]
-    state.battery_fragile = state.battery_fragile or preset_cfg["battery_fragile"]
-    state.link_quality += preset_cfg["link_quality_delta"]
-
-    # Security
-    security_key = _pick(rng, list(wb["security"].keys()), overrides.get("security"))
-    state.encryption = wb["security"][security_key]["encryption"]
+    # Frequency/preset/security are no longer player-facing in gameplay.
+    state.encryption = True
 
     # Deployments
     pending = DEPLOY_ORDER_KEYS.copy()
@@ -305,9 +287,6 @@ def stratified_sweep(constants: dict, runs_per_stratum: int, seed: int) -> dict:
     strata_values: dict[str, list[str]] = {
         "hardware": list(wb["hardware"].keys()),
         "firmware": ["stable", "alpha"],
-        "frequency_plan": list(wb["frequency_plan"].keys()),
-        "preset": list(wb["preset"].keys()),
-        "security": list(wb["security"].keys()),
         "add_ons": ["none", "case", "solar", "both"],
     }
 
