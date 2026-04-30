@@ -251,6 +251,13 @@ async function playBootSequence(runToken) {
 
   dom.bootScreen.classList.remove("boot-screen--visible");
   dom.bootScreen.setAttribute("aria-hidden", "true");
+
+  // Power-on CRT effect: play once then revert to normal flicker
+  const shell = document.querySelector(".crt-shell");
+  if (shell) {
+    shell.classList.add("powering-on");
+    shell.addEventListener("animationend", () => shell.classList.remove("powering-on"), { once: true });
+  }
 }
 
 function refreshUi() {
