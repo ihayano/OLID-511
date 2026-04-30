@@ -54,6 +54,7 @@ const themeStorageKey = "project-intermesh-theme";
 let currentRunToken = 0;
 let currentMapIndex = 0;
 let activeCursorRow = null;
+let choiceIndex = 0;
 
 function t(key, vars) {
   return window.GameStrings.t(key, vars);
@@ -119,6 +120,7 @@ function setActiveCursor(row) {
 }
 
 function clearChoices() {
+  choiceIndex = 0;
   dom.choicePanel.innerHTML = "";
 }
 
@@ -350,6 +352,7 @@ async function applyTravelIfNeeded(locationKey, runToken) {
 }
 
 function createChoiceButton(option, resolve) {
+  choiceIndex += 1;
   const button = document.createElement("button");
   button.type = "button";
   button.className = "choice-card";
@@ -357,17 +360,14 @@ function createChoiceButton(option, resolve) {
   const costText = Number.isFinite(option.cost)
     ? t("choice_button.cost_format", { amount: option.cost })
     : option.meta || t("choice_button.cost_default");
-  button.innerHTML = `
-    <strong>${option.label}</strong>
-    <span>${option.description}</span>
-    <small>${costText}</small>
-  `;
+
+  button.innerHTML = `<span class="choice-key">[${choiceIndex}]</span><span class="choice-body"><strong>${option.label}</strong><span>${option.description}</span></span><span class="choice-cost">${costText}</span>`;
 
   const disabled = Boolean(option.disabled) || (Number.isFinite(option.cost) && state.budget < option.cost);
   if (disabled) {
     button.disabled = true;
-    if (state.budget < option.cost) {
-      button.querySelector("small").textContent = t("choice_button.insufficient_suffix", { costText });
+    if (Number.isFinite(option.cost) && state.budget < option.cost) {
+      button.querySelector(".choice-cost").textContent = t("choice_button.insufficient_suffix", { costText });
     }
   }
 
@@ -491,7 +491,7 @@ function workbenchAddRow(container, title, options, onPick, selectedValue) {
   options.forEach((opt) => {
     const btn = document.createElement("button");
     btn.type = "button";
-    btn.className = "choice-card workbench-option";
+    btn.className = "workbench-option";
     btn.disabled = Boolean(opt.disabled);
     const small = opt.meta != null && opt.meta !== "" ? `<small>${opt.meta}</small>` : "";
     btn.innerHTML = `<strong>${opt.label}</strong><span>${opt.description}</span>${small}`;
@@ -1388,11 +1388,7 @@ async function showEnding(runToken) {
   const restartButton = document.createElement("button");
   restartButton.type = "button";
   restartButton.className = "choice-card";
-  restartButton.innerHTML = `
-    <strong>${t("endings.replay_label")}</strong>
-    <span>${t("endings.replay_description")}</span>
-    <small>${t("endings.replay_meta")}</small>
-  `;
+  restartButton.innerHTML = `<span class="choice-key">[R]</span><span class="choice-body"><strong>${t("endings.replay_label")}</strong><span>${t("endings.replay_description")}</span></span><span class="choice-cost">${t("endings.replay_meta")}</span>`;
   restartButton.addEventListener("click", () => {
     startGame();
   });

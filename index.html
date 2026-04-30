@@ -31,42 +31,47 @@
       <div class="crt-shell">
         <header class="topbar">
           <div class="topbar-brand">
-            <p class="eyebrow" data-string="ui.eyebrow">Community Mesh Build Console</p>
             <h1 data-string="ui.title">PROJECT INTERMESH</h1>
+            <p class="eyebrow" data-string="ui.eyebrow">Community Mesh Build Console</p>
           </div>
           <div class="topbar-actions">
-            <button id="theme-toggle" class="secondary-button btn btn-outline-light mr-2" type="button" data-string-attr-aria-label="ui.theme_aria" data-string="ui.theme_default_label" aria-label="Toggle screen theme">Theme: GREEN</button>
-            <button id="download-log-button" class="secondary-button btn btn-outline-light mr-2" type="button" data-string-attr-title="ui.download_log_title" data-string="ui.download_log" title="Download your run log as JSON">Download Log</button>
-            <button id="restart-button" class="secondary-button btn btn-outline-light" type="button" data-string="ui.restart">Restart Run</button>
+            <button id="theme-toggle" class="secondary-button btn" type="button" data-string-attr-aria-label="ui.theme_aria" data-string="ui.theme_default_label" aria-label="Toggle screen theme">[ THEME:GREEN ]</button>
+            <button id="download-log-button" class="secondary-button btn" type="button" data-string-attr-title="ui.download_log_title" data-string="ui.download_log" title="Download your run log as JSON">[ LOG ]</button>
+            <button id="restart-button" class="secondary-button btn" type="button" data-string="ui.restart">[ RESTART ]</button>
           </div>
         </header>
 
-        <section class="status-strip">
-          <article class="status-chip">
-            <span class="stat-label" data-string="ui.chips.budget">Budget</span>
+        <div class="status-line" role="status" aria-live="polite">
+          <span class="stat-grp">
+            <span class="stat-key" data-string="ui.chips.budget">BUDGET</span>
             <strong id="budget-stat">$400</strong>
-          </article>
-          <article class="status-chip">
-            <span class="stat-label" data-string="ui.chips.coverage">Coverage</span>
+          </span>
+          <span class="stat-sep" aria-hidden="true">│</span>
+          <span class="stat-grp">
+            <span class="stat-key" data-string="ui.chips.coverage">COV</span>
             <strong id="coverage-stat">0%</strong>
-          </article>
-          <article class="status-chip">
-            <span class="stat-label" data-string="ui.chips.encryption">Encryption</span>
+          </span>
+          <span class="stat-sep" aria-hidden="true">│</span>
+          <span class="stat-grp">
+            <span class="stat-key" data-string="ui.chips.encryption">ENC</span>
             <strong id="encryption-stat">OFF</strong>
-          </article>
-          <article class="status-chip">
-            <span class="stat-label" data-string="ui.chips.supplies">Supplies</span>
+          </span>
+          <span class="stat-sep" aria-hidden="true">│</span>
+          <span class="stat-grp">
+            <span class="stat-key" data-string="ui.chips.supplies">SUPP</span>
             <strong id="supplies-stat">0</strong>
-          </article>
-          <article class="status-chip status-chip--wide">
-            <span class="stat-label" data-string="ui.chips.hardware">Hardware</span>
-            <strong id="hardware-stat">Not selected</strong>
-          </article>
-          <article class="status-chip status-chip--wide">
-            <span class="stat-label" data-string="ui.chips.nodes">Nodes Used / Purchased</span>
-            <strong id="nodes-stat">0 / 0</strong>
-          </article>
-        </section>
+          </span>
+          <span class="stat-sep" aria-hidden="true">│</span>
+          <span class="stat-grp">
+            <span class="stat-key" data-string="ui.chips.hardware">HW</span>
+            <strong id="hardware-stat">—</strong>
+          </span>
+          <span class="stat-sep" aria-hidden="true">│</span>
+          <span class="stat-grp">
+            <span class="stat-key" data-string="ui.chips.nodes">NODES</span>
+            <strong id="nodes-stat">0/0</strong>
+          </span>
+        </div>
 
         <main class="screen-layout">
           <section class="screen-main">
