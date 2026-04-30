@@ -1166,7 +1166,6 @@ async function actDeployment(runToken) {
           value: location.key,
           label: location.title,
           description: t("act2.location_description", {
-            contact: location.contact,
             detail: location.detail,
           }),
           meta: location.elevation,
