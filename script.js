@@ -421,6 +421,10 @@ async function promptTextInput(label, placeholder) {
 async function introSequence(runToken) {
   await typeBlock(t("intro.prologue"), "system", runToken);
 
+  await typeLine(t("intro.controls_header"), "warn", runToken);
+  await typeBlock(t("intro.controls_lines"), "system", runToken);
+  await typeLine(t("intro.controls_footer"), "warn", runToken);
+
   state.builderName = await promptTextInput(
     t("intro.name_prompt"),
     t("intro.name_placeholder")
