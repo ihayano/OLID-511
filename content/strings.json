@@ -326,7 +326,7 @@
       "Your city is on the map. Choose your route carefully: every stop costs money, shapes the mesh, and changes who survives the outage together."
     ],
     "prompt": "Select your next deployment target or lock the current network and move to diagnostics.",
-    "location_description": "{contact}. {detail}",
+    "location_description": "{detail}",
     "finish_label": "Run diagnostics now",
     "finish_description": "Stop deploying and find out whether the current mesh can survive the storm.",
     "finish_meta": "Advance to Act III",
