@@ -62,7 +62,7 @@
         "fee": 20
       },
       "high_gain_antennas": {
-        "fee": 20
+        "fee": 25
       },
       "wis_mesh_repeater": {
         "fee": 79
