@@ -312,7 +312,8 @@ function changeBudget(amount) {
 
 function addCoverage(baseValue) {
   const antennaBonus = state.highGainAntennas ? 2 : 0;
-  const adjusted = Math.max(1, baseValue + state.linkQuality + antennaBonus);
+  const housingBonus = state.housingUnit ? 1 : 0;
+  const adjusted = Math.max(1, baseValue + state.linkQuality + antennaBonus + housingBonus);
   state.coverage = Math.max(0, state.coverage + adjusted);
   refreshUi();
   return adjusted;
