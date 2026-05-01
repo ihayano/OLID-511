@@ -4,7 +4,7 @@
       "PROJECT INTERMESH DOS TERMINAL v1.0",
       "MEMORY CHECK 640K OK",
       "MESH ROUTING STACK ........ READY",
-      "COMMUNITY NODE CONSOLE .... READY",
+      "COMMUNITY DEVICE CONSOLE ... READY",
       "LOADING EMERGENCY SCENARIO..."
     ]
   },
@@ -33,7 +33,7 @@
       "coverage": "Coverage",
       "encryption": "Encryption",
       "hardware": "Hardware",
-      "nodes": "Nodes Used / Purchased"
+      "nodes": "Devices Placed / Purchased"
     },
     "hardware_unselected": "Not selected",
     "encryption_off": "OFF",
@@ -64,8 +64,8 @@
     "name_placeholder": "Ziad",
     "post_name": [
       "{name} ready. Project Intermesh setup logged.",
-      "Main objective: deploy enough resilient Meshtastic nodes to keep people talking after the grid falls.",
-      "Failure risks: low coverage, weak batteries, broken links, or an open channel that hostile listeners can exploit."
+      "Main objective: place enough Meshtastic devices with neighbors to keep people talking after the grid falls.",
+      "Failure risks: low coverage, weak signal, broken links, or an open channel that hostile listeners can exploit."
     ]
   },
   "travel": {
@@ -86,10 +86,10 @@
       "The online requisition terminal blinks to life. Every dollar spent here determines what the town gets later.",
       "Use the workbench panel below to compare every purchase at once, then confirm when the cart fits your budget."
     ],
-    "budget_hint": "Starting cash: ${budget}. Hardware, node count, and firmware are required. Everything else is optional -- tap twice to clear a selection.",
+    "budget_hint": "Starting cash: ${budget}. Device selection and quantity are required. Everything else is optional -- tap twice to clear a selection.",
     "total_ready": "Cart total: ${total} // Cash left after checkout: ${remaining}",
     "total_over": "Cart total: ${total} // Cash left after checkout: -${delta}. Adjust selections.",
-    "total_pending": "Cart so far: ${total} // Pick hardware, node count, and firmware to lock in budget.",
+    "total_pending": "Cart so far: ${total} // Pick a device and quantity to lock in budget.",
     "build_locked": "Build locked: {hardware}, {nodes} unit{s}.",
     "extras_none": "Extras: none.",
     "extras_line": "Extras: {items}.",
@@ -133,8 +133,8 @@
       "title": "Campus Science Building",
       "elevation": "Maximum elevation",
       "detail": "Critical line-of-sight point inside town.",
-      "no_nodes_status": "No nodes remaining to place at this site.",
-      "no_nodes_line": "No nodes left in your inventory. You cannot deploy at the science building.",
+      "no_nodes_status": "No devices left to give at this site.",
+      "no_nodes_line": "No devices left to give. You cannot reach the science building.",
       "intro": [
         "Destination: Campus Science Building.",
         "Dr. Ansari leans in the observatory doorway, unimpressed by panic and very impressed by evidence.",
@@ -148,10 +148,10 @@
         "data_meta_locked": "Requires WisMesh Mini Solar Repeater for roof install",
         "emotion_label": "Make an emotional plea",
         "emotion_description": "Ask him to do it because people are scared and you need kindness right now.",
-        "emotion_meta": "Uses 1 node",
+        "emotion_meta": "Gives 1 device",
         "jargon_label": "Use pure radio jargon",
         "jargon_description": "Launch into packet-routing terms and hope technical vocabulary carries the moment.",
-        "jargon_meta": "Uses 1 node",
+        "jargon_meta": "Gives 1 device",
         "skip_label": "Skip this site",
         "skip_description": "Walk away from the town's best elevation point.",
         "skip_meta": "No cost"
@@ -169,21 +169,21 @@
       "title": "Valley West",
       "elevation": "Low elevation",
       "detail": "Residential area surrounded by signal-killing hills.",
-      "no_nodes_status": "No nodes remaining to place at this site.",
-      "no_nodes_line": "No nodes left in your inventory. Valley West stays offline.",
+      "no_nodes_status": "No devices left to give at this site.",
+      "no_nodes_line": "No devices left to give. Valley West stays offline.",
       "intro": [
         "Destination: Valley West.",
         "Luz and Diego meet you on their porch while hills crowd every approach to the neighborhood.",
-        "A standard node will struggle here unless you spend more on the link."
+        "A standard device will struggle here unless you spend more on the link."
       ],
       "prompt": "Choose the Valley West deployment package.",
       "choices": {
-        "basic_label": "Basic node only",
+        "basic_label": "Basic device placement",
         "basic_description": "Cheapest path, but the hills will likely carve out a dead zone.",
-        "basic_meta": "Uses 1 node // no add-on cost",
-        "highgain_label": "Node + high-gain antenna",
+        "basic_meta": "Gives 1 device // no add-on cost",
+        "highgain_label": "Device + high-gain antenna",
         "highgain_description": "Stabilizes the valley link and pushes farther toward rural outskirts.",
-        "solar_label": "Node + solar repeater",
+        "solar_label": "Device + solar repeater",
         "solar_description": "Best reach and long-tail resilience when the outage stretches past the first night.",
         "skip_label": "Skip this site",
         "skip_description": "Leave the valley district isolated behind terrain.",
@@ -192,7 +192,7 @@
       "skip_status": "Valley West remains outside the mesh.",
       "skip_line": "You keep your cash, but the valley edge falls off the map.",
       "basic_node_note": "residential install, but the hills choke the signal (+{gain}% coverage)",
-      "basic_status": "Node deployed, yet terrain still creates a valley dead zone.",
+      "basic_status": "Device placed, yet terrain still creates a valley dead zone.",
       "basic_line": "The house line joins the mesh, and Luz hands you a warm mug from the kitchen. The western edge still drops packets into silence.",
       "highgain_node_note": "high-gain residential relay clears the hills (+{gain}% coverage)",
       "highgain_status": "High-gain antenna punches the valley back into town.",
@@ -205,25 +205,25 @@
       "title": "International Grocery",
       "elevation": "Medium elevation",
       "detail": "Classmate with a hatchback and a full gas tank.",
-      "no_nodes_status": "No nodes remaining to place at this site.",
-      "no_nodes_line": "No nodes left in your inventory. Yoshiko keeps her keys.",
+      "no_nodes_status": "No devices left to give at this site.",
+      "no_nodes_line": "No devices left to give. Yoshiko keeps her keys.",
       "intro": [
         "Destination: International Grocery.",
         "Yoshiko eyes your gear, then your empty wallet, then tosses you her keys.",
-        "\"You put a node here, I drive you wherever else you need to go,\" she says."
+        "\"You give a device to the store, I drive you wherever else you need to go,\" she says."
       ],
       "prompt": "Accept Yoshiko's deal?",
       "choices": {
-        "deploy_label": "Trade a node for logistics support",
-        "deploy_description": "Place a node at International Grocery, earn supplies, and let Yoshiko absorb later travel costs.",
-        "deploy_meta": "Uses 1 node",
+        "deploy_label": "Give a device for logistics support",
+        "deploy_description": "Place a device at International Grocery, earn supplies, and let Yoshiko absorb later travel costs.",
+        "deploy_meta": "Gives 1 device",
         "skip_label": "Skip International Grocery",
-        "skip_description": "Save the node cost, but lose transport help and a busy community stop.",
+        "skip_description": "Save the device, but lose transport help and a busy community stop.",
         "skip_meta": "No cost"
       },
-      "skip_status": "No node placed at International Grocery. Yoshiko keeps her keys.",
+      "skip_status": "No device placed at International Grocery. Yoshiko keeps her keys.",
       "skip_line": "You pass on International Grocery. The next deployments stay slower and more expensive in spirit, if not on paper.",
-      "deploy_node_note": "International Grocery node online; Yoshiko now gives you free rides outside town (+{gain}% coverage)",
+      "deploy_node_note": "International Grocery device online; Yoshiko now gives you free rides outside town (+{gain}% coverage)",
       "deploy_status": "International Grocery linked. Yoshiko starts driving your route.",
       "deploy_line": "Yoshiko tops off her tank and waves you in. The market goes live, and your out-of-town travel rides are now free."
     },
@@ -231,17 +231,17 @@
       "title": "Tesseract Apartments",
       "elevation": "Medium elevation",
       "detail": "Community garden rooftop and student households.",
-      "no_nodes_status": "No nodes remaining to place at this site.",
-      "no_nodes_line": "No nodes left in your inventory. The apartments remain unlinked.",
+      "no_nodes_status": "No devices left to give at this site.",
+      "no_nodes_line": "No devices left to give. The apartments remain unlinked.",
       "intro": [
         "Destination: Tesseract Apartments.",
         "Dalia meets you by the community garden with a crate of peppers, canned beans, and one stubborn smile."
       ],
-      "prompt": "Trade a node for food and rooftop access?",
+      "prompt": "Give a device for food and rooftop access?",
       "choices": {
-        "deploy_label": "Deploy apartment node",
+        "deploy_label": "Give a device to the apartment community",
         "deploy_description": "Extend the mesh to several families and bring home garden supplies.",
-        "deploy_meta": "Uses 1 node",
+        "deploy_meta": "Gives 1 device",
         "skip_label": "Skip this site",
         "skip_description": "Leave student housing without a relay and forfeit the food trade.",
         "skip_meta": "No cost"
@@ -250,14 +250,14 @@
       "skip_line": "You keep moving. Dalia watches you go with a basket that could have mattered later.",
       "deploy_node_note": "garden roof relay installed (+{gain}% coverage)",
       "deploy_status": "Apartment rooftop linked. Food stores rise with trust.",
-      "deploy_line": "The garden node comes online. Dalia sends you off with extra supplies from the rooftop harvest."
+      "deploy_line": "The garden device comes online. Dalia sends you off with extra supplies from the rooftop harvest."
     },
     "radio": {
       "title": "Radio Station",
       "elevation": "Medium elevation",
       "detail": "Strong reach if you are willing to climb the tower.",
-      "no_nodes_status": "No nodes remaining to place at this site.",
-      "no_nodes_line": "No nodes left in your inventory. The station cannot be linked.",
+      "no_nodes_status": "No devices left to give at this site.",
+      "no_nodes_line": "No devices left to give. The station cannot be linked.",
       "intro": [
         "Destination: Radio Station.",
         "Geo unlocks a side gate and points toward the tower with a grin that says he would climb it himself if you asked."
@@ -270,7 +270,7 @@
         "tower_meta_locked": "Requires WisMesh Mini Solar Repeater for tower install",
         "lobby_label": "Mount it inside the lobby",
         "lobby_description": "Safer, faster, and much worse for network geometry.",
-        "lobby_meta": "Uses 1 node",
+        "lobby_meta": "Gives 1 device",
         "skip_label": "Skip this site",
         "skip_description": "Save money and let the radio station fend for itself.",
         "skip_meta": "No cost"
@@ -278,7 +278,7 @@
       "skip_status": "Broadcast hub never linked into the mesh.",
       "skip_line": "You leave the station behind. The town loses a strong mid-grid relay point.",
       "tower_node_note": "tower-top mount with Geo spotting the climb (+{gain}% coverage)",
-      "tower_status": "Tower node mounted above the station roofline.",
+      "tower_status": "Tower device mounted above the station roofline.",
       "tower_line": "The tower sways, your hands shake, and the new relay paints a clean arc across the city center.",
       "lobby_node_note": "interior station mount with reduced reach (+{gain}% coverage)",
       "lobby_status": "Safe install completed, but the station never reaches full potential.",
@@ -288,8 +288,8 @@
       "title": "Women's Health Clinic",
       "elevation": "Medium elevation",
       "detail": "Dense trees force a cleaner antenna setup.",
-      "no_nodes_status": "No nodes remaining to place at this site.",
-      "no_nodes_line": "No nodes left in your inventory. The clinic stays outside the mesh.",
+      "no_nodes_status": "No devices left to give at this site.",
+      "no_nodes_line": "No devices left to give. The clinic stays outside the mesh.",
       "intro": [
         "Destination: Women's Health Clinic.",
         "Yasmin leads you behind the building where trees and wet branches turn the air into a green wall.",
@@ -297,10 +297,10 @@
       ],
       "prompt": "Choose the clinic deployment package.",
       "choices": {
-        "basic_label": "Basic node only",
+        "basic_label": "Basic device placement",
         "basic_description": "Cheaper, but leaves the clinic half-hidden behind the trees.",
-        "basic_meta": "Uses 1 node // no add-on cost",
-        "highgain_label": "Node + high-gain antenna",
+        "basic_meta": "Gives 1 device // no add-on cost",
+        "highgain_label": "Device + high-gain antenna",
         "highgain_description": "Cuts through the foliage and gives the clinic a dependable route.",
         "skip_label": "Skip this site",
         "skip_description": "Save money and accept a medical blind spot during the outage.",
@@ -308,8 +308,8 @@
       },
       "skip_status": "Health center left outside the mesh.",
       "skip_line": "You save the money. The clinic vanishes behind branches and static.",
-      "basic_node_note": "clinic node deployed, but the foliage still blocks clean traffic (+{gain}% coverage)",
-      "basic_status": "Node deployed, yet foliage still causes a medical dead zone.",
+      "basic_node_note": "clinic device placed, but the foliage still blocks clean traffic (+{gain}% coverage)",
+      "basic_status": "Device placed, yet foliage still causes a medical dead zone.",
       "basic_line": "Yasmin thanks you anyway. The clinic joins the map, but every tree between you and town remains an enemy.",
       "highgain_node_note": "high-gain clinic relay clears the tree line (+{gain}% coverage)",
       "highgain_status": "Clinic relay pushes cleanly through the canopy.",
@@ -355,29 +355,30 @@
   },
   "mutual_aid": {
     "intro": [
-      "Mutual aid request incoming.",
-      "Mina from two streets over asks for access so she can text family and trade outage updates through the mesh."
+      "Mina from two streets over stops you on your way back.",
+      "Her family hasn't heard from her since the alerts started. She asks if you have a spare device — she wants to join the mesh and reach them."
     ],
-    "prompt": "Grant Mina access to the network?",
-    "grant_label": "Grant network access",
-    "grant_description": "Share the mesh, prove its value, and trust your community to carry it forward.",
-    "grant_meta": "Earn supplies",
-    "deny_label": "Keep the network closed",
-    "deny_description": "Protect your limited resources and avoid another user on an already stressed system.",
-    "deny_meta": "No supply gain",
-    "grant_line": "Mina sends her message and returns with a bottle of wine (+1 supplies). Mutual aid becomes more than a slogan.",
-    "deny_line": "You keep the network private and controlled. The system stays lean, but the street feels colder."
+    "prompt": "Give Mina one of your devices?",
+    "grant_label": "Give her a device",
+    "grant_description": "She becomes a node in the network. The mesh grows by one more person who can relay messages across the neighborhood.",
+    "grant_meta": "Costs 1 device // Earns supplies",
+    "grant_meta_no_device": "No devices left to give",
+    "deny_label": "You cannot spare one",
+    "deny_description": "You need every device for your planned sites. Mina nods and walks away.",
+    "deny_meta": "No cost",
+    "grant_line": "Mina's face changes the moment the device lights up. She hands you a jar of honey from her kitchen. The mesh just got one person wider.",
+    "deny_line": "You keep moving. Mina watches you go. The mesh stays exactly as planned, and so does the silence on her street."
   },
   "endings": {
     "A": {
       "title": "ENDING A // THE RESILIENT UTOPIA",
       "body_with_solar": [
-        "Encrypted traffic hums through {nodes} deployed nodes while the city reorganizes itself around mutual aid instead of panic.",
+        "Encrypted traffic hums through {nodes} devices placed with neighbors while the city reorganizes itself around mutual aid instead of panic.",
         "Your solar-backed valley repeater keeps the mesh alive long after the blackout should have broken it.",
         "Neighbors use the channel to coordinate medicine, hot food, and shelter. By sunrise, the outage feels less like collapse and more like a town learning to move together."
       ],
       "body_without_solar": [
-        "Encrypted traffic hums through {nodes} deployed nodes while the city reorganizes itself around mutual aid instead of panic.",
+        "Encrypted traffic hums through {nodes} devices placed with neighbors while the city reorganizes itself around mutual aid instead of panic.",
         "Even without a solar repeater on every line, your disciplined build keeps the network standing when the town needs it most.",
         "Neighbors use the channel to coordinate medicine, hot food, and shelter. By sunrise, the outage feels less like collapse and more like a town learning to move together."
       ]
