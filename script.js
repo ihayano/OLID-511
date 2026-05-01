@@ -32,7 +32,6 @@ const dom = {
   budget: document.getElementById("budget-stat"),
   coverage: document.getElementById("coverage-stat"),
   encryption: document.getElementById("encryption-stat"),
-  supplies: document.getElementById("supplies-stat"),
   hardware: document.getElementById("hardware-stat"),
   nodes: document.getElementById("nodes-stat"),
   builderBadge: document.getElementById("builder-badge"),
@@ -198,7 +197,6 @@ function updateStats() {
     : state.encryption
     ? t("ui.encryption_secure")
     : t("ui.encryption_public");
-  dom.supplies.textContent = String(state.supplies);
   dom.hardware.textContent = state.hardware || t("ui.hardware_unselected");
   dom.nodes.textContent = `${state.nodesDeployed.length} / ${state.nodesPurchased}`;
   dom.builderBadge.textContent = t("ui.builder_badge", { name: state.builderName });
