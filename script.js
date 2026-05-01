@@ -1067,7 +1067,10 @@ async function deployApartments(runToken) {
     await typeLine(t("locations.apartments.no_nodes_line"), "alert", runToken);
     return;
   }
-  await typeBlock(t("locations.apartments.intro"), "system", runToken);
+  const apartmentsIntroKey = state.yoshikoDrive
+    ? "locations.apartments.intro_yoshiko"
+    : "locations.apartments.intro";
+  await typeBlock(t(apartmentsIntroKey), "system", runToken);
 
   const choice = await promptChoice(
     [t("locations.apartments.prompt")],

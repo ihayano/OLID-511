@@ -14,7 +14,7 @@ Source of truth: `content/strings.json`. UI prose and system lines are excluded.
 | Luz | Valley West resident | Valley West | Act II (player's choice) |
 | Diego | Valley West resident, Luz's partner | Valley West | Act II (player's choice) |
 | Yoshiko | Classmate, driver, logistics partner | International Grocery | Act II (player's choice) |
-| Dalia | Apartment resident, community garden steward | Tesseract Apartments | Act II (player's choice) |
+| Dalia | Apartment resident, community garden steward; Yoshiko's best friend | Tesseract Apartments | Act II (player's choice) |
 | Geo | Radio station contact | Radio Station | Act II (player's choice) |
 | Yasmin | Women's Health Clinic contact | Women's Health Clinic | Act II (player's choice) |
 | Nina | Neighbor, mutual aid encounter | Mid-deployment (after first site) | Act II, fires once |
@@ -127,11 +127,19 @@ Deployment order is player-chosen. Encounters fire after the player's first comp
 ### Dalia
 **Location:** Tesseract Apartments
 **Elevation:** Medium
+**Relationship:** Yoshiko's best friend
 **Condition:** Player must have at least 1 device available
 
-**Intro (narrator):**
+**Intro (standard — Yoshiko not present):**
 > Destination: Tesseract Apartments.
 > Dalia meets you by the community garden with a crate of peppers, canned beans, and one stubborn smile.
+
+**Intro (Yoshiko present — `state.yoshikoDrive === true`):**
+> Destination: Tesseract Apartments.
+> Dalia is already outside when you pull up — and the moment she spots Yoshiko in the driver's seat, her face breaks into a wide grin.
+> "You actually got her to come out here?" Dalia laughs, leaning in through the window to hug her best friend.
+> "He needed a driver. I needed to make sure he did not mess this up," Yoshiko says.
+> Dalia looks back at you with an approving nod. "Smart. Now let's talk about putting a device on this roof."
 
 **Prompt:** *Give a device for food and rooftop access?*
 

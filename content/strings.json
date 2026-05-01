@@ -263,6 +263,13 @@
         "Destination: Tesseract Apartments.",
         "Dalia meets you by the community garden with a crate of peppers, canned beans, and one stubborn smile."
       ],
+      "intro_yoshiko": [
+        "Destination: Tesseract Apartments.",
+        "Dalia is already outside when you pull up — and the moment she spots Yoshiko in the driver's seat, her face breaks into a wide grin.",
+        "\"You actually got her to come out here?\" Dalia laughs, leaning in through the window to hug her best friend.",
+        "\"He needed a driver. I needed to make sure he did not mess this up,\" Yoshiko says.",
+        "Dalia looks back at you with an approving nod. \"Smart. Now let's talk about putting a device on this roof.\""
+      ],
       "prompt": "Give a device for food and rooftop access?",
       "choices": {
         "deploy_label": "Give a device to the apartment community",
