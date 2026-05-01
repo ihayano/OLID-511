@@ -102,7 +102,7 @@ function createInitialState() {
 
   return {
     builderName: "UNASSIGNED",
-    budget: 400,
+    budget: 420,
     coverage: 0,
     encryption: false,
     securityConfigured: false,
@@ -233,11 +233,9 @@ async function typeBlock(lines, className = "", runToken = currentRunToken) {
 function updateStats() {
   dom.budget.textContent = `$${state.budget}`;
   dom.coverage.textContent = `${Math.max(0, state.coverage)}%`;
-  dom.encryption.textContent = !state.securityConfigured
-    ? t("ui.encryption_off")
-    : state.encryption
+  dom.encryption.textContent = state.securityConfigured
     ? t("ui.encryption_secure")
-    : t("ui.encryption_public");
+    : t("ui.encryption_off");
   dom.hardware.textContent = state.hardware || t("ui.hardware_unselected");
   dom.nodes.textContent = `${state.nodesDeployed.length} / ${state.nodesPurchased}`;
   dom.builderBadge.textContent = t("ui.builder_badge", { name: state.builderName });
@@ -484,7 +482,7 @@ function getNodeCostForHardware(hw) {
 
 const HOUSING_UNIT_COST = 20;
 const CAT_CARRIER_COST = 20;
-const WIS_MESH_REPEATER_COST = 99;
+const WIS_MESH_REPEATER_COST = 79;
 const HIGH_GAIN_ANTENNAS_COST = 20;
 
 function getAddOnCost(draft) {
@@ -745,7 +743,7 @@ function applyWorkbenchSelections(selections) {
   } else {
     state.hardware = t("workbench_rows.device_meshpocket_label");
     state.nodeCost = 60;
-    state.linkQuality += 1;
+    state.linkQuality += 2;
   }
 
   state.nodesPurchased = selections.nodes;
@@ -1347,13 +1345,12 @@ function determineEnding() {
   const coverage = state.coverage;
   const lowCoverage = coverage < 20;
   const supplyShortage = state.supplies < 2;
-  const configFailure = !state.stableFirmware;
   const coverageStrong = coverage >= 30;
   const scienceReady = state.scienceRoof && !state.scienceMissed;
   const scienceBypassCoverage = 38;
   const scienceRequirementMet = scienceReady || coverage >= scienceBypassCoverage;
 
-  if (coverageStrong && state.encryption && state.supplies > 0 && !state.deadZones && scienceRequirementMet) {
+  if (coverageStrong && state.supplies > 0 && !state.deadZones && scienceRequirementMet) {
     const bodyKey = state.solarSupport ? "endings.A.body_with_solar" : "endings.A.body_without_solar";
     return {
       className: "success",
@@ -1365,7 +1362,7 @@ function determineEnding() {
     };
   }
 
-  if (state.encryption && coverage >= 22 && (state.deadZones || !scienceRequirementMet)) {
+  if (coverage >= 22 && (state.deadZones || !scienceRequirementMet)) {
     return {
       className: "warn",
       letter: "B",
@@ -1373,15 +1370,7 @@ function determineEnding() {
     };
   }
 
-  if (!state.encryption && coverage >= 22) {
-    return {
-      className: "warn",
-      letter: "C",
-      lines: [t("endings.C.title"), ...t("endings.C.body")],
-    };
-  }
-
-  if (lowCoverage && supplyShortage && (state.batteryFragile || configFailure || !state.solarSupport)) {
+  if (lowCoverage && supplyShortage) {
     return {
       className: "alert",
       letter: "D",
