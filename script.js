@@ -113,18 +113,15 @@ function createInitialState() {
     hardware: null,
     nodeCost: 0,
     linkQuality: 0,
-    stableFirmware: true,
     deadZones: false,
     valleyWeak: false,
     healthWeak: false,
     scienceRoof: false,
     scienceMissed: false,
-    solarSupport: false,
     yoshikoDrive: false,
-    batteryFragile: false,
     housingUnit: false,
     wisMeshRepeater: false,
-    highGainAntennas: false,
+    antennasAvailable: 0,
     catCarrier: false,
     catEncounterFired: false,
     catJoined: false,
@@ -194,9 +191,21 @@ function appendLineElement(className = "") {
   return row;
 }
 
-function displayAsciiArt(text, runToken) {
+async function displayAsciiArt(text, runToken) {
   if (runToken !== currentRunToken) return;
+  const lines = text.split("\n");
   const el = appendLineElement("ascii-art");
+  el.textContent = "";
+  for (let i = 0; i < lines.length; i++) {
+    if (runToken !== currentRunToken) return;
+    el.textContent += (i === 0 ? "" : "\n") + lines[i];
+    dom.terminal.scrollTop = dom.terminal.scrollHeight;
+    await wait(55);
+  }
+}
+
+function appendMetaQuip(text) {
+  const el = appendLineElement("meta-quip");
   el.textContent = text;
   dom.terminal.scrollTop = dom.terminal.scrollHeight;
 }
@@ -309,9 +318,8 @@ function changeBudget(amount) {
 }
 
 function addCoverage(baseValue) {
-  const antennaBonus = state.highGainAntennas ? 2 : 0;
   const housingBonus = state.housingUnit ? 1 : 0;
-  const adjusted = Math.max(1, baseValue + state.linkQuality + antennaBonus + housingBonus);
+  const adjusted = Math.max(1, baseValue + state.linkQuality + housingBonus);
   state.coverage = Math.max(0, state.coverage + adjusted);
   refreshUi();
   return adjusted;
@@ -489,7 +497,7 @@ function getAddOnCost(draft) {
   const housing = draft.housing === "yes" ? HOUSING_UNIT_COST : 0;
   const carrier = draft.catCarrier === "yes" ? CAT_CARRIER_COST : 0;
   const repeater = draft.wisMeshRepeater === "yes" ? WIS_MESH_REPEATER_COST : 0;
-  const antennas = draft.antennas === "yes" ? HIGH_GAIN_ANTENNAS_COST : 0;
+  const antennas = (draft.antennas || 0) * HIGH_GAIN_ANTENNAS_COST;
   return housing + carrier + repeater + antennas;
 }
 
@@ -688,18 +696,25 @@ function renderWorkbenchCheckout(draft, budgetStart, autoFocus = false) {
     draft.catCarrier
   );
 
+  const antennaOptions = [];
+  for (let n = 1; n <= 6; n++) {
+    antennaOptions.push({
+      value: n,
+      label: n === 1
+        ? t("workbench_rows.antennas_label_singular")
+        : t("workbench_rows.antennas_label_plural", { n }),
+      description: n === 1 ? t("workbench_rows.antennas_description") : "",
+      meta: `$${n * HIGH_GAIN_ANTENNAS_COST}`,
+    });
+  }
   workbenchAddRow(
     dom.workbenchSections,
     t("workbench_rows.antennas_title"),
-    [
-      {
-        value: "yes",
-        label: t("workbench_rows.antennas_label"),
-        description: t("workbench_rows.antennas_description"),
-        meta: `$${HIGH_GAIN_ANTENNAS_COST}`,
-      },
-    ],
-    (value) => toggle("antennas", value),
+    antennaOptions,
+    (value) => {
+      draft.antennas = draft.antennas === value ? null : value;
+      rerender();
+    },
     draft.antennas
   );
 
@@ -751,11 +766,8 @@ function applyWorkbenchSelections(selections) {
 
   state.housingUnit = selections.housing === "yes";
   state.catCarrier = selections.catCarrier === "yes";
-  state.highGainAntennas = selections.antennas === "yes";
+  state.antennasAvailable = selections.antennas || 0;
   state.wisMeshRepeater = selections.wisMeshRepeater === "yes";
-
-  state.stableFirmware = true;
-  state.batteryFragile = false;
 
   state.encryption = true;
   state.securityConfigured = true;
@@ -805,7 +817,7 @@ async function actWorkbench(runToken) {
   const extras = [];
   if (selections.housing === "yes") extras.push(t("act1.extras_housing"));
   if (selections.catCarrier === "yes") extras.push(t("act1.extras_cat_carrier"));
-  if (selections.antennas === "yes") extras.push(t("act1.extras_antennas"));
+  if (selections.antennas) extras.push(t("act1.extras_antennas", { n: selections.antennas }));
   if (selections.wisMeshRepeater === "yes") extras.push(t("act1.extras_wismesh"));
   const extrasLine = extras.length
     ? t("act1.extras_line", { items: extras.join(", ") })
@@ -860,6 +872,13 @@ async function deployScience(runToken) {
         meta: t("locations.science.choices.jargon_meta"),
       },
       {
+        value: "highgain",
+        label: t("locations.science.choices.highgain_label"),
+        description: t("locations.science.choices.highgain_description"),
+        meta: state.antennasAvailable > 0 ? t("locations.science.choices.highgain_meta") : t("locations.highgain_locked"),
+        disabled: state.antennasAvailable <= 0,
+      },
+      {
         value: "skip",
         label: t("locations.science.choices.skip_label"),
         description: t("locations.science.choices.skip_description"),
@@ -881,13 +900,24 @@ async function deployScience(runToken) {
     addNode("science", t("locations.science.deploy_roof_node_note", { gain }));
     setLocation("science", "deployed", t("locations.science.deploy_roof_status"));
     await typeLine(t("locations.science.deploy_roof_line"), "success", runToken);
-  } else {
-    const gain = addCoverage(5);
-    state.scienceRoof = false;
-    addNode("science", t("locations.science.deploy_fallback_node_note", { gain }));
-    setLocation("science", "weak", t("locations.science.deploy_fallback_status"));
-    await typeLine(t("locations.science.deploy_fallback_line"), "warn", runToken);
+    return;
   }
+
+  if (choice === "highgain") {
+    state.antennasAvailable = Math.max(0, state.antennasAvailable - 1);
+    const gain = addCoverage(8);
+    state.scienceRoof = false;
+    addNode("science", t("locations.science.highgain_node_note", { gain }));
+    setLocation("science", "deployed", t("locations.science.highgain_status"));
+    await typeLine(t("locations.science.highgain_line"), "success", runToken);
+    return;
+  }
+
+  const gain = addCoverage(5);
+  state.scienceRoof = false;
+  addNode("science", t("locations.science.deploy_fallback_node_note", { gain }));
+  setLocation("science", "weak", t("locations.science.deploy_fallback_status"));
+  await typeLine(t("locations.science.deploy_fallback_line"), "warn", runToken);
 }
 
 async function deployValley(runToken) {
@@ -899,7 +929,7 @@ async function deployValley(runToken) {
   await typeBlock(t("locations.valley.intro"), "system", runToken);
 
   const basicCost = 0;
-  const highGainCost = 20;
+  const highGainCost = 0;
   const solarCost = 25;
   const choice = await promptChoice(
     [t("locations.valley.prompt")],
@@ -914,7 +944,8 @@ async function deployValley(runToken) {
         value: "highgain",
         label: t("locations.valley.choices.highgain_label"),
         description: t("locations.valley.choices.highgain_description"),
-        cost: highGainCost,
+        meta: state.antennasAvailable > 0 ? t("locations.valley.choices.highgain_meta") : t("locations.highgain_locked"),
+        disabled: state.antennasAvailable <= 0,
       },
       {
         value: "solar",
@@ -950,7 +981,7 @@ async function deployValley(runToken) {
   }
 
   if (choice === "highgain") {
-    changeBudget(-highGainCost);
+    state.antennasAvailable = Math.max(0, state.antennasAvailable - 1);
     const gain = addCoverage(8);
     addSupplies(1);
     addNode("valley", t("locations.valley.highgain_node_note", { gain }));
@@ -962,7 +993,6 @@ async function deployValley(runToken) {
   changeBudget(-solarCost);
   const gain = addCoverage(10);
   addSupplies(1);
-  state.solarSupport = true;
   addNode("valley", t("locations.valley.solar_node_note", { gain }));
   setLocation("valley", "deployed", t("locations.valley.solar_status"));
   await typeLine(t("locations.valley.solar_line"), "success", runToken);
@@ -986,6 +1016,13 @@ async function deploySugar(runToken) {
         meta: t("locations.sugar.choices.deploy_meta"),
       },
       {
+        value: "highgain",
+        label: t("locations.sugar.choices.highgain_label"),
+        description: t("locations.sugar.choices.highgain_description"),
+        meta: state.antennasAvailable > 0 ? t("locations.sugar.choices.highgain_meta") : t("locations.highgain_locked"),
+        disabled: state.antennasAvailable <= 0,
+      },
+      {
         value: "skip",
         label: t("locations.sugar.choices.skip_label"),
         description: t("locations.sugar.choices.skip_description"),
@@ -997,6 +1034,17 @@ async function deploySugar(runToken) {
   if (choice === "skip") {
     setLocation("sugar", "skipped", t("locations.sugar.skip_status"));
     await typeLine(t("locations.sugar.skip_line"), "warn", runToken);
+    return;
+  }
+
+  if (choice === "highgain") {
+    state.antennasAvailable = Math.max(0, state.antennasAvailable - 1);
+    const gain = addCoverage(8);
+    addSupplies(1);
+    state.yoshikoDrive = true;
+    addNode("sugar", t("locations.sugar.highgain_node_note", { gain }));
+    setLocation("sugar", "deployed", t("locations.sugar.highgain_status"));
+    await typeLine(t("locations.sugar.highgain_line"), "success", runToken);
     return;
   }
 
@@ -1026,6 +1074,13 @@ async function deployApartments(runToken) {
         meta: t("locations.apartments.choices.deploy_meta"),
       },
       {
+        value: "highgain",
+        label: t("locations.apartments.choices.highgain_label"),
+        description: t("locations.apartments.choices.highgain_description"),
+        meta: state.antennasAvailable > 0 ? t("locations.apartments.choices.highgain_meta") : t("locations.highgain_locked"),
+        disabled: state.antennasAvailable <= 0,
+      },
+      {
         value: "skip",
         label: t("locations.apartments.choices.skip_label"),
         description: t("locations.apartments.choices.skip_description"),
@@ -1040,8 +1095,18 @@ async function deployApartments(runToken) {
     return;
   }
 
+  if (choice === "highgain") {
+    state.antennasAvailable = Math.max(0, state.antennasAvailable - 1);
+    const gain = addCoverage(8);
+    addSupplies(2);
+    addNode("apartments", t("locations.apartments.highgain_node_note", { gain }));
+    setLocation("apartments", "deployed", t("locations.apartments.highgain_status"));
+    await typeLine(t("locations.apartments.highgain_line"), "success", runToken);
+    return;
+  }
+
   const gain = addCoverage(5);
-  addSupplies(3);
+  addSupplies(2);
   addNode("apartments", t("locations.apartments.deploy_node_note", { gain }));
   setLocation("apartments", "deployed", t("locations.apartments.deploy_status"));
   await typeLine(t("locations.apartments.deploy_line"), "success", runToken);
@@ -1075,6 +1140,13 @@ async function deployRadio(runToken) {
         meta: t("locations.radio.choices.lobby_meta"),
       },
       {
+        value: "highgain",
+        label: t("locations.radio.choices.highgain_label"),
+        description: t("locations.radio.choices.highgain_description"),
+        meta: state.antennasAvailable > 0 ? t("locations.radio.choices.highgain_meta") : t("locations.highgain_locked"),
+        disabled: state.antennasAvailable <= 0,
+      },
+      {
         value: "skip",
         label: t("locations.radio.choices.skip_label"),
         description: t("locations.radio.choices.skip_description"),
@@ -1097,6 +1169,15 @@ async function deployRadio(runToken) {
     return;
   }
 
+  if (choice === "highgain") {
+    state.antennasAvailable = Math.max(0, state.antennasAvailable - 1);
+    const gain = addCoverage(6);
+    addNode("radio", t("locations.radio.highgain_node_note", { gain }));
+    setLocation("radio", "deployed", t("locations.radio.highgain_status"));
+    await typeLine(t("locations.radio.highgain_line"), "success", runToken);
+    return;
+  }
+
   const gain = addCoverage(4);
   addNode("radio", t("locations.radio.lobby_node_note", { gain }));
   setLocation("radio", "weak", t("locations.radio.lobby_status"));
@@ -1111,8 +1192,6 @@ async function deployHealth(runToken) {
   }
   await typeBlock(t("locations.health.intro"), "system", runToken);
 
-  const basicCost = 0;
-  const highGainCost = 20;
   const choice = await promptChoice(
     [t("locations.health.prompt")],
     [
@@ -1126,7 +1205,8 @@ async function deployHealth(runToken) {
         value: "highgain",
         label: t("locations.health.choices.highgain_label"),
         description: t("locations.health.choices.highgain_description"),
-        cost: highGainCost,
+        meta: state.antennasAvailable > 0 ? t("locations.health.choices.highgain_meta") : t("locations.highgain_locked"),
+        disabled: state.antennasAvailable <= 0,
       },
       {
         value: "skip",
@@ -1154,7 +1234,7 @@ async function deployHealth(runToken) {
     return;
   }
 
-  changeBudget(-highGainCost);
+  state.antennasAvailable = Math.max(0, state.antennasAvailable - 1);
   const gain = addCoverage(8);
   addNode("health", t("locations.health.highgain_node_note", { gain }));
   setLocation("health", "deployed", t("locations.health.highgain_status"));
@@ -1271,8 +1351,9 @@ async function actStrayCat(runToken) {
   if (catJoins) {
     state.catJoined = true;
     await typeBlock(t("cat_encounter.joins"), "success", runToken);
-    displayAsciiArt(CAT_ASCII, runToken);
-    await wait(4000);
+    await displayAsciiArt(CAT_ASCII, runToken);
+    appendMetaQuip("// a game within a game, how meta");
+    await wait(3500);
   } else {
     await typeBlock([t("cat_encounter.scratches")], "warn", runToken);
   }
@@ -1346,12 +1427,12 @@ function determineEnding() {
   const lowCoverage = coverage < 20;
   const supplyShortage = state.supplies < 2;
   const coverageStrong = coverage >= 30;
-  const scienceReady = state.scienceRoof && !state.scienceMissed;
-  const scienceBypassCoverage = 38;
-  const scienceRequirementMet = scienceReady || coverage >= scienceBypassCoverage;
+  // Ending A hard requirements: WisMesh repeater purchased + science roof deployed + ≥4 devices placed
+  const scienceRoofWithRepeater = state.wisMeshRepeater && state.scienceRoof && !state.scienceMissed;
+  const enoughDevicesDeployed = state.nodesDeployed.length >= 4;
 
-  if (coverageStrong && state.supplies > 0 && !state.deadZones && scienceRequirementMet) {
-    const bodyKey = state.solarSupport ? "endings.A.body_with_solar" : "endings.A.body_without_solar";
+  if (coverageStrong && state.supplies > 0 && !state.deadZones && scienceRoofWithRepeater && enoughDevicesDeployed) {
+    const bodyKey = "endings.A.body";
     return {
       className: "success",
       letter: "A",
@@ -1362,7 +1443,7 @@ function determineEnding() {
     };
   }
 
-  if (coverage >= 22 && (state.deadZones || !scienceRequirementMet)) {
+  if (coverage >= 22 && (state.deadZones || !scienceRoofWithRepeater || !enoughDevicesDeployed)) {
     return {
       className: "warn",
       letter: "B",
@@ -1400,12 +1481,9 @@ async function showEnding(runToken) {
       hardware: state.hardware,
       nodes_purchased: state.nodesPurchased,
       nodes_used: state.nodesDeployed.length,
-      stable_firmware: state.stableFirmware,
       dead_zones: state.deadZones,
       science_roof: state.scienceRoof,
       science_missed: state.scienceMissed,
-      solar_support: state.solarSupport,
-      battery_fragile: state.batteryFragile,
     });
   }
 

@@ -44,23 +44,6 @@
         "link_quality_delta": -3
       }
     },
-    "preset": {
-      "longfast": {
-        "valid_preset": true,
-        "battery_fragile": false,
-        "link_quality_delta": 0
-      },
-      "balanced": {
-        "valid_preset": false,
-        "battery_fragile": false,
-        "link_quality_delta": -1
-      },
-      "turbo": {
-        "valid_preset": false,
-        "battery_fragile": true,
-        "link_quality_delta": -2
-      }
-    },
     "security": {
       "secure": {
         "encryption": true,
@@ -112,6 +95,12 @@
           "coverage_base": 5,
           "science_roof": false
         },
+        "highgain": {
+          "uses_node": true,
+          "coverage_base": 8,
+          "science_roof": false,
+          "requires_high_gain_antennas": true
+        },
         "skip": {
           "uses_node": false,
           "science_missed": true
@@ -126,17 +115,15 @@
           "coverage_base": 4,
           "supplies_delta": 1,
           "dead_zone": true,
-          "valley_weak": true,
-          "solar_support": false
+          "valley_weak": true
         },
         "highgain": {
           "uses_node": true,
-          "add_on_cost": 20,
+          "add_on_cost": 0,
           "coverage_base": 8,
           "supplies_delta": 1,
           "dead_zone": false,
-          "valley_weak": false,
-          "solar_support": false
+          "valley_weak": false
         },
         "solar": {
           "uses_node": true,
@@ -144,8 +131,7 @@
           "coverage_base": 10,
           "supplies_delta": 1,
           "dead_zone": false,
-          "valley_weak": false,
-          "solar_support": true
+          "valley_weak": false
         },
         "skip": {
           "uses_node": false
@@ -160,6 +146,13 @@
           "supplies_delta": 1,
           "yoshiko_drive": true
         },
+        "highgain": {
+          "uses_node": true,
+          "coverage_base": 8,
+          "supplies_delta": 1,
+          "yoshiko_drive": true,
+          "requires_high_gain_antennas": true
+        },
         "skip": {
           "uses_node": false
         }
@@ -171,6 +164,12 @@
           "uses_node": true,
           "coverage_base": 5,
           "supplies_delta": 2
+        },
+        "highgain": {
+          "uses_node": true,
+          "coverage_base": 8,
+          "supplies_delta": 2,
+          "requires_high_gain_antennas": true
         },
         "skip": {
           "uses_node": false
@@ -186,6 +185,11 @@
         "lobby": {
           "uses_node": true,
           "coverage_base": 4
+        },
+        "highgain": {
+          "uses_node": true,
+          "coverage_base": 6,
+          "requires_high_gain_antennas": true
         },
         "skip": {
           "uses_node": false
@@ -203,10 +207,11 @@
         },
         "highgain": {
           "uses_node": true,
-          "add_on_cost": 20,
+          "add_on_cost": 0,
           "coverage_base": 8,
           "dead_zone": false,
-          "health_weak": false
+          "health_weak": false,
+          "requires_high_gain_antennas": true
         },
         "skip": {
           "uses_node": false

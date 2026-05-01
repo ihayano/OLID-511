@@ -473,6 +473,23 @@ h1 {
   margin: 6px 0;
 }
 
+.terminal-line.meta-quip {
+  color: var(--text-bright);
+  letter-spacing: 0.14em;
+  margin: 2px 0 10px;
+  text-shadow:
+    -2px 0 0 var(--chr-r),
+     2px 0 0 var(--chr-c),
+    0 0 6px  var(--text-bright),
+    0 0 18px var(--glow-strong),
+    0 0 36px var(--glow);
+  animation: phosphor-in 1.2s ease-out forwards;
+}
+
+.terminal-line.meta-quip::before {
+  content: "";
+}
+
 .terminal::-webkit-scrollbar        { width: 4px; }
 .terminal::-webkit-scrollbar-track  { background: transparent; }
 .terminal::-webkit-scrollbar-thumb  { background: var(--border); }
@@ -838,6 +855,12 @@ h1 {
   font-size: 0.82rem;
 }
 
+@keyframes commit-pulse {
+  0%   { box-shadow: 0 0 6px var(--glow), inset 0 0 0 1px var(--glow); border-color: var(--border); }
+  50%  { box-shadow: 0 0 18px var(--glow-strong), 0 0 32px var(--glow), inset 0 0 0 1px var(--glow-strong); border-color: var(--text); }
+  100% { box-shadow: 0 0 6px var(--glow), inset 0 0 0 1px var(--glow); border-color: var(--border); }
+}
+
 /* Commit button — styled as a TUI command row */
 .workbench-confirm {
   display: flex;
@@ -864,13 +887,24 @@ h1 {
   transition: color 60ms, text-shadow 60ms;
 }
 
+/* Pulsing glow when the button is active/enabled */
+.workbench-confirm:not(:disabled) {
+  animation: commit-pulse 2s ease-in-out infinite;
+  color: var(--text);
+}
+
+.workbench-confirm:not(:disabled)::before {
+  color: var(--text);
+}
+
 .workbench-confirm:not(:disabled):hover,
 .workbench-confirm:not(:disabled):focus-visible {
+  animation: none;
   background: var(--btn-hover-bg);
-  border-color: var(--text);
+  border-color: var(--text-bright);
   color: var(--text-bright);
   outline: none;
-  box-shadow: 0 0 10px var(--glow), inset 0 0 0 1px var(--glow-strong);
+  box-shadow: 0 0 14px var(--glow-strong), 0 0 28px var(--glow), inset 0 0 0 1px var(--glow-strong);
 }
 
 .workbench-confirm:not(:disabled):hover::before,

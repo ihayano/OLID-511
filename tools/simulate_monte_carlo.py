@@ -16,15 +16,12 @@ class RunState:
     nodes_purchased: int
     node_cost: int
     link_quality: int
-    stable_firmware: bool
     dead_zones: bool
     valley_weak: bool
     health_weak: bool
     science_roof: bool
     science_missed: bool
-    solar_support: bool
     yoshiko_drive: bool
-    battery_fragile: bool
     encryption: bool
     wis_mesh_repeater: bool
     high_gain_antennas: bool
@@ -52,12 +49,14 @@ def determine_ending(state: RunState, thresholds: dict) -> str:
     low_coverage = coverage < thresholds["coverage_low"]
     supply_shortage = state.supplies < thresholds["minimum_supplies_for_no_shortage"]
     coverage_strong = coverage >= thresholds["coverage_strong"]
-    science_ready = state.science_roof and (not state.science_missed)
-    science_requirement_met = science_ready or coverage >= 38
+    nodes_used = state.nodes_purchased - state.nodes_available
+    # Ending A hard requirements: WisMesh repeater purchased + science roof deployed + ≥4 devices placed
+    science_roof_with_repeater = state.wis_mesh_repeater and state.science_roof and not state.science_missed
+    enough_devices = nodes_used >= 4
 
-    if coverage_strong and state.supplies > 0 and (not state.dead_zones) and science_requirement_met:
+    if coverage_strong and state.supplies > 0 and (not state.dead_zones) and science_roof_with_repeater and enough_devices:
         return "A"
-    if coverage >= thresholds["coverage_good"] and (state.dead_zones or (not science_requirement_met)):
+    if coverage >= thresholds["coverage_good"] and (state.dead_zones or not science_roof_with_repeater or not enough_devices):
         return "B"
     if low_coverage and supply_shortage:
         return "D"
@@ -87,15 +86,12 @@ def simulate_one(constants: dict, rng: random.Random, overrides: dict | None = N
         nodes_purchased=0,
         node_cost=0,
         link_quality=0,
-        stable_firmware=True,
         dead_zones=False,
         valley_weak=False,
         health_weak=False,
         science_roof=False,
         science_missed=False,
-        solar_support=False,
         yoshiko_drive=False,
-        battery_fragile=False,
         encryption=False,
         wis_mesh_repeater=False,
         high_gain_antennas=False,
@@ -128,6 +124,11 @@ def simulate_one(constants: dict, rng: random.Random, overrides: dict | None = N
     if add_on_override == "repeater" and state.budget >= repeater_fee:
         state.wis_mesh_repeater = True
         state.budget -= repeater_fee
+    elif add_on_override == "antennas" and state.budget >= antennas_fee:
+        # Buy up to 4 antennas (covers most locations)
+        count = min(4, state.budget // antennas_fee)
+        state.high_gain_antennas = count > 0
+        state.budget -= count * antennas_fee
     elif add_on_override == "none":
         pass  # purchase nothing
     else:
@@ -139,14 +140,11 @@ def simulate_one(constants: dict, rng: random.Random, overrides: dict | None = N
             state.housing_unit = True
             state.budget -= housing_fee
         if state.budget >= antennas_fee and rng.random() < 0.40:
-            state.high_gain_antennas = True
-            state.budget -= antennas_fee
+            count = min(4, state.budget // antennas_fee)
+            state.high_gain_antennas = count > 0
+            state.budget -= count * antennas_fee
         if state.budget >= carrier_fee and rng.random() < 0.25:
             state.budget -= carrier_fee
-
-    # Firmware is always stable (no longer player-facing).
-    state.stable_firmware = True
-    state.battery_fragile = False
 
     # Encryption always on.
     state.encryption = True
@@ -180,6 +178,9 @@ def simulate_one(constants: dict, rng: random.Random, overrides: dict | None = N
             affordable = [name for name in affordable if name != "data"]
         if location_key == "radio" and ("tower" in affordable) and not state.wis_mesh_repeater:
             affordable = [name for name in affordable if name != "tower"]
+        # Gate highgain options unless high-gain antennas purchased.
+        if "highgain" in affordable and not state.high_gain_antennas:
+            affordable = [name for name in affordable if name != "highgain"]
         if "skip" not in affordable:
             affordable.append("skip")
 
@@ -187,18 +188,18 @@ def simulate_one(constants: dict, rng: random.Random, overrides: dict | None = N
             option = choose_affordable_option(
                 rng,
                 affordable,
-                weighted={"data": 3.0, "emotion": 1.0, "jargon": 1.0, "skip": 1.0},
+                weighted={"data": 3.0, "highgain": 2.0, "emotion": 1.0, "jargon": 1.0, "skip": 1.0},
             )
         elif location_key in {"valley", "health"}:
             option = choose_affordable_option(
                 rng,
                 affordable,
-                weighted={"highgain": 2.0, "solar": 2.0, "basic": 1.0, "skip": 1.0},
+                weighted={"highgain": 3.0, "solar": 2.0, "basic": 1.0, "skip": 1.0},
             )
         elif location_key == "radio":
-            option = choose_affordable_option(rng, affordable, weighted={"tower": 2.0, "lobby": 2.0, "skip": 1.0})
+            option = choose_affordable_option(rng, affordable, weighted={"tower": 2.0, "highgain": 2.0, "lobby": 1.0, "skip": 1.0})
         else:
-            option = choose_affordable_option(rng, affordable, weighted={"deploy": 3.0, "skip": 1.0})
+            option = choose_affordable_option(rng, affordable, weighted={"highgain": 2.0, "deploy": 2.0, "skip": 1.0})
 
         selected = options_cfg[option]
         if option == "skip":
@@ -216,7 +217,6 @@ def simulate_one(constants: dict, rng: random.Random, overrides: dict | None = N
             state.coverage = max(0, state.coverage)
 
         state.science_roof = selected.get("science_roof", state.science_roof)
-        state.solar_support = selected.get("solar_support", state.solar_support)
         state.yoshiko_drive = selected.get("yoshiko_drive", state.yoshiko_drive)
 
         if selected.get("dead_zone", False):
@@ -267,7 +267,7 @@ def stratified_sweep(constants: dict, runs_per_stratum: int, seed: int) -> dict:
     wb = constants["workbench"]
     strata_values: dict[str, list[str]] = {
         "hardware": list(wb["hardware"].keys()),
-        "add_ons": ["none", "repeater"],
+        "add_ons": ["none", "antennas", "repeater"],
     }
 
     results: dict[str, dict[str, dict]] = {}
