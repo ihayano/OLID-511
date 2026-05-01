@@ -20,7 +20,7 @@
   --warn:         #e8c840;
   --danger:       #ff5050;
   --scanline:     rgba(0, 0, 0, 0.32);
-  --noise-op:     0.04;
+  --noise-op:     0.015;
   --chr-r:        rgba(255, 0, 60,  0.30);
   --chr-c:        rgba(0,  255, 220, 0.20);
   --sep:          #267a26;
@@ -42,7 +42,7 @@ body[data-theme="amber"] {
   --warn:         #ffe060;
   --danger:       #ff5830;
   --scanline:     rgba(0, 0, 0, 0.35);
-  --noise-op:     0.035;
+  --noise-op:     0.012;
   --chr-r:        rgba(255, 30,  0,   0.28);
   --chr-c:        rgba(0,  200, 255, 0.18);
   --sep:          #9c6418;
@@ -158,18 +158,6 @@ body.intermesh-app::before {
   );
 }
 
-body.intermesh-app::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 9001;
-  background: radial-gradient(
-    ellipse 85% 75% at 50% 50%,
-    transparent 48%,
-    rgba(0,0,0,0.78) 100%
-  );
-}
 
 /* ════════════════════════════════════════════════
    APP FRAME
@@ -748,6 +736,57 @@ h1 {
 /* Fake trailing line after closing bracket */
 .workbench-section-title + .workbench-row::before {
   display: none; /* handled by border */
+}
+
+/* ── Quantity text input rows ── */
+.workbench-qty-desc {
+  margin: 4px 14px 2px;
+  color: var(--text-dim);
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+
+.workbench-qty-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 14px 10px;
+}
+
+.workbench-qty-input {
+  width: 64px;
+  font-family: inherit;
+  font-size: 1rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 4px 8px;
+  text-align: center;
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+.workbench-qty-input::-webkit-inner-spin-button,
+.workbench-qty-input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.workbench-qty-input:focus {
+  outline: none;
+  border-color: var(--text);
+  box-shadow: 0 0 6px var(--glow);
+}
+
+.workbench-qty-input:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.workbench-qty-cost {
+  color: var(--text-dim);
+  font-size: 0.88rem;
+  letter-spacing: 0.04em;
 }
 
 /* Radio list — vertical stack */

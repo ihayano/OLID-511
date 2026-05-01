@@ -74,8 +74,8 @@ const dom = {
   bootScreen: document.getElementById("boot-screen"),
 };
 
-const typingDelay = 32;
-const pauseBetweenLines = 300;
+const typingDelay = 45;
+const pauseBetweenLines = 420;
 const bootLineRevealDelay = 420;
 const bootExitDelay = 1100;
 const themeStorageKey = "project-intermesh-theme";
@@ -494,7 +494,7 @@ function getNodeCostForHardware(hw) {
 const HOUSING_UNIT_COST = 20;
 const CAT_CARRIER_COST = 20;
 const WIS_MESH_REPEATER_COST = 79;
-const HIGH_GAIN_ANTENNAS_COST = 20;
+const HIGH_GAIN_ANTENNAS_COST = 25;
 
 function getAddOnCost(draft) {
   const housing = draft.housing === "yes" ? HOUSING_UNIT_COST : 0;
@@ -560,6 +560,59 @@ function workbenchAddRow(container, title, options, onPick, selectedValue) {
   });
 
   section.appendChild(row);
+  container.appendChild(section);
+}
+
+function workbenchAddQuantityInput(container, title, description, min, max, unitCost, currentValue, onChange) {
+  const section = document.createElement("div");
+  section.className = "workbench-section";
+
+  const h = document.createElement("h3");
+  h.className = "workbench-section-title";
+  h.textContent = title;
+  section.appendChild(h);
+
+  if (description) {
+    const desc = document.createElement("p");
+    desc.className = "workbench-qty-desc";
+    desc.textContent = description;
+    section.appendChild(desc);
+  }
+
+  const wrap = document.createElement("div");
+  wrap.className = "workbench-qty-wrap";
+
+  const input = document.createElement("input");
+  input.type = "number";
+  input.className = "workbench-qty-input";
+  input.min = min;
+  input.max = max;
+  input.step = 1;
+  input.placeholder = `${min}–${max}`;
+  input.disabled = max < min;
+  if (currentValue != null) input.value = currentValue;
+
+  const costDisplay = document.createElement("span");
+  costDisplay.className = "workbench-qty-cost";
+  costDisplay.textContent = currentValue != null && unitCost ? `= $${currentValue * unitCost}` : "";
+
+  input.addEventListener("input", () => {
+    const raw = input.value.trim();
+    if (raw === "") {
+      costDisplay.textContent = "";
+      onChange(null);
+      return;
+    }
+    let v = parseInt(raw, 10);
+    if (isNaN(v)) return;
+    v = Math.max(min, Math.min(max, v));
+    costDisplay.textContent = unitCost ? `= $${v * unitCost}` : "";
+    onChange(v);
+  });
+
+  wrap.appendChild(input);
+  wrap.appendChild(costDisplay);
+  section.appendChild(wrap);
   container.appendChild(section);
 }
 
@@ -640,28 +693,19 @@ function renderWorkbenchCheckout(draft, budgetStart, autoFocus = false) {
     draft.hardware
   );
 
-  const nodeOptions = [];
-  for (let n = 1; n <= 6; n += 1) {
-    const nc = getNodeCostForHardware(draft.hardware);
-    const nodeLineCost = n * nc;
-    const labelKey = n === 1 ? "workbench_rows.nodes_label_singular" : "workbench_rows.nodes_label_plural";
-    nodeOptions.push({
-      value: n,
-      label: t(labelKey, { n }),
-      description: "",
-      meta: nc ? `$${nodeLineCost}` : "",
-      disabled: !draft.hardware || n > maxN,
-    });
-  }
-  workbenchAddRow(
+  const nc = getNodeCostForHardware(draft.hardware);
+  workbenchAddQuantityInput(
     dom.workbenchSections,
     t("workbench_rows.nodes_title"),
-    nodeOptions,
+    "",
+    1,
+    maxN || 6,
+    nc,
+    draft.nodes,
     (value) => {
       draft.nodes = value;
-      rerender();
-    },
-    draft.nodes
+      syncWorkbenchFooter(draft, budgetStart);
+    }
   );
 
   const addOnsHeader = document.createElement("div");
@@ -699,26 +743,18 @@ function renderWorkbenchCheckout(draft, budgetStart, autoFocus = false) {
     draft.catCarrier
   );
 
-  const antennaOptions = [];
-  for (let n = 1; n <= 2; n++) {
-    antennaOptions.push({
-      value: n,
-      label: n === 1
-        ? t("workbench_rows.antennas_label_singular")
-        : t("workbench_rows.antennas_label_plural", { n }),
-      description: n === 1 ? t("workbench_rows.antennas_description") : "",
-      meta: `$${n * HIGH_GAIN_ANTENNAS_COST}`,
-    });
-  }
-  workbenchAddRow(
+  workbenchAddQuantityInput(
     dom.workbenchSections,
     t("workbench_rows.antennas_title"),
-    antennaOptions,
+    t("workbench_rows.antennas_description"),
+    1,
+    2,
+    HIGH_GAIN_ANTENNAS_COST,
+    draft.antennas,
     (value) => {
-      draft.antennas = draft.antennas === value ? null : value;
-      rerender();
-    },
-    draft.antennas
+      draft.antennas = value;
+      syncWorkbenchFooter(draft, budgetStart);
+    }
   );
 
   workbenchAddRow(

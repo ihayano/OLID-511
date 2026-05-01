@@ -118,7 +118,7 @@ def simulate_one(constants: dict, rng: random.Random, overrides: dict | None = N
     add_ons = wb.get("add_ons", {})
     housing_fee = int(add_ons.get("weatherproof_housing", {}).get("fee", 20))
     carrier_fee = int(add_ons.get("cat_carrier", {}).get("fee", 20))
-    antennas_fee = int(add_ons.get("high_gain_antennas", {}).get("fee", 20))
+    antennas_fee = int(add_ons.get("high_gain_antennas", {}).get("fee", 25))
     repeater_fee = int(add_ons.get("wis_mesh_repeater", {}).get("fee", 99))
     add_on_override = overrides.get("add_ons")
     if add_on_override == "repeater" and state.budget >= repeater_fee:

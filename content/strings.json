@@ -89,8 +89,7 @@
   "act1": {
     "intro": [
       "ACT I // THE WORKBENCH",
-      "You pull up the online requisition terminal. Forty-eight hours. You have done this kind of build before in a lab — never against a real clock with real stakes.",
-      "Every dollar you spend here is a dollar that either reaches a neighbor or does not. Choose carefully, then commit."
+      "You pull up the online requisition terminal. Forty-eight hours."
     ],
     "budget_hint": "Starting cash: ${budget}. Device selection and quantity are required. Everything else is optional -- tap twice to clear a selection.",
     "total_ready": "Cart total: ${total} // Cash left after checkout: ${remaining}",
@@ -117,7 +116,7 @@
     "device_meshpocket_label": "Heltec MeshPocket",
     "device_meshpocket_desc": "Compact and portable device combining magnetic wireless charging with an integrated low-power Meshtastic device and a 2.13\" display. Designed for everyday use, outdoor exploration, and reliable off-grid messaging.",
     "device_meshpocket_meta": "$60 per unit",
-    "nodes_title": "How many units to buy (max 6)",
+    "nodes_title": "How many devices? (1 – 6)",
     "nodes_label_singular": "{n} unit",
     "nodes_label_plural": "{n} units",
     "section_addons": "Add-Ons",
@@ -125,7 +124,7 @@
     "housing_label": "Weatherproof housing",
     "carrier_title": "Cat Carrier (optional)",
     "carrier_label": "Portable cat carrier",
-    "antennas_title": "High-Gain Antennas (optional — up to 2)",
+    "antennas_title": "High-Gain Antennas — $25 each (optional, max 2)",
     "antennas_label_singular": "1 high-gain antenna",
     "antennas_label_plural": "{n} high-gain antennas",
     "antennas_description": "Ruggedized directional antennas that push your signal further through concrete, foliage, and urban interference. Each one can be deployed at a separate site.",
