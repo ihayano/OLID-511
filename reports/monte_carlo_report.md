@@ -1,56 +1,46 @@
 # Project Intermesh Monte Carlo Report
 
-- Runs: **500**
+- Runs: **1000**
 - Seed: **42**
 
 ## Baseline (current constants)
 
-- Ending A: **6.6%**
-- Ending B: **81.2%**
-- Ending C: **0.0%**
-- Ending D: **12.2%**
-- Avg coverage: **19.97**
-- Avg budget left: **$155.34**
-- Avg supplies: **3.39**
+- Ending A: **9.1%**
+- Ending B: **71.1%**
+- Ending D: **19.8%**
+- Avg coverage: **21.84**
+- Avg budget left: **$172.47**
+- Avg supplies: **2.60**
 
 ## Top tuning candidates (grid search)
 
-1. budget=$440, fiona_supplies=3 | score=0.536 | A=9.2%, B=77.9%, C=0.0%, D=13.0%
-2. budget=$400, fiona_supplies=3 | score=0.528 | A=7.2%, B=80.4%, C=0.0%, D=12.3%
-3. budget=$360, fiona_supplies=2 | score=0.480 | A=6.2%, B=80.8%, C=0.0%, D=12.9%
-4. budget=$420, fiona_supplies=3 | score=0.477 | A=8.1%, B=78.2%, C=0.0%, D=13.7%
-5. budget=$420, fiona_supplies=2 | score=0.469 | A=8.8%, B=77.0%, C=0.0%, D=14.1%
+1. budget=$460, fiona_supplies=3 | score=0.323 | A=11.8%, B=70.0%, D=18.2%
+2. budget=$420, fiona_supplies=2 | score=0.243 | A=10.7%, B=70.0%, D=19.4%
+3. budget=$400, fiona_supplies=3 | score=0.208 | A=9.2%, B=71.4%, D=19.5%
+4. budget=$460, fiona_supplies=2 | score=0.169 | A=10.3%, B=68.9%, D=20.8%
+5. budget=$440, fiona_supplies=2 | score=0.158 | A=10.2%, B=69.0%, D=20.9%
 
 ## Objective recommendation
 
-- Recommended constants: `starting_budget=440`, `apartments.deploy.supplies_delta=3`.
-- Current config score: **0.528**; recommended score: **0.536** (+0.008).
+- Recommended constants: `starting_budget=460`, `apartments.deploy.supplies_delta=3`.
+- Current config score: **0.243**; recommended score: **0.323** (+0.079).
 - Keep this recommendation as a balancing target, then re-run the simulation after each gameplay adjustment.
 
 ## Stratified sweep
 
-Each row forces one workbench decision to a specific value and randomizes the rest. 2000 runs per stratum.
+Each row forces one workbench decision to a specific value and randomizes the rest. 500 runs per stratum.
 
 ### hardware
 
-| value | A | B | C | D | avg coverage | avg budget | avg supplies |
-|-------|---|---|---|---|--------------|------------|--------------|
-| `heltec` | 7.0% | 78.8% | 0.0% | 14.2% | 19.23 | $194 | 3.40 |
-| `tbeam` | 8.2% | 77.5% | 0.0% | 14.2% | 19.19 | $158 | 3.36 |
-| `rak` | 9.2% | 77.4% | 0.0% | 13.4% | 21.71 | $124 | 3.36 |
-
-### firmware
-
-| value | A | B | C | D | avg coverage | avg budget | avg supplies |
-|-------|---|---|---|---|--------------|------------|--------------|
-| `stable` | 10.4% | 76.2% | 0.0% | 13.4% | 21.61 | $151 | 3.34 |
-| `alpha` | 5.3% | 79.6% | 0.0% | 15.0% | 18.23 | $160 | 3.36 |
+| value | A | B | D | avg coverage | avg budget | avg supplies |
+|-------|---|---|---|--------------|------------|--------------|
+| `thinknode` | 9.2% | 69.6% | 21.2% | 20.78 | $202 | 2.58 |
+| `techo` | 5.6% | 74.2% | 20.2% | 19.57 | $173 | 2.62 |
+| `meshpocket` | 11.2% | 67.4% | 21.4% | 24.15 | $146 | 2.50 |
 
 ### add_ons
 
-| value | A | B | C | D | avg coverage | avg budget | avg supplies |
-|-------|---|---|---|---|--------------|------------|--------------|
-| `none` | 1.2% | 84.2% | 0.0% | 14.6% | 18.34 | $205 | 3.42 |
-| `case` | 0.2% | 84.4% | 0.0% | 15.4% | 18.15 | $169 | 3.38 |
-| `solar` | 0.7% | 83.0% | 0.0% | 16.2% | 17.86 | $169 | 3.39 |
-| `both` | 14.1% | 73.0% | 0.0% | 12.8% | 21.51 | $132 | 3.28 |
+| value | A | B | D | avg coverage | avg budget | avg supplies |
+|-------|---|---|---|--------------|------------|--------------|
+| `none` | 3.2% | 80.8% | 16.0% | 18.72 | $213 | 2.75 |
+| `repeater` | 11.8% | 71.4% | 16.8% | 21.13 | $147 | 2.62 |
