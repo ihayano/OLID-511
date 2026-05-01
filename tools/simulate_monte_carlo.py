@@ -16,15 +16,12 @@ class RunState:
     nodes_purchased: int
     node_cost: int
     link_quality: int
-    stable_firmware: bool
     dead_zones: bool
     valley_weak: bool
     health_weak: bool
     science_roof: bool
     science_missed: bool
-    solar_support: bool
     yoshiko_drive: bool
-    battery_fragile: bool
     encryption: bool
     wis_mesh_repeater: bool
     high_gain_antennas: bool
@@ -89,15 +86,12 @@ def simulate_one(constants: dict, rng: random.Random, overrides: dict | None = N
         nodes_purchased=0,
         node_cost=0,
         link_quality=0,
-        stable_firmware=True,
         dead_zones=False,
         valley_weak=False,
         health_weak=False,
         science_roof=False,
         science_missed=False,
-        solar_support=False,
         yoshiko_drive=False,
-        battery_fragile=False,
         encryption=False,
         wis_mesh_repeater=False,
         high_gain_antennas=False,
@@ -151,10 +145,6 @@ def simulate_one(constants: dict, rng: random.Random, overrides: dict | None = N
             state.budget -= count * antennas_fee
         if state.budget >= carrier_fee and rng.random() < 0.25:
             state.budget -= carrier_fee
-
-    # Firmware is always stable (no longer player-facing).
-    state.stable_firmware = True
-    state.battery_fragile = False
 
     # Encryption always on.
     state.encryption = True
@@ -227,7 +217,6 @@ def simulate_one(constants: dict, rng: random.Random, overrides: dict | None = N
             state.coverage = max(0, state.coverage)
 
         state.science_roof = selected.get("science_roof", state.science_roof)
-        state.solar_support = selected.get("solar_support", state.solar_support)
         state.yoshiko_drive = selected.get("yoshiko_drive", state.yoshiko_drive)
 
         if selected.get("dead_zone", False):

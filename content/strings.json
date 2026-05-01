@@ -393,12 +393,7 @@
   "endings": {
     "A": {
       "title": "ENDING A // THE RESILIENT UTOPIA",
-      "body_with_solar": [
-        "Encrypted traffic hums through {nodes} devices placed with neighbors while the city reorganizes itself around mutual aid instead of panic.",
-        "The WisMesh repeater on the science building roof gives the mesh a backbone the storm cannot touch, and your solar link in the valley keeps it breathing past dawn.",
-        "Neighbors use the channel to coordinate medicine, hot food, and shelter. By sunrise, the outage feels less like collapse and more like a town learning to move together."
-      ],
-      "body_without_solar": [
+      "body": [
         "Encrypted traffic hums through {nodes} devices placed with neighbors while the city reorganizes itself around mutual aid instead of panic.",
         "The WisMesh repeater on the science building roof throws signal across every district in one clean arc — the highest point in town becomes the heartbeat of the whole network.",
         "Neighbors use the channel to coordinate medicine, hot food, and shelter. By sunrise, the outage feels less like collapse and more like a town learning to move together."

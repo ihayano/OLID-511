@@ -113,15 +113,12 @@ function createInitialState() {
     hardware: null,
     nodeCost: 0,
     linkQuality: 0,
-    stableFirmware: true,
     deadZones: false,
     valleyWeak: false,
     healthWeak: false,
     scienceRoof: false,
     scienceMissed: false,
-    solarSupport: false,
     yoshikoDrive: false,
-    batteryFragile: false,
     housingUnit: false,
     wisMeshRepeater: false,
     antennasAvailable: 0,
@@ -772,9 +769,6 @@ function applyWorkbenchSelections(selections) {
   state.antennasAvailable = selections.antennas || 0;
   state.wisMeshRepeater = selections.wisMeshRepeater === "yes";
 
-  state.stableFirmware = true;
-  state.batteryFragile = false;
-
   state.encryption = true;
   state.securityConfigured = true;
 
@@ -999,7 +993,6 @@ async function deployValley(runToken) {
   changeBudget(-solarCost);
   const gain = addCoverage(10);
   addSupplies(1);
-  state.solarSupport = true;
   addNode("valley", t("locations.valley.solar_node_note", { gain }));
   setLocation("valley", "deployed", t("locations.valley.solar_status"));
   await typeLine(t("locations.valley.solar_line"), "success", runToken);
@@ -1439,7 +1432,7 @@ function determineEnding() {
   const enoughDevicesDeployed = state.nodesDeployed.length >= 4;
 
   if (coverageStrong && state.supplies > 0 && !state.deadZones && scienceRoofWithRepeater && enoughDevicesDeployed) {
-    const bodyKey = state.solarSupport ? "endings.A.body_with_solar" : "endings.A.body_without_solar";
+    const bodyKey = "endings.A.body";
     return {
       className: "success",
       letter: "A",
@@ -1488,12 +1481,9 @@ async function showEnding(runToken) {
       hardware: state.hardware,
       nodes_purchased: state.nodesPurchased,
       nodes_used: state.nodesDeployed.length,
-      stable_firmware: state.stableFirmware,
       dead_zones: state.deadZones,
       science_roof: state.scienceRoof,
       science_missed: state.scienceMissed,
-      solar_support: state.solarSupport,
-      battery_fragile: state.batteryFragile,
     });
   }
 
