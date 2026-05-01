@@ -395,12 +395,12 @@
       "title": "ENDING A // THE RESILIENT UTOPIA",
       "body_with_solar": [
         "Encrypted traffic hums through {nodes} devices placed with neighbors while the city reorganizes itself around mutual aid instead of panic.",
-        "Your solar-backed valley repeater keeps the mesh alive long after the blackout should have broken it.",
+        "The WisMesh repeater on the science building roof gives the mesh a backbone the storm cannot touch, and your solar link in the valley keeps it breathing past dawn.",
         "Neighbors use the channel to coordinate medicine, hot food, and shelter. By sunrise, the outage feels less like collapse and more like a town learning to move together."
       ],
       "body_without_solar": [
         "Encrypted traffic hums through {nodes} devices placed with neighbors while the city reorganizes itself around mutual aid instead of panic.",
-        "Even without a solar repeater on every line, your disciplined build keeps the network standing when the town needs it most.",
+        "The WisMesh repeater on the science building roof throws signal across every district in one clean arc — the highest point in town becomes the heartbeat of the whole network.",
         "Neighbors use the channel to coordinate medicine, hot food, and shelter. By sunrise, the outage feels less like collapse and more like a town learning to move together."
       ]
     },
@@ -408,7 +408,7 @@
       "title": "ENDING B // THE FRACTURED LIFELINE",
       "body": [
         "Your encrypted network works, but not for everyone who needed it.",
-        "Some blocks stay connected while the valley edge, clinic corridor, or weakened relay path drops into silence.",
+        "The mesh needed a high-elevation anchor and enough devices in enough hands — without both, signal fades at the edges where people need it most.",
         "The city survives in pockets. The people close to you make it through the night together, and the people just beyond your best signal do not hear the call."
       ]
     },

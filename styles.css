@@ -473,6 +473,23 @@ h1 {
   margin: 6px 0;
 }
 
+.terminal-line.meta-quip {
+  color: var(--text-bright);
+  letter-spacing: 0.14em;
+  margin: 2px 0 10px;
+  text-shadow:
+    -2px 0 0 var(--chr-r),
+     2px 0 0 var(--chr-c),
+    0 0 6px  var(--text-bright),
+    0 0 18px var(--glow-strong),
+    0 0 36px var(--glow);
+  animation: phosphor-in 1.2s ease-out forwards;
+}
+
+.terminal-line.meta-quip::before {
+  content: "";
+}
+
 .terminal::-webkit-scrollbar        { width: 4px; }
 .terminal::-webkit-scrollbar-track  { background: transparent; }
 .terminal::-webkit-scrollbar-thumb  { background: var(--border); }

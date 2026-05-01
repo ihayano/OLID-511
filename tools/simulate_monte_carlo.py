@@ -52,12 +52,14 @@ def determine_ending(state: RunState, thresholds: dict) -> str:
     low_coverage = coverage < thresholds["coverage_low"]
     supply_shortage = state.supplies < thresholds["minimum_supplies_for_no_shortage"]
     coverage_strong = coverage >= thresholds["coverage_strong"]
-    science_ready = state.science_roof and (not state.science_missed)
-    science_requirement_met = science_ready or coverage >= 38
+    nodes_used = state.nodes_purchased - state.nodes_available
+    # Ending A hard requirements: WisMesh repeater purchased + science roof deployed + ≥4 devices placed
+    science_roof_with_repeater = state.wis_mesh_repeater and state.science_roof and not state.science_missed
+    enough_devices = nodes_used >= 4
 
-    if coverage_strong and state.supplies > 0 and (not state.dead_zones) and science_requirement_met:
+    if coverage_strong and state.supplies > 0 and (not state.dead_zones) and science_roof_with_repeater and enough_devices:
         return "A"
-    if coverage >= thresholds["coverage_good"] and (state.dead_zones or (not science_requirement_met)):
+    if coverage >= thresholds["coverage_good"] and (state.dead_zones or not science_roof_with_repeater or not enough_devices):
         return "B"
     if low_coverage and supply_shortage:
         return "D"

@@ -27,7 +27,7 @@ Then open [http://localhost:8000](http://localhost:8000).
 - **Single-screen workbench checkout (Act I):** choose a mesh device (ThinkNode M1 / LilyGO T-Echo / Heltec MeshPocket), how many units to buy (1–6), and optional add-ons — all in one scrollable panel with a live cart total and a `► COMMIT RESOURCES` confirm action.
 - **Six deployment sites (Act II):** each location has a distinct community contact, deployment branch, and coverage outcome. Deploying means giving one of your devices to the person there, widening the mesh. Some sites are outside town and require a travel decision.
 - **Diagnostics (Act III):** a full ping sweep reveals any dead zones before the storm lands.
-- **Three endings (A / B / D)** driven by coverage percentage, supplies, dead zones, and key deployment decisions.
+- **Three endings (A / B / D)** driven by coverage percentage, supplies, dead zones, devices distributed, and specific deployment decisions.
 
 ## Shop — Mesh Enabled Devices
 

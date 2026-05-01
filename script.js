@@ -194,9 +194,21 @@ function appendLineElement(className = "") {
   return row;
 }
 
-function displayAsciiArt(text, runToken) {
+async function displayAsciiArt(text, runToken) {
   if (runToken !== currentRunToken) return;
+  const lines = text.split("\n");
   const el = appendLineElement("ascii-art");
+  el.textContent = "";
+  for (let i = 0; i < lines.length; i++) {
+    if (runToken !== currentRunToken) return;
+    el.textContent += (i === 0 ? "" : "\n") + lines[i];
+    dom.terminal.scrollTop = dom.terminal.scrollHeight;
+    await wait(55);
+  }
+}
+
+function appendMetaQuip(text) {
+  const el = appendLineElement("meta-quip");
   el.textContent = text;
   dom.terminal.scrollTop = dom.terminal.scrollHeight;
 }
@@ -1346,8 +1358,9 @@ async function actStrayCat(runToken) {
   if (catJoins) {
     state.catJoined = true;
     await typeBlock(t("cat_encounter.joins"), "success", runToken);
-    displayAsciiArt(CAT_ASCII, runToken);
-    await wait(4000);
+    await displayAsciiArt(CAT_ASCII, runToken);
+    appendMetaQuip("// a game within a game, how meta");
+    await wait(3500);
   } else {
     await typeBlock([t("cat_encounter.scratches")], "warn", runToken);
   }
@@ -1421,11 +1434,11 @@ function determineEnding() {
   const lowCoverage = coverage < 20;
   const supplyShortage = state.supplies < 2;
   const coverageStrong = coverage >= 30;
-  const scienceReady = state.scienceRoof && !state.scienceMissed;
-  const scienceBypassCoverage = 38;
-  const scienceRequirementMet = scienceReady || coverage >= scienceBypassCoverage;
+  // Ending A hard requirements: WisMesh repeater purchased + science roof deployed + ≥4 devices placed
+  const scienceRoofWithRepeater = state.wisMeshRepeater && state.scienceRoof && !state.scienceMissed;
+  const enoughDevicesDeployed = state.nodesDeployed.length >= 4;
 
-  if (coverageStrong && state.supplies > 0 && !state.deadZones && scienceRequirementMet) {
+  if (coverageStrong && state.supplies > 0 && !state.deadZones && scienceRoofWithRepeater && enoughDevicesDeployed) {
     const bodyKey = state.solarSupport ? "endings.A.body_with_solar" : "endings.A.body_without_solar";
     return {
       className: "success",
@@ -1437,7 +1450,7 @@ function determineEnding() {
     };
   }
 
-  if (coverage >= 22 && (state.deadZones || !scienceRequirementMet)) {
+  if (coverage >= 22 && (state.deadZones || !scienceRoofWithRepeater || !enoughDevicesDeployed)) {
     return {
       className: "warn",
       letter: "B",
