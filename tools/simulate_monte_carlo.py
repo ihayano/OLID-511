@@ -27,13 +27,17 @@ class RunState:
     battery_fragile: bool
     encryption: bool
     wis_mesh_repeater: bool
+    high_gain_antennas: bool
+    housing_unit: bool
 
 
 DEPLOY_ORDER_KEYS = ["science", "valley", "sugar", "apartments", "radio", "health"]
 
 
-def adjusted_coverage(base_value: int, link_quality: int) -> int:
-    return max(1, base_value + link_quality)
+def adjusted_coverage(base_value: int, state: "RunState") -> int:
+    antenna_bonus = 2 if state.high_gain_antennas else 0
+    housing_bonus = 1 if state.housing_unit else 0
+    return max(1, base_value + state.link_quality + antenna_bonus + housing_bonus)
 
 
 def choose_affordable_option(rng: random.Random, option_names: list[str], weighted: dict[str, float] | None = None) -> str:
@@ -98,6 +102,8 @@ def simulate_one(constants: dict, rng: random.Random, overrides: dict | None = N
         battery_fragile=False,
         encryption=False,
         wis_mesh_repeater=False,
+        high_gain_antennas=False,
+        housing_unit=False,
     )
 
     # Hardware selection
@@ -120,6 +126,7 @@ def simulate_one(constants: dict, rng: random.Random, overrides: dict | None = N
     add_ons = wb.get("add_ons", {})
     housing_fee = int(add_ons.get("weatherproof_housing", {}).get("fee", 20))
     carrier_fee = int(add_ons.get("cat_carrier", {}).get("fee", 20))
+    antennas_fee = int(add_ons.get("high_gain_antennas", {}).get("fee", 20))
     repeater_fee = int(add_ons.get("wis_mesh_repeater", {}).get("fee", 99))
     add_on_override = overrides.get("add_ons")
     if add_on_override == "repeater" and state.budget >= repeater_fee:
@@ -133,7 +140,11 @@ def simulate_one(constants: dict, rng: random.Random, overrides: dict | None = N
             state.wis_mesh_repeater = True
             state.budget -= repeater_fee
         if state.budget >= housing_fee and rng.random() < 0.35:
+            state.housing_unit = True
             state.budget -= housing_fee
+        if state.budget >= antennas_fee and rng.random() < 0.40:
+            state.high_gain_antennas = True
+            state.budget -= antennas_fee
         if state.budget >= carrier_fee and rng.random() < 0.25:
             state.budget -= carrier_fee
 
@@ -205,7 +216,7 @@ def simulate_one(constants: dict, rng: random.Random, overrides: dict | None = N
         state.supplies += selected.get("supplies_delta", 0)
 
         if "coverage_base" in selected:
-            state.coverage += adjusted_coverage(selected["coverage_base"], state.link_quality)
+            state.coverage += adjusted_coverage(selected["coverage_base"], state)
             state.coverage = max(0, state.coverage)
 
         state.science_roof = selected.get("science_roof", state.science_roof)
@@ -217,16 +228,10 @@ def simulate_one(constants: dict, rng: random.Random, overrides: dict | None = N
         state.valley_weak = selected.get("valley_weak", state.valley_weak)
         state.health_weak = selected.get("health_weak", state.health_weak)
 
-    # Diagnostics
+    # Diagnostics — emergency patch removed from game; dead zones are now permanent.
     issues_present = state.valley_weak or state.health_weak
     if issues_present:
         state.dead_zones = True
-        if state.budget >= diag["emergency_patch_cost"] and rng.random() < 0.6:
-            state.budget -= diag["emergency_patch_cost"]
-            state.dead_zones = False
-            state.valley_weak = False
-            state.health_weak = False
-            state.coverage += adjusted_coverage(diag["emergency_patch_coverage_base"], state.link_quality)
 
     # Mutual aid
     if rng.random() < 0.7:
