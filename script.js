@@ -127,6 +127,7 @@ function createInitialState() {
     catCarrier: false,
     catEncounterFired: false,
     catJoined: false,
+    minaEncounterFired: false,
     locationStatuses,
   };
 }
@@ -1203,6 +1204,11 @@ async function actDeployment(runToken) {
       await actStrayCat(runToken);
     }
 
+    if (!state.minaEncounterFired) {
+      state.minaEncounterFired = true;
+      await actMutualAid(runToken);
+    }
+
     if (window.IntermeshAnalytics) {
       const status = state.locationStatuses[selected];
       window.IntermeshAnalytics.locationResolved(selected, {
@@ -1316,8 +1322,9 @@ async function actDiagnostics(runToken) {
 }
 
 async function actMutualAid(runToken) {
-  clearTerminal();
   await typeBlock(t("mutual_aid.intro"), "system", runToken);
+
+  const hasDevice = state.nodesAvailable > 0;
 
   const choice = await promptChoice(
     [t("mutual_aid.prompt")],
@@ -1326,7 +1333,8 @@ async function actMutualAid(runToken) {
         value: "grant",
         label: t("mutual_aid.grant_label"),
         description: t("mutual_aid.grant_description"),
-        meta: t("mutual_aid.grant_meta"),
+        meta: hasDevice ? t("mutual_aid.grant_meta") : t("mutual_aid.grant_meta_no_device"),
+        disabled: !hasDevice,
       },
       {
         value: "deny",
@@ -1338,6 +1346,8 @@ async function actMutualAid(runToken) {
   );
 
   if (choice === "grant") {
+    state.nodesAvailable = Math.max(0, state.nodesAvailable - 1);
+    refreshUi();
     addSupplies(1);
     await typeLine(t("mutual_aid.grant_line"), "success", runToken);
   } else {
@@ -1450,7 +1460,6 @@ async function runGame(runToken) {
   await actWorkbench(runToken);
   await actDeployment(runToken);
   await actDiagnostics(runToken);
-  await actMutualAid(runToken);
   await showEnding(runToken);
 }
 
