@@ -173,11 +173,9 @@ def simulate_one(constants: dict, rng: random.Random, overrides: dict | None = N
             if add_on <= state.budget:
                 affordable.append(option_name)
 
-        # Gate roof/tower installs unless WisMesh Repeater purchased.
+        # Gate science roof install unless WisMesh Repeater purchased.
         if location_key == "science" and ("data" in affordable) and not state.wis_mesh_repeater:
             affordable = [name for name in affordable if name != "data"]
-        if location_key == "radio" and ("tower" in affordable) and not state.wis_mesh_repeater:
-            affordable = [name for name in affordable if name != "tower"]
         # Gate highgain options unless high-gain antennas purchased.
         if "highgain" in affordable and not state.high_gain_antennas:
             affordable = [name for name in affordable if name != "highgain"]
@@ -197,7 +195,7 @@ def simulate_one(constants: dict, rng: random.Random, overrides: dict | None = N
                 weighted={"highgain": 3.0, "solar": 2.0, "basic": 1.0, "skip": 1.0},
             )
         elif location_key == "radio":
-            option = choose_affordable_option(rng, affordable, weighted={"tower": 2.0, "highgain": 2.0, "lobby": 1.0, "skip": 1.0})
+            option = choose_affordable_option(rng, affordable, weighted={"deploy": 2.0, "highgain": 2.0, "skip": 1.0})
         else:
             option = choose_affordable_option(rng, affordable, weighted={"highgain": 2.0, "deploy": 2.0, "skip": 1.0})
 

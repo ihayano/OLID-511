@@ -144,12 +144,13 @@
     "science": {
       "title": "Campus Science Building",
       "elevation": "Maximum elevation",
-      "detail": "Critical line-of-sight point inside town.",
+      "detail": "Dean of the College of Science — controls roof access to the town's best elevation point.",
       "no_nodes_status": "No devices left to give at this site.",
       "no_nodes_line": "No devices left to give. You cannot reach the science building.",
       "intro": [
         "Destination: Campus Science Building.",
-        "Dr. Ansari leans in the observatory doorway, unimpressed by panic and very impressed by evidence.",
+        "Dr. Ansari — professor, and Dean of the College of Science — leans in the observatory doorway.",
+        "He is unimpressed by panic and very impressed by evidence.",
         "\"Give me one reason this belongs on my roof,\" he says."
       ],
       "prompt": "Make your case.",
@@ -294,45 +295,39 @@
     "radio": {
       "title": "Radio Station",
       "elevation": "Medium elevation",
-      "detail": "Strong reach if you are willing to climb the tower.",
+      "detail": "Your soccer club friend Chris works the boards here — good rooftop access.",
       "no_nodes_status": "No devices left to give at this site.",
       "no_nodes_line": "No devices left to give. The station cannot be linked.",
       "intro": [
         "Destination: Radio Station.",
-        "Geo unlocks a side gate and points toward the tower with a grin that says he would climb it himself if you asked."
+        "Chris is leaning on the back fence when you arrive, holding a spare cable he pulled from the equipment room.",
+        "\"Knew you were coming,\" he says. \"Figured you would need this. Show me where you want it.\""
       ],
-      "prompt": "How bold do you get?",
+      "prompt": "Where does the device go?",
       "choices": {
-        "tower_label": "Climb the tower",
-        "tower_description": "High risk, high payoff. Best possible reach from the station.",
-        "tower_meta_ready": "Uses 1 unit // WisMesh Repeater installed // Tower install enabled",
-        "tower_meta_locked": "Requires WisMesh Mini Solar Repeater for tower install",
-        "lobby_label": "Mount it inside the lobby",
-        "lobby_description": "Safer, faster, and much worse for network geometry.",
-        "lobby_meta": "Gives 1 device",
-        "highgain_label": "Mount a high-gain antenna on the station rooftop",
-        "highgain_description": "No tower climb — Geo shows you a rooftop hatch and you bolt the directional antenna to the parapet wall for solid mid-height coverage.",
+        "deploy_label": "Mount a device on the station rooftop",
+        "deploy_description": "Chris shows you the roof hatch and helps you find a clear sightline above the surrounding buildings.",
+        "deploy_meta": "Gives 1 device",
+        "highgain_label": "Device + high-gain antenna on the rooftop",
+        "highgain_description": "Chris holds the mast while you bolt the directional antenna to the parapet wall. The extra height and gain push the signal well past the grid.",
         "highgain_meta": "Gives 1 device // no add-on cost",
         "skip_label": "Skip this site",
-        "skip_description": "Save money and let the radio station fend for itself.",
+        "skip_description": "Save the device. Chris shrugs and says he will keep the frequencies clear for you.",
         "skip_meta": "No cost"
       },
-      "skip_status": "Broadcast hub never linked into the mesh.",
-      "skip_line": "You leave the station behind. The town loses a strong mid-grid relay point.",
-      "tower_node_note": "tower-top mount with Geo spotting the climb (+{gain}% coverage)",
-      "tower_status": "Tower device mounted above the station roofline.",
-      "tower_line": "The tower sways, your hands shake, and the new relay paints a clean arc across the city center.",
-      "highgain_node_note": "rooftop parapet antenna — no tower climb required (+{gain}% coverage)",
-      "highgain_status": "Station rooftop antenna online. Solid reach without the climb.",
-      "highgain_line": "Geo unlocks the hatch and you bracket the antenna to the parapet. It is not the tower, but the signal is clean across the whole grid.",
-      "lobby_node_note": "interior station mount with reduced reach (+{gain}% coverage)",
-      "lobby_status": "Safe install completed, but the station never reaches full potential.",
-      "lobby_line": "You take the safe route. Geo does not judge you, but the coverage map absolutely does."
+      "skip_status": "Radio station not linked.",
+      "skip_line": "You leave the station behind. Chris waves from the fence as you go.",
+      "deploy_node_note": "rooftop relay at the radio station (+{gain}% coverage)",
+      "deploy_status": "Radio station rooftop linked.",
+      "deploy_line": "Chris props the hatch open and you get the device mounted in ten minutes flat. The station becomes a solid relay point across the grid.",
+      "highgain_node_note": "rooftop directional antenna at the radio station (+{gain}% coverage)",
+      "highgain_status": "Radio station rooftop — high-gain relay online.",
+      "highgain_line": "Chris holds the mast steady while you lock the bracket. The antenna clears the parapet and the signal reaches the next district cleanly."
     },
     "health": {
       "title": "Women's Health Clinic",
       "elevation": "Medium elevation",
-      "detail": "Dense trees force a cleaner antenna setup.",
+      "detail": "Dense tree canopy and Yoshiko's older sister on the nursing staff.",
       "no_nodes_status": "No devices left to give at this site.",
       "no_nodes_line": "No devices left to give. The clinic stays outside the mesh.",
       "intro": [
@@ -340,6 +335,14 @@
         "Yasmin leads you behind the building where trees and wet branches turn the air into a green wall.",
         "Dense foliage here demands better hardware than a naked stock antenna."
       ],
+      "intro_yoshiko": [
+        "Destination: Women's Health Clinic.",
+        "Yasmin is stepping out the staff entrance when the car pulls up. She sees you first — then the driver.",
+        "\"Ko.\" Her voice goes quiet. \"You actually came.\"",
+        "Yoshiko gets out without a word and wraps her arms around her sister.",
+        "After a moment Yasmin pulls back and looks at you. \"Okay. Show me what you have. This clinic needs to stay reachable when the grid goes down.\""
+      ],
+      "skip_line_yoshiko": "Yoshiko does not say anything as you drive away. You both know what it means to leave her sister's clinic off the mesh.",
       "prompt": "Choose the clinic deployment package.",
       "choices": {
         "basic_label": "Basic device placement",
@@ -353,7 +356,7 @@
         "skip_meta": "No cost"
       },
       "skip_status": "Health center left outside the mesh.",
-      "skip_line": "You save the money. The clinic vanishes behind branches and static.",
+      "skip_line": "You save the device. The clinic vanishes behind branches and static — Yasmin's patients unreachable when it matters most.",
       "basic_node_note": "clinic device placed, but the foliage still blocks clean traffic (+{gain}% coverage)",
       "basic_status": "Device placed, yet foliage still causes a medical dead zone.",
       "basic_line": "Yasmin thanks you anyway. The clinic joins the map, but every tree between you and town remains an enemy.",

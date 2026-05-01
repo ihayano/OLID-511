@@ -1128,24 +1128,14 @@ async function deployRadio(runToken) {
   }
   await typeBlock(t("locations.radio.intro"), "system", runToken);
 
-  const ready = state.wisMeshRepeater;
   const choice = await promptChoice(
     [t("locations.radio.prompt")],
     [
       {
-        value: "tower",
-        label: t("locations.radio.choices.tower_label"),
-        description: t("locations.radio.choices.tower_description"),
-        meta: ready
-          ? t("locations.radio.choices.tower_meta_ready")
-          : t("locations.radio.choices.tower_meta_locked"),
-        disabled: !ready,
-      },
-      {
-        value: "lobby",
-        label: t("locations.radio.choices.lobby_label"),
-        description: t("locations.radio.choices.lobby_description"),
-        meta: t("locations.radio.choices.lobby_meta"),
+        value: "deploy",
+        label: t("locations.radio.choices.deploy_label"),
+        description: t("locations.radio.choices.deploy_description"),
+        meta: t("locations.radio.choices.deploy_meta"),
       },
       {
         value: "highgain",
@@ -1169,14 +1159,6 @@ async function deployRadio(runToken) {
     return;
   }
 
-  if (choice === "tower") {
-    const gain = addCoverage(7);
-    addNode("radio", t("locations.radio.tower_node_note", { gain }));
-    setLocation("radio", "deployed", t("locations.radio.tower_status"));
-    await typeLine(t("locations.radio.tower_line"), "success", runToken);
-    return;
-  }
-
   if (choice === "highgain") {
     state.antennasAvailable = Math.max(0, state.antennasAvailable - 1);
     const gain = addCoverage(6);
@@ -1186,10 +1168,10 @@ async function deployRadio(runToken) {
     return;
   }
 
-  const gain = addCoverage(4);
-  addNode("radio", t("locations.radio.lobby_node_note", { gain }));
-  setLocation("radio", "weak", t("locations.radio.lobby_status"));
-  await typeLine(t("locations.radio.lobby_line"), "warn", runToken);
+  const gain = addCoverage(5);
+  addNode("radio", t("locations.radio.deploy_node_note", { gain }));
+  setLocation("radio", "deployed", t("locations.radio.deploy_status"));
+  await typeLine(t("locations.radio.deploy_line"), "success", runToken);
 }
 
 async function deployHealth(runToken) {
@@ -1198,7 +1180,10 @@ async function deployHealth(runToken) {
     await typeLine(t("locations.health.no_nodes_line"), "alert", runToken);
     return;
   }
-  await typeBlock(t("locations.health.intro"), "system", runToken);
+  const healthIntroKey = state.yoshikoDrive
+    ? "locations.health.intro_yoshiko"
+    : "locations.health.intro";
+  await typeBlock(t(healthIntroKey), "system", runToken);
 
   const choice = await promptChoice(
     [t("locations.health.prompt")],
@@ -1227,7 +1212,10 @@ async function deployHealth(runToken) {
 
   if (choice === "skip") {
     setLocation("health", "skipped", t("locations.health.skip_status"));
-    await typeLine(t("locations.health.skip_line"), "warn", runToken);
+    const skipLineKey = state.yoshikoDrive
+      ? "locations.health.skip_line_yoshiko"
+      : "locations.health.skip_line";
+    await typeLine(t(skipLineKey), "warn", runToken);
     return;
   }
 

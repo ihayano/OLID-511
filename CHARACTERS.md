@@ -10,13 +10,13 @@ Source of truth: `content/strings.json`. UI prose and system lines are excluded.
 
 | Character | Role | Location / Encounter | Appears |
 |-----------|------|----------------------|---------|
-| Dr. Ansari | University professor, observatory gatekeeper | Campus Science Building | Act II (player's choice) |
+| Dr. Ansari | Professor and Dean of the College of Science; controls roof access | Campus Science Building | Act II (player's choice) |
 | Luz | Valley West resident | Valley West | Act II (player's choice) |
 | Diego | Valley West resident, Luz's partner | Valley West | Act II (player's choice) |
-| Yoshiko | Classmate, driver, logistics partner | International Grocery | Act II (player's choice) |
+| Yoshiko | Player's girlfriend, driver; older sister is Yasmin | International Grocery | Act II (player's choice) |
 | Dalia | Apartment resident, community garden steward; Yoshiko's best friend | Tesseract Apartments | Act II (player's choice) |
-| Geo | Radio station contact | Radio Station | Act II (player's choice) |
-| Yasmin | Women's Health Clinic contact | Women's Health Clinic | Act II (player's choice) |
+| Chris | Player's friend from soccer club; works at the radio station | Radio Station | Act II (player's choice) |
+| Yasmin | Nurse at Women's Health Clinic; Yoshiko's older sister | Women's Health Clinic | Act II (player's choice) |
 | Nina | Neighbor, mutual aid encounter | Mid-deployment (after first site) | Act II, fires once |
 | The Stray Cat | Unnamed stray | Mid-deployment (cat carrier required) | Act II, fires once |
 
@@ -35,6 +35,7 @@ Deployment order is player-chosen. Encounters fire after the player's first comp
 
 ### Dr. Ansari
 **Location:** Campus Science Building
+**Role:** Professor and Dean of the College of Science
 **Elevation:** Maximum (best line-of-sight in town)
 **Condition:** Player must have at least 1 device available
 
@@ -153,40 +154,49 @@ Deployment order is player-chosen. Encounters fire after the player's first comp
 
 ---
 
-### Geo
+### Chris
 **Location:** Radio Station
-**Elevation:** Medium (tower greatly extends reach)
+**Relationship:** Player's friend from soccer club; works at the radio station
+**Elevation:** Medium
 **Condition:** Player must have at least 1 device available
 
 **Intro (narrator):**
 > Destination: Radio Station.
-> Geo unlocks a side gate and points toward the tower with a grin that says he would climb it himself if you asked.
+> Chris is leaning on the back fence when you arrive, holding a spare cable he pulled from the equipment room.
+> "Knew you were coming," he says. "Figured you would need this. Show me where you want it."
 
-**Prompt:** *How bold do you get?*
+**Prompt:** *Where does the device go?*
 
 ---
 
-**Branch A — Climb the tower** *(requires WisMesh Repeater; best coverage gain)*
-> The tower sways, your hands shake, and the new relay paints a clean arc across the city center.
-*(Narrator only — Geo spotting is referenced in the log note but has no spoken line)*
+**Branch A — Mount a device on the station rooftop**
+> Chris props the hatch open and you get the device mounted in ten minutes flat. The station becomes a solid relay point across the grid.
 
-**Branch B — Mount it inside the lobby** *(safe, reduced reach)*
-> You take the safe route. Geo does not judge you, but the coverage map absolutely does.
+**Branch B — Device + high-gain antenna on the rooftop** *(requires high-gain antennas)*
+> Chris holds the mast steady while you lock the bracket. The antenna clears the parapet and the signal reaches the next district cleanly.
 
 **Branch C — Skip**
-> You leave the station behind. The town loses a strong mid-grid relay point.
+> You leave the station behind. Chris waves from the fence as you go.
 
 ---
 
 ### Yasmin
 **Location:** Women's Health Clinic
+**Relationship:** Yoshiko's older sister; nurse on staff
 **Elevation:** Medium (dense foliage requires better antenna)
 **Condition:** Player must have at least 1 device available. Out-of-town site — requires $10 ride or walking.
 
-**Intro (narrator):**
+**Intro (standard — Yoshiko not present):**
 > Destination: Women's Health Clinic.
 > Yasmin leads you behind the building where trees and wet branches turn the air into a green wall.
 > Dense foliage here demands better hardware than a naked stock antenna.
+
+**Intro (Yoshiko present — `state.yoshikoDrive === true`):**
+> Destination: Women's Health Clinic.
+> Yasmin is stepping out the staff entrance when the car pulls up. She sees you first — then the driver.
+> "Ko." Her voice goes quiet. "You actually came."
+> Yoshiko gets out without a word and wraps her arms around her sister.
+> After a moment Yasmin pulls back and looks at you. "Okay. Show me what you have. This clinic needs to stay reachable when the grid goes down."
 
 **Prompt:** *Choose the clinic deployment package.*
 
