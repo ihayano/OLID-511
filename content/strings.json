@@ -5,6 +5,7 @@
       "MEMORY CHECK 640K OK",
       "MESH ROUTING STACK ........ READY",
       "COMMUNITY DEVICE CONSOLE ... READY",
+      "STORM WINDOW: T-MINUS 48 HOURS",
       "LOADING EMERGENCY SCENARIO..."
     ]
   },
@@ -25,7 +26,7 @@
     "input_placeholder_default": "Enter your name",
     "input_submit": "Transmit",
     "workbench_title": "Workbench Planning",
-    "commit_primary": "Commit Resources",
+    "commit_primary": "Check Out",
     "commit_subtitle": "Lock this loadout and begin deployment.",
     "noscript": "JavaScript is required to boot the Project Intermesh terminal.",
     "chips": {
@@ -45,10 +46,14 @@
       "It runs over LoRa (Long Range), a low-power radio protocol built for modest data rates across long distances.",
       "Practical use: when internet or cell service fails, neighbors can still coordinate rides, food, medicine, and check-ins through a local mesh.",
       "BOOT SEQUENCE // RIDGECREST MUNICIPAL BACKCHANNEL",
-      "NOAA BULLETIN: DERECHO STORM FRONT PROJECTED TO IMPACT IN 72 HOURS.",
+      "NOAA BULLETIN: DERECHO STORM FRONT PROJECTED TO IMPACT IN 48 HOURS.",
       "Expected effects: grid collapse, cell congestion, road closures, multi-day outage.",
-      "You are one student with a soldering iron, a terminal window, and $400 of precious cash.",
-      "If the power dies, people will need a local mesh to coordinate rides, food, medicine, and shelter."
+      "Ten years ago a derecho tore through Ridgecrest and left the city dark for eleven days.",
+      "No power. No cell signal. No coordination. People waited in silence while emergency lines stayed busy and neighbors had no way to reach each other.",
+      "The town rebuilt. But it never built a backup.",
+      "You are an engineering student and DIY tech enthusiast — soldering iron in one hand, a terminal window in the other, and $420 of saved cash.",
+      "The forecast says 48 hours. You have seen what happens when this town goes quiet.",
+      "This time you are going to make sure it does not."
     ],
     "controls_header": "──[ HOW TO NAVIGATE ]───────────────────────────────────────",
     "controls_lines": [
@@ -63,8 +68,9 @@
     "name_placeholder": "Ziad",
     "post_name": [
       "{name} ready. Project Intermesh setup logged.",
-      "Main objective: place enough Meshtastic devices with neighbors to keep people talking after the grid falls.",
-      "Failure risks: low coverage, weak signal, broken links, or an open channel that hostile listeners can exploit."
+      "Forty-eight hours. That is what the forecast gives you before Ridgecrest goes dark again.",
+      "Main objective: spend your savings on Meshtastic hardware, then get out into the neighborhoods and place devices with real people — every handoff widens the mesh.",
+      "The town does not know it needs this yet. That is your problem to solve before the storm arrives."
     ]
   },
   "travel": {
@@ -82,8 +88,8 @@
   "act1": {
     "intro": [
       "ACT I // THE WORKBENCH",
-      "The online requisition terminal blinks to life. Every dollar spent here determines what the town gets later.",
-      "Use the workbench panel below to compare every purchase at once, then confirm when the cart fits your budget."
+      "You pull up the online requisition terminal. Forty-eight hours. You have done this kind of build before in a lab — never against a real clock with real stakes.",
+      "Every dollar you spend here is a dollar that either reaches a neighbor or does not. Choose carefully, then commit."
     ],
     "budget_hint": "Starting cash: ${budget}. Device selection and quantity are required. Everything else is optional -- tap twice to clear a selection.",
     "total_ready": "Cart total: ${total} // Cash left after checkout: ${remaining}",
@@ -369,8 +375,8 @@
     "issue_health": "Women's Health Clinic traffic is vanishing into foliage.",
     "clean_line": "Ping sweep returns green across every deployed corridor. No dead zones detected.",
     "storm_alert": [
-      "Storm alert: derecho leading edge detected.",
-      "Grid instability spikes. Lights flicker across the city and then vanish sector by sector.",
+      "Storm alert: derecho leading edge detected. Ahead of schedule.",
+      "Grid instability spikes. Lights flicker across the city and then vanish sector by sector. The forecasters said this one could be worse.",
       "Project Intermesh becomes the only thing still awake."
     ]
   },
