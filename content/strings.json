@@ -125,7 +125,7 @@
     "housing_label": "Weatherproof housing",
     "carrier_title": "Cat Carrier (optional)",
     "carrier_label": "Portable cat carrier",
-    "antennas_title": "High-Gain Antennas (optional — up to 6)",
+    "antennas_title": "High-Gain Antennas (optional — up to 2)",
     "antennas_label_singular": "1 high-gain antenna",
     "antennas_label_plural": "{n} high-gain antennas",
     "antennas_description": "Ruggedized directional antennas that push your signal further through concrete, foliage, and urban interference. Each one can be deployed at a separate site.",
@@ -406,6 +406,7 @@
     "deny_label": "You cannot spare one",
       "deny_description": "You need every device for your planned sites. Nina nods and walks away.",
     "deny_meta": "No cost",
+    "grant_node_note": "Nina's neighborhood relay — mutual aid node (+{gain}% coverage)",
     "grant_line": "Nina's face changes the moment the device lights up. She hands you a jar of honey from her kitchen. The mesh just got one person wider.",
     "deny_line": "You keep moving. Nina watches you go. The mesh stays exactly as planned, and so does the silence on her street."
   },
@@ -452,16 +453,16 @@
   "cat_encounter": {
     "intro": [
       "A rustle in the shadows. Something small is watching you.",
-      "A stray cat sits at the edge of the alley, tail twitching."
+      "An all-black cat sits at the edge of the alley, tail twitching — nearly invisible except for two amber eyes."
     ],
     "prompt": "What do you do?",
     "pickup_label": "Try to pick it up",
     "pickup_description": "Reach out slowly and hope for the best.",
     "pspsps_label": "Whisper \"psss psss psss\"",
     "pspsps_description": "The universal language.",
-    "scratches": "The cat flattens its ears, swipes at your hand, and bolts into the dark. You have a small scratch and a lesson.",
+    "scratches": "The black cat flattens its ears, swipes at your hand, and vanishes back into the dark. You have a small scratch and a lesson.",
     "joins": [
-      "The cat sniffs the air once, then walks straight to you and headbutts your shin.",
+      "The black cat sniffs the air once, then walks straight to you and headbutts your shin.",
       "You have a companion."
     ]
   }
