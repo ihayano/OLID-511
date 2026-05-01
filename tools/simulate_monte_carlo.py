@@ -26,8 +26,7 @@ class RunState:
     yoshiko_drive: bool
     battery_fragile: bool
     encryption: bool
-    weatherproof_case: bool
-    solar_panel: bool
+    wis_mesh_repeater: bool
 
 
 DEPLOY_ORDER_KEYS = ["science", "valley", "sugar", "apartments", "radio", "health"]
@@ -48,7 +47,6 @@ def determine_ending(state: RunState, thresholds: dict) -> str:
     coverage = state.coverage
     low_coverage = coverage < thresholds["coverage_low"]
     supply_shortage = state.supplies < thresholds["minimum_supplies_for_no_shortage"]
-    config_failure = not state.stable_firmware
     coverage_strong = coverage >= thresholds["coverage_strong"]
     science_ready = state.science_roof and (not state.science_missed)
     science_requirement_met = science_ready or coverage >= 38
@@ -61,7 +59,7 @@ def determine_ending(state: RunState, thresholds: dict) -> str:
         return "B"
     if (not state.encryption) and coverage >= thresholds["coverage_good"]:
         return "C"
-    if low_coverage and supply_shortage and (state.battery_fragile or config_failure or (not state.solar_support)):
+    if low_coverage and supply_shortage and (state.battery_fragile or (not state.solar_support)):
         return "D"
     return "B"
 
@@ -99,8 +97,7 @@ def simulate_one(constants: dict, rng: random.Random, overrides: dict | None = N
         yoshiko_drive=False,
         battery_fragile=False,
         encryption=False,
-        weatherproof_case=False,
-        solar_panel=False,
+        wis_mesh_repeater=False,
     )
 
     # Hardware selection
@@ -121,47 +118,30 @@ def simulate_one(constants: dict, rng: random.Random, overrides: dict | None = N
 
     # Optional add-ons (gate some install options)
     add_ons = wb.get("add_ons", {})
-    case_fee = int(add_ons.get("weatherproof_case", {}).get("fee", 40))
-    solar_fee = int(add_ons.get("solar_panel", {}).get("fee", 40))
+    housing_fee = int(add_ons.get("weatherproof_housing", {}).get("fee", 20))
+    carrier_fee = int(add_ons.get("cat_carrier", {}).get("fee", 20))
+    repeater_fee = int(add_ons.get("wis_mesh_repeater", {}).get("fee", 99))
     add_on_override = overrides.get("add_ons")
-    if add_on_override == "both" and state.budget >= case_fee + solar_fee:
-        state.weatherproof_case = True
-        state.solar_panel = True
-        state.budget -= case_fee + solar_fee
-    elif add_on_override == "case" and state.budget >= case_fee:
-        state.weatherproof_case = True
-        state.budget -= case_fee
-    elif add_on_override == "solar" and state.budget >= solar_fee:
-        state.solar_panel = True
-        state.budget -= solar_fee
+    if add_on_override == "repeater" and state.budget >= repeater_fee:
+        state.wis_mesh_repeater = True
+        state.budget -= repeater_fee
     elif add_on_override == "none":
         pass  # purchase nothing
     else:
-        # Heuristic: if you can afford both, 55% chance to buy both; otherwise sometimes buy one.
-        if state.budget >= case_fee + solar_fee and rng.random() < 0.55:
-            state.weatherproof_case = True
-            state.solar_panel = True
-            state.budget -= case_fee + solar_fee
-        elif state.budget >= case_fee and rng.random() < 0.2:
-            state.weatherproof_case = True
-            state.budget -= case_fee
-        elif state.budget >= solar_fee and rng.random() < 0.2:
-            state.solar_panel = True
-            state.budget -= solar_fee
+        # Heuristic: 45% chance to buy the repeater if affordable (it's expensive and unlocks premium deploys).
+        if state.budget >= repeater_fee and rng.random() < 0.45:
+            state.wis_mesh_repeater = True
+            state.budget -= repeater_fee
+        if state.budget >= housing_fee and rng.random() < 0.35:
+            state.budget -= housing_fee
+        if state.budget >= carrier_fee and rng.random() < 0.25:
+            state.budget -= carrier_fee
 
-    # Firmware
-    firmware_options = []
-    if state.budget >= wb["firmware"]["stable"]["fee"]:
-        firmware_options.append("stable")
-    firmware_options.append("alpha")
-    firmware_key = _pick(rng, firmware_options, overrides.get("firmware"))
-    firmware_cfg = wb["firmware"][firmware_key]
-    state.budget -= firmware_cfg["fee"]
-    state.stable_firmware = firmware_cfg["stable_firmware"]
-    state.battery_fragile = state.battery_fragile or firmware_cfg["battery_fragile"]
-    state.link_quality += firmware_cfg["link_quality_delta"]
+    # Firmware is always stable (no longer player-facing).
+    state.stable_firmware = True
+    state.battery_fragile = False
 
-    # Frequency/preset/security are no longer player-facing in gameplay.
+    # Encryption always on.
     state.encryption = True
 
     # Deployments
@@ -188,10 +168,10 @@ def simulate_one(constants: dict, rng: random.Random, overrides: dict | None = N
             if add_on <= state.budget:
                 affordable.append(option_name)
 
-        # Gate roof/tower installs unless both add-ons purchased.
-        if location_key == "science" and ("data" in affordable) and not (state.weatherproof_case and state.solar_panel):
+        # Gate roof/tower installs unless WisMesh Repeater purchased.
+        if location_key == "science" and ("data" in affordable) and not state.wis_mesh_repeater:
             affordable = [name for name in affordable if name != "data"]
-        if location_key == "radio" and ("tower" in affordable) and not (state.weatherproof_case and state.solar_panel):
+        if location_key == "radio" and ("tower" in affordable) and not state.wis_mesh_repeater:
             affordable = [name for name in affordable if name != "tower"]
         if "skip" not in affordable:
             affordable.append("skip")
@@ -286,8 +266,7 @@ def stratified_sweep(constants: dict, runs_per_stratum: int, seed: int) -> dict:
     wb = constants["workbench"]
     strata_values: dict[str, list[str]] = {
         "hardware": list(wb["hardware"].keys()),
-        "firmware": ["stable", "alpha"],
-        "add_ons": ["none", "case", "solar", "both"],
+        "add_ons": ["none", "repeater"],
     }
 
     results: dict[str, dict[str, dict]] = {}

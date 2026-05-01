@@ -93,8 +93,8 @@ function createInitialState() {
     solarSupport: false,
     yoshikoDrive: false,
     batteryFragile: false,
-    weatherproofCases: 0,
-    solarPanels: 0,
+    housingUnit: false,
+    wisMeshRepeater: false,
     catCarrier: false,
     locationStatuses,
   };
@@ -433,37 +433,33 @@ async function introSequence(runToken) {
 }
 
 function getNodeCostForHardware(hw) {
-  if (hw === "heltec") return 30;
-  if (hw === "tbeam") return 40;
-  if (hw === "rak") return 50;
+  if (hw === "thinknode") return 40;
+  if (hw === "techo") return 50;
+  if (hw === "meshpocket") return 60;
   return 0;
 }
 
-const CASE_UNIT_COST = 40;
-const SOLAR_UNIT_COST = 40;
-const CAT_CARRIER_COST = 50;
+const HOUSING_UNIT_COST = 20;
+const CAT_CARRIER_COST = 20;
+const WIS_MESH_REPEATER_COST = 99;
 
 function getAddOnCost(draft) {
-  const cases = draft.cases || 0;
-  const solar = draft.solar || 0;
+  const housing = draft.housing === "yes" ? HOUSING_UNIT_COST : 0;
   const carrier = draft.catCarrier === "yes" ? CAT_CARRIER_COST : 0;
-  return cases * CASE_UNIT_COST + solar * SOLAR_UNIT_COST + carrier;
-}
-
-function workbenchFirmwareCost(firmware) {
-  return firmware === "stable" ? 10 : 0;
+  const repeater = draft.wisMeshRepeater === "yes" ? WIS_MESH_REPEATER_COST : 0;
+  return housing + carrier + repeater;
 }
 
 function workbenchCartTotal(draft) {
   const nc = getNodeCostForHardware(draft.hardware);
   const nodes = draft.nodes != null ? draft.nodes : 0;
-  return nodes * nc + getAddOnCost(draft) + workbenchFirmwareCost(draft.firmware);
+  return nodes * nc + getAddOnCost(draft);
 }
 
 function workbenchMaxNodes(draft, budgetStart) {
   const nc = getNodeCostForHardware(draft.hardware);
   if (!nc) return 0;
-  const reserved = getAddOnCost(draft) + workbenchFirmwareCost(draft.firmware);
+  const reserved = getAddOnCost(draft);
   const left = budgetStart - reserved;
   if (left < nc) return 0;
   return Math.min(6, Math.floor(left / nc));
@@ -515,7 +511,7 @@ function workbenchAddRow(container, title, options, onPick, selectedValue) {
 
 function syncWorkbenchFooter(draft, budgetStart) {
   const total = workbenchCartTotal(draft);
-  const required = Boolean(draft.hardware && draft.nodes != null && draft.firmware);
+  const required = Boolean(draft.hardware && draft.nodes != null);
   const over = total > budgetStart;
   if (required && !over) {
     dom.workbenchTotalLine.textContent = t("act1.total_ready", {
@@ -555,27 +551,32 @@ function renderWorkbenchCheckout(draft, budgetStart, autoFocus = false) {
     rerender();
   };
 
+  const devicesHeader = document.createElement("div");
+  devicesHeader.className = "workbench-group-header";
+  devicesHeader.textContent = t("workbench_rows.section_devices");
+  dom.workbenchSections.appendChild(devicesHeader);
+
   workbenchAddRow(
     dom.workbenchSections,
     t("workbench_rows.hardware_title"),
     [
       {
-        value: "heltec",
-        label: t("workbench_rows.hardware_heltec_label"),
-        description: "",
-        meta: t("workbench_rows.hardware_heltec_meta"),
+        value: "thinknode",
+        label: t("workbench_rows.device_thinknode_label"),
+        description: t("workbench_rows.device_thinknode_desc"),
+        meta: t("workbench_rows.device_thinknode_meta"),
       },
       {
-        value: "tbeam",
-        label: t("workbench_rows.hardware_tbeam_label"),
-        description: "",
-        meta: t("workbench_rows.hardware_tbeam_meta"),
+        value: "techo",
+        label: t("workbench_rows.device_techo_label"),
+        description: t("workbench_rows.device_techo_desc"),
+        meta: t("workbench_rows.device_techo_meta"),
       },
       {
-        value: "rak",
-        label: t("workbench_rows.hardware_rak_label"),
-        description: "",
-        meta: t("workbench_rows.hardware_rak_meta"),
+        value: "meshpocket",
+        label: t("workbench_rows.device_meshpocket_label"),
+        description: t("workbench_rows.device_meshpocket_desc"),
+        meta: t("workbench_rows.device_meshpocket_meta"),
       },
     ],
     (value) => {
@@ -609,46 +610,24 @@ function renderWorkbenchCheckout(draft, budgetStart, autoFocus = false) {
     draft.nodes
   );
 
-  workbenchAddRow(
-    dom.workbenchSections,
-    t("workbench_rows.cases_title"),
-    [
-      {
-        value: 1,
-        label: t("workbench_rows.cases_one_label"),
-        description: "",
-        meta: `$${CASE_UNIT_COST}`,
-      },
-      {
-        value: 2,
-        label: t("workbench_rows.cases_two_label"),
-        description: "",
-        meta: `$${CASE_UNIT_COST * 2}`,
-      },
-    ],
-    (value) => toggle("cases", value),
-    draft.cases
-  );
+  const addOnsHeader = document.createElement("div");
+  addOnsHeader.className = "workbench-group-header";
+  addOnsHeader.textContent = t("workbench_rows.section_addons");
+  dom.workbenchSections.appendChild(addOnsHeader);
 
   workbenchAddRow(
     dom.workbenchSections,
-    t("workbench_rows.solar_title"),
+    t("workbench_rows.housing_title"),
     [
       {
-        value: 1,
-        label: t("workbench_rows.solar_one_label"),
+        value: "yes",
+        label: t("workbench_rows.housing_label"),
         description: "",
-        meta: `$${SOLAR_UNIT_COST}`,
-      },
-      {
-        value: 2,
-        label: t("workbench_rows.solar_two_label"),
-        description: "",
-        meta: `$${SOLAR_UNIT_COST * 2}`,
+        meta: `$${HOUSING_UNIT_COST}`,
       },
     ],
-    (value) => toggle("solar", value),
-    draft.solar
+    (value) => toggle("housing", value),
+    draft.housing
   );
 
   workbenchAddRow(
@@ -668,26 +647,17 @@ function renderWorkbenchCheckout(draft, budgetStart, autoFocus = false) {
 
   workbenchAddRow(
     dom.workbenchSections,
-    t("workbench_rows.firmware_title"),
+    t("workbench_rows.repeater_title"),
     [
       {
-        value: "stable",
-        label: t("workbench_rows.firmware_stable_label"),
-        description: "",
-        meta: t("workbench_rows.firmware_stable_meta"),
-      },
-      {
-        value: "alpha",
-        label: t("workbench_rows.firmware_alpha_label"),
-        description: "",
-        meta: t("workbench_rows.firmware_alpha_meta"),
+        value: "yes",
+        label: t("workbench_rows.repeater_label"),
+        description: t("workbench_rows.repeater_description"),
+        meta: `$${WIS_MESH_REPEATER_COST}`,
       },
     ],
-    (value) => {
-      draft.firmware = value;
-      rerender();
-    },
-    draft.firmware
+    (value) => toggle("wisMeshRepeater", value),
+    draft.wisMeshRepeater
   );
 
   // Restore keyboard focus after re-render, or auto-focus first option on open
@@ -706,38 +676,32 @@ function renderWorkbenchCheckout(draft, budgetStart, autoFocus = false) {
 }
 
 function applyWorkbenchSelections(selections) {
-  if (selections.hardware === "heltec") {
-    state.hardware = t("workbench_rows.hardware_heltec_label");
-    state.nodeCost = 30;
-  } else if (selections.hardware === "tbeam") {
-    state.hardware = t("workbench_rows.hardware_tbeam_label");
+  if (selections.hardware === "thinknode") {
+    state.hardware = t("workbench_rows.device_thinknode_label");
     state.nodeCost = 40;
-  } else {
-    state.hardware = t("workbench_rows.hardware_rak_label");
+  } else if (selections.hardware === "techo") {
+    state.hardware = t("workbench_rows.device_techo_label");
     state.nodeCost = 50;
+  } else {
+    state.hardware = t("workbench_rows.device_meshpocket_label");
+    state.nodeCost = 60;
     state.linkQuality += 1;
   }
 
   state.nodesPurchased = selections.nodes;
   state.nodesAvailable = selections.nodes;
 
-  state.weatherproofCases = selections.cases || 0;
-  state.solarPanels = selections.solar || 0;
+  state.housingUnit = selections.housing === "yes";
   state.catCarrier = selections.catCarrier === "yes";
+  state.wisMeshRepeater = selections.wisMeshRepeater === "yes";
 
-  if (selections.firmware === "stable") {
-    state.stableFirmware = true;
-  } else {
-    state.stableFirmware = false;
-    state.batteryFragile = true;
-    state.linkQuality -= 1;
-  }
+  state.stableFirmware = true;
+  state.batteryFragile = false;
 
   state.encryption = true;
   state.securityConfigured = true;
 
-  const total =
-    selections.nodes * state.nodeCost + getAddOnCost(selections) + workbenchFirmwareCost(selections.firmware);
+  const total = selections.nodes * state.nodeCost + getAddOnCost(selections);
   changeBudget(-total);
 }
 
@@ -750,10 +714,9 @@ function runWorkbenchCheckout() {
   const draft = {
     hardware: null,
     nodes: null,
-    cases: null,
-    solar: null,
+    housing: null,
     catCarrier: null,
-    firmware: null,
+    wisMeshRepeater: null,
   };
 
   return new Promise((resolve) => {
@@ -779,18 +742,10 @@ async function actWorkbench(runToken) {
     window.IntermeshAnalytics.workbenchCommitted(selections, budgetBefore - state.budget, state.budget);
   }
 
-  const cases = selections.cases || 0;
-  const solar = selections.solar || 0;
   const extras = [];
-  if (cases > 0) {
-    const key = cases === 1 ? "act1.extras_case_singular" : "act1.extras_case_plural";
-    extras.push(t(key, { count: cases }));
-  }
-  if (solar > 0) {
-    const key = solar === 1 ? "act1.extras_solar_singular" : "act1.extras_solar_plural";
-    extras.push(t(key, { count: solar }));
-  }
+  if (selections.housing === "yes") extras.push(t("act1.extras_housing"));
   if (selections.catCarrier === "yes") extras.push(t("act1.extras_cat_carrier"));
+  if (selections.wisMeshRepeater === "yes") extras.push(t("act1.extras_wismesh"));
   const extrasLine = extras.length
     ? t("act1.extras_line", { items: extras.join(", ") })
     : t("act1.extras_none");
@@ -803,9 +758,6 @@ async function actWorkbench(runToken) {
         s: selections.nodes === 1 ? "" : "s",
       }),
       extrasLine,
-      selections.firmware === "stable"
-        ? t("act1.firmware_recap_stable")
-        : t("act1.firmware_recap_alpha"),
       t("act1.cash_after", { budget: state.budget }),
     ],
     "success",
@@ -821,7 +773,7 @@ async function deployScience(runToken) {
   }
   await typeBlock(t("locations.science.intro"), "system", runToken);
 
-  const ready = state.weatherproofCases >= 1 && state.solarPanels >= 1;
+  const ready = state.wisMeshRepeater;
   const choice = await promptChoice(
     [t("locations.science.prompt")],
     [
@@ -865,8 +817,6 @@ async function deployScience(runToken) {
   if (choice === "data") {
     const gain = addCoverage(12);
     state.scienceRoof = true;
-    state.weatherproofCases = Math.max(0, state.weatherproofCases - 1);
-    state.solarPanels = Math.max(0, state.solarPanels - 1);
     addNode("science", t("locations.science.deploy_roof_node_note", { gain }));
     setLocation("science", "deployed", t("locations.science.deploy_roof_status"));
     await typeLine(t("locations.science.deploy_roof_line"), "success", runToken);
@@ -1044,7 +994,7 @@ async function deployRadio(runToken) {
   }
   await typeBlock(t("locations.radio.intro"), "system", runToken);
 
-  const ready = state.weatherproofCases >= 1 && state.solarPanels >= 1;
+  const ready = state.wisMeshRepeater;
   const choice = await promptChoice(
     [t("locations.radio.prompt")],
     [
@@ -1080,8 +1030,6 @@ async function deployRadio(runToken) {
 
   if (choice === "tower") {
     const gain = addCoverage(7);
-    state.weatherproofCases = Math.max(0, state.weatherproofCases - 1);
-    state.solarPanels = Math.max(0, state.solarPanels - 1);
     addNode("radio", t("locations.radio.tower_node_note", { gain }));
     setLocation("radio", "deployed", t("locations.radio.tower_status"));
     await typeLine(t("locations.radio.tower_line"), "success", runToken);
