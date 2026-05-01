@@ -128,6 +128,11 @@ def simulate_one(constants: dict, rng: random.Random, overrides: dict | None = N
     if add_on_override == "repeater" and state.budget >= repeater_fee:
         state.wis_mesh_repeater = True
         state.budget -= repeater_fee
+    elif add_on_override == "antennas" and state.budget >= antennas_fee:
+        # Buy up to 4 antennas (covers most locations)
+        count = min(4, state.budget // antennas_fee)
+        state.high_gain_antennas = count > 0
+        state.budget -= count * antennas_fee
     elif add_on_override == "none":
         pass  # purchase nothing
     else:
@@ -139,8 +144,9 @@ def simulate_one(constants: dict, rng: random.Random, overrides: dict | None = N
             state.housing_unit = True
             state.budget -= housing_fee
         if state.budget >= antennas_fee and rng.random() < 0.40:
-            state.high_gain_antennas = True
-            state.budget -= antennas_fee
+            count = min(4, state.budget // antennas_fee)
+            state.high_gain_antennas = count > 0
+            state.budget -= count * antennas_fee
         if state.budget >= carrier_fee and rng.random() < 0.25:
             state.budget -= carrier_fee
 
@@ -180,6 +186,9 @@ def simulate_one(constants: dict, rng: random.Random, overrides: dict | None = N
             affordable = [name for name in affordable if name != "data"]
         if location_key == "radio" and ("tower" in affordable) and not state.wis_mesh_repeater:
             affordable = [name for name in affordable if name != "tower"]
+        # Gate highgain options unless high-gain antennas purchased.
+        if "highgain" in affordable and not state.high_gain_antennas:
+            affordable = [name for name in affordable if name != "highgain"]
         if "skip" not in affordable:
             affordable.append("skip")
 
@@ -187,18 +196,18 @@ def simulate_one(constants: dict, rng: random.Random, overrides: dict | None = N
             option = choose_affordable_option(
                 rng,
                 affordable,
-                weighted={"data": 3.0, "emotion": 1.0, "jargon": 1.0, "skip": 1.0},
+                weighted={"data": 3.0, "highgain": 2.0, "emotion": 1.0, "jargon": 1.0, "skip": 1.0},
             )
         elif location_key in {"valley", "health"}:
             option = choose_affordable_option(
                 rng,
                 affordable,
-                weighted={"highgain": 2.0, "solar": 2.0, "basic": 1.0, "skip": 1.0},
+                weighted={"highgain": 3.0, "solar": 2.0, "basic": 1.0, "skip": 1.0},
             )
         elif location_key == "radio":
-            option = choose_affordable_option(rng, affordable, weighted={"tower": 2.0, "lobby": 2.0, "skip": 1.0})
+            option = choose_affordable_option(rng, affordable, weighted={"tower": 2.0, "highgain": 2.0, "lobby": 1.0, "skip": 1.0})
         else:
-            option = choose_affordable_option(rng, affordable, weighted={"deploy": 3.0, "skip": 1.0})
+            option = choose_affordable_option(rng, affordable, weighted={"highgain": 2.0, "deploy": 2.0, "skip": 1.0})
 
         selected = options_cfg[option]
         if option == "skip":
@@ -267,7 +276,7 @@ def stratified_sweep(constants: dict, runs_per_stratum: int, seed: int) -> dict:
     wb = constants["workbench"]
     strata_values: dict[str, list[str]] = {
         "hardware": list(wb["hardware"].keys()),
-        "add_ons": ["none", "repeater"],
+        "add_ons": ["none", "antennas", "repeater"],
     }
 
     results: dict[str, dict[str, dict]] = {}

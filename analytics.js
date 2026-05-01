@@ -141,7 +141,7 @@
         nodes_purchased: selections.nodes,
         weatherproof_housing: selections.housing === "yes",
         cat_carrier: selections.catCarrier === "yes",
-        high_gain_antennas: selections.antennas === "yes",
+        high_gain_antennas_count: selections.antennas || 0,
         wis_mesh_repeater: selections.wisMeshRepeater === "yes",
         cart_total: cartTotal,
         budget_after: budgetAfter,

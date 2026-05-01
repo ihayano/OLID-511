@@ -94,7 +94,7 @@
     "extras_line": "Extras: {items}.",
     "extras_housing": "weatherproof housing",
     "extras_cat_carrier": "portable cat carrier",
-    "extras_antennas": "high-gain antennas",
+    "extras_antennas": "high-gain antennas ×{n}",
     "extras_wismesh": "WisMesh Mini Solar Repeater",
     "cash_after": "Cash after checkout: ${budget}."
   },
@@ -118,9 +118,10 @@
     "housing_label": "Weatherproof housing",
     "carrier_title": "Cat Carrier (optional)",
     "carrier_label": "Portable cat carrier",
-    "antennas_title": "High-Gain Antennas (optional)",
-    "antennas_label": "High-gain directional antennas",
-    "antennas_description": "Ruggedized external antennas that push your signal further through concrete, foliage, and urban interference. Compact enough to mount anywhere.",
+    "antennas_title": "High-Gain Antennas (optional — up to 6)",
+    "antennas_label_singular": "1 high-gain antenna",
+    "antennas_label_plural": "{n} high-gain antennas",
+    "antennas_description": "Ruggedized directional antennas that push your signal further through concrete, foliage, and urban interference. Each one can be deployed at a separate site.",
     "repeater_title": "WisMesh Mini Solar Repeater (optional)",
     "repeater_label": "WisMesh Mini Solar Repeater",
     "repeater_description": "Expands the reach of Meshtastic networks with reliable, solar-powered devices designed for off-grid communication. Built for outdoor deployment, these devices offer durable enclosures, efficient power management, and flexible mounting options. Required for rooftop and tower installs.",
@@ -132,6 +133,7 @@
     "insufficient_suffix": "{costText} // insufficient budget"
   },
   "locations": {
+    "highgain_locked": "Requires high-gain antennas add-on from shop",
     "science": {
       "title": "Campus Science Building",
       "elevation": "Maximum elevation",
@@ -155,6 +157,9 @@
         "jargon_label": "Use pure radio jargon",
         "jargon_description": "Launch into packet-routing terms and hope technical vocabulary carries the moment.",
         "jargon_meta": "Gives 1 device",
+        "highgain_label": "Mount a high-gain antenna on the exterior wall",
+        "highgain_description": "Skip the roof argument entirely — mount on the courtyard wall with your directional antenna for a solid mid-elevation link.",
+        "highgain_meta": "Gives 1 device // no add-on cost",
         "skip_label": "Skip this site",
         "skip_description": "Walk away from the town's best elevation point.",
         "skip_meta": "No cost"
@@ -164,6 +169,9 @@
       "deploy_roof_node_note": "roof mount secured with professor approval (+{gain}% coverage)",
       "deploy_roof_status": "Roof access granted. The network now has a real spine.",
       "deploy_roof_line": "\"Ansari nods once. \"That is an actual argument.\" He unlocks the roof hatch for you.",
+      "highgain_node_note": "exterior courtyard mount with directional antenna (+{gain}% coverage)",
+      "highgain_status": "Courtyard antenna clears the roofline and opens a solid city link.",
+      "highgain_line": "Dr. Ansari watches from the doorway as you bracket the antenna to the courtyard wall. He does not stop you.",
       "deploy_fallback_node_note": "dorm window fallback placement (+{gain}% coverage)",
       "deploy_fallback_status": "Fallback placement in a dorm window limits the network horizon.",
       "deploy_fallback_line": "He refuses roof access. You settle for a dorm window and lose the best line-of-sight in town."
@@ -176,8 +184,8 @@
       "no_nodes_line": "No devices left to give. Valley West stays offline.",
       "intro": [
         "Destination: Valley West.",
-        "Luz and Diego meet you on their porch while hills crowd every approach to the neighborhood.",
-        "A standard device will struggle here unless you spend more on the link."
+        "Luz and Diego — your friends from anime club — meet you on their porch while hills crowd every approach to the neighborhood.",
+        "A standard device will struggle here. Luz already has the antenna bracket mounted and ready."
       ],
       "prompt": "Choose the Valley West deployment package.",
       "choices": {
@@ -186,6 +194,7 @@
         "basic_meta": "Gives 1 device // no add-on cost",
         "highgain_label": "Device + high-gain antenna",
         "highgain_description": "Stabilizes the valley link and pushes farther toward rural outskirts.",
+        "highgain_meta": "Gives 1 device // no add-on cost",
         "solar_label": "Device + solar repeater",
         "solar_description": "Best reach and long-tail resilience when the outage stretches past the first night.",
         "skip_label": "Skip this site",
@@ -220,6 +229,9 @@
         "deploy_label": "Give a device for logistics support",
         "deploy_description": "Place a device at International Grocery, earn supplies, and let Yoshiko absorb later travel costs.",
         "deploy_meta": "Gives 1 device",
+        "highgain_label": "Device + high-gain antenna for the rooftop",
+        "highgain_description": "Yoshiko climbs up with you and helps mount the directional antenna above the awning for a cleaner city-wide signal.",
+        "highgain_meta": "Gives 1 device // no add-on cost",
         "skip_label": "Skip International Grocery",
         "skip_description": "Save the device, but lose transport help and a busy community stop.",
         "skip_meta": "No cost"
@@ -228,7 +240,10 @@
       "skip_line": "You pass on International Grocery. The next deployments stay slower and more expensive in spirit, if not on paper.",
       "deploy_node_note": "International Grocery device online; Yoshiko now gives you free rides outside town (+{gain}% coverage)",
       "deploy_status": "International Grocery linked. Yoshiko starts driving your route.",
-      "deploy_line": "Yoshiko tops off her tank and waves you in. The market goes live, and your out-of-town travel rides are now free."
+      "deploy_line": "Yoshiko tops off her tank and waves you in. The market goes live, and your out-of-town travel rides are now free.",
+      "highgain_node_note": "rooftop directional antenna above the market awning (+{gain}% coverage)",
+      "highgain_status": "International Grocery rooftop antenna broadcasts farther than the block.",
+      "highgain_line": "Yoshiko climbs up beside you and holds the bracket steady. The antenna clears the awning and the signal finally reaches the next district."
     },
     "apartments": {
       "title": "Tesseract Apartments",
@@ -245,6 +260,9 @@
         "deploy_label": "Give a device to the apartment community",
         "deploy_description": "Extend the mesh to several families and bring home garden supplies.",
         "deploy_meta": "Gives 1 device",
+        "highgain_label": "Device + high-gain antenna on the garden roof",
+        "highgain_description": "Dalia helps you mount the antenna at the highest corner of the rooftop garden for the best possible reach across the block.",
+        "highgain_meta": "Gives 1 device // no add-on cost",
         "skip_label": "Skip this site",
         "skip_description": "Leave student housing without a relay and forfeit the food trade.",
         "skip_meta": "No cost"
@@ -253,7 +271,10 @@
       "skip_line": "You keep moving. Dalia watches you go with a basket that could have mattered later.",
       "deploy_node_note": "garden roof relay installed (+{gain}% coverage)",
       "deploy_status": "Apartment rooftop linked. Food stores rise with trust.",
-      "deploy_line": "The garden device comes online. Dalia sends you off with extra supplies from the rooftop harvest."
+      "deploy_line": "The garden device comes online. Dalia sends you off with extra supplies from the rooftop harvest.",
+      "highgain_node_note": "rooftop directional antenna at the garden corner (+{gain}% coverage)",
+      "highgain_status": "Garden rooftop antenna pushes the signal past the block.",
+      "highgain_line": "Dalia holds the cable taut while you lock the mount. The rooftop clears the surrounding buildings and the mesh lights up another district."
     },
     "radio": {
       "title": "Radio Station",
@@ -274,6 +295,9 @@
         "lobby_label": "Mount it inside the lobby",
         "lobby_description": "Safer, faster, and much worse for network geometry.",
         "lobby_meta": "Gives 1 device",
+        "highgain_label": "Mount a high-gain antenna on the station rooftop",
+        "highgain_description": "No tower climb — Geo shows you a rooftop hatch and you bolt the directional antenna to the parapet wall for solid mid-height coverage.",
+        "highgain_meta": "Gives 1 device // no add-on cost",
         "skip_label": "Skip this site",
         "skip_description": "Save money and let the radio station fend for itself.",
         "skip_meta": "No cost"
@@ -283,6 +307,9 @@
       "tower_node_note": "tower-top mount with Geo spotting the climb (+{gain}% coverage)",
       "tower_status": "Tower device mounted above the station roofline.",
       "tower_line": "The tower sways, your hands shake, and the new relay paints a clean arc across the city center.",
+      "highgain_node_note": "rooftop parapet antenna — no tower climb required (+{gain}% coverage)",
+      "highgain_status": "Station rooftop antenna online. Solid reach without the climb.",
+      "highgain_line": "Geo unlocks the hatch and you bracket the antenna to the parapet. It is not the tower, but the signal is clean across the whole grid.",
       "lobby_node_note": "interior station mount with reduced reach (+{gain}% coverage)",
       "lobby_status": "Safe install completed, but the station never reaches full potential.",
       "lobby_line": "You take the safe route. Geo does not judge you, but the coverage map absolutely does."
@@ -305,6 +332,7 @@
         "basic_meta": "Gives 1 device // no add-on cost",
         "highgain_label": "Device + high-gain antenna",
         "highgain_description": "Cuts through the foliage and gives the clinic a dependable route.",
+        "highgain_meta": "Gives 1 device // no add-on cost",
         "skip_label": "Skip this site",
         "skip_description": "Save money and accept a medical blind spot during the outage.",
         "skip_meta": "No cost"
