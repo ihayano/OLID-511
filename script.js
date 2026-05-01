@@ -124,10 +124,12 @@ function createInitialState() {
     batteryFragile: false,
     housingUnit: false,
     wisMeshRepeater: false,
+    highGainAntennas: false,
     catCarrier: false,
     catEncounterFired: false,
     catJoined: false,
     minaEncounterFired: false,
+    deploymentsCompleted: 0,
     locationStatuses,
   };
 }
@@ -309,7 +311,9 @@ function changeBudget(amount) {
 }
 
 function addCoverage(baseValue) {
-  const adjusted = Math.max(1, baseValue + state.linkQuality);
+  const antennaBonus = state.highGainAntennas ? 2 : 0;
+  const housingBonus = state.housingUnit ? 1 : 0;
+  const adjusted = Math.max(1, baseValue + state.linkQuality + antennaBonus + housingBonus);
   state.coverage = Math.max(0, state.coverage + adjusted);
   refreshUi();
   return adjusted;
@@ -481,12 +485,14 @@ function getNodeCostForHardware(hw) {
 const HOUSING_UNIT_COST = 20;
 const CAT_CARRIER_COST = 20;
 const WIS_MESH_REPEATER_COST = 99;
+const HIGH_GAIN_ANTENNAS_COST = 20;
 
 function getAddOnCost(draft) {
   const housing = draft.housing === "yes" ? HOUSING_UNIT_COST : 0;
   const carrier = draft.catCarrier === "yes" ? CAT_CARRIER_COST : 0;
   const repeater = draft.wisMeshRepeater === "yes" ? WIS_MESH_REPEATER_COST : 0;
-  return housing + carrier + repeater;
+  const antennas = draft.antennas === "yes" ? HIGH_GAIN_ANTENNAS_COST : 0;
+  return housing + carrier + repeater + antennas;
 }
 
 function workbenchCartTotal(draft) {
@@ -686,6 +692,21 @@ function renderWorkbenchCheckout(draft, budgetStart, autoFocus = false) {
 
   workbenchAddRow(
     dom.workbenchSections,
+    t("workbench_rows.antennas_title"),
+    [
+      {
+        value: "yes",
+        label: t("workbench_rows.antennas_label"),
+        description: t("workbench_rows.antennas_description"),
+        meta: `$${HIGH_GAIN_ANTENNAS_COST}`,
+      },
+    ],
+    (value) => toggle("antennas", value),
+    draft.antennas
+  );
+
+  workbenchAddRow(
+    dom.workbenchSections,
     t("workbench_rows.repeater_title"),
     [
       {
@@ -732,6 +753,7 @@ function applyWorkbenchSelections(selections) {
 
   state.housingUnit = selections.housing === "yes";
   state.catCarrier = selections.catCarrier === "yes";
+  state.highGainAntennas = selections.antennas === "yes";
   state.wisMeshRepeater = selections.wisMeshRepeater === "yes";
 
   state.stableFirmware = true;
@@ -755,6 +777,7 @@ function runWorkbenchCheckout() {
     nodes: null,
     housing: null,
     catCarrier: null,
+    antennas: null,
     wisMeshRepeater: null,
   };
 
@@ -784,6 +807,7 @@ async function actWorkbench(runToken) {
   const extras = [];
   if (selections.housing === "yes") extras.push(t("act1.extras_housing"));
   if (selections.catCarrier === "yes") extras.push(t("act1.extras_cat_carrier"));
+  if (selections.antennas === "yes") extras.push(t("act1.extras_antennas"));
   if (selections.wisMeshRepeater === "yes") extras.push(t("act1.extras_wismesh"));
   const extrasLine = extras.length
     ? t("act1.extras_line", { items: extras.join(", ") })
@@ -1199,12 +1223,14 @@ async function actDeployment(runToken) {
     const handler = handlers[selected];
     await handler(runToken);
 
+    state.deploymentsCompleted += 1;
+
     if (state.catCarrier && !state.catEncounterFired) {
       state.catEncounterFired = true;
       await actStrayCat(runToken);
     }
 
-    if (!state.minaEncounterFired) {
+    if (state.deploymentsCompleted >= 2 && !state.minaEncounterFired) {
       state.minaEncounterFired = true;
       await actMutualAid(runToken);
     }
@@ -1270,46 +1296,8 @@ async function actDiagnostics(runToken) {
   if (issues.length) {
     state.deadZones = true;
     await typeBlock(issues, "warn", runToken);
-
-    const patchChoice = await promptChoice(
-      [t("diagnostics.patch_prompt")],
-      [
-        {
-          value: "patch",
-          label: t("diagnostics.patch_label"),
-          description: t("diagnostics.patch_description"),
-          cost: 30,
-        },
-        {
-          value: "accept",
-          label: t("diagnostics.accept_label"),
-          description: t("diagnostics.accept_description"),
-          meta: t("diagnostics.accept_meta"),
-        },
-      ]
-    );
-
-    if (patchChoice === "patch" && state.budget >= 30) {
-      changeBudget(-30);
-      state.deadZones = false;
-      state.valleyWeak = false;
-      state.healthWeak = false;
-      const gain = addCoverage(6);
-      if (state.locationStatuses.valley.status === "weak") {
-        setLocation("valley", "deployed", t("diagnostics.valley_patched_status"));
-      }
-      if (state.locationStatuses.health.status === "weak") {
-        setLocation("health", "deployed", t("diagnostics.health_patched_status"));
-      }
-      await typeLine(t("diagnostics.patched_line", { gain }), "success", runToken);
-      if (window.IntermeshAnalytics) {
-        window.IntermeshAnalytics.diagnosticTriggered({ issues, patched: true, coverage_delta: gain, budget_delta: -30 });
-      }
-    } else {
-      await typeLine(t("diagnostics.unpatched_line"), "warn", runToken);
-      if (window.IntermeshAnalytics) {
-        window.IntermeshAnalytics.diagnosticTriggered({ issues, patched: false, coverage_delta: 0, budget_delta: 0 });
-      }
+    if (window.IntermeshAnalytics) {
+      window.IntermeshAnalytics.diagnosticTriggered({ issues, patched: false, coverage_delta: 0, budget_delta: 0 });
     }
   } else {
     await typeLine(t("diagnostics.clean_line"), "success", runToken);
