@@ -119,6 +119,7 @@ function createInitialState() {
     scienceRoof: false,
     scienceMissed: false,
     yoshikoDrive: false,
+    yoshikoCranky: false,
     housingUnit: false,
     wisMeshRepeater: false,
     antennasAvailable: 0,
@@ -362,7 +363,9 @@ async function applyTravelIfNeeded(locationKey, runToken) {
   }
 
   if (state.yoshikoDrive) {
-    await typeLine(t("travel.free_ride", { title: location.title }), "success", runToken);
+    const rideKey = state.yoshikoCranky ? "travel.cranky_ride" : "travel.free_ride";
+    const rideStyle = state.yoshikoCranky ? "warn" : "success";
+    await typeLine(t(rideKey, { title: location.title }), rideStyle, runToken);
     return true;
   }
 
@@ -1000,6 +1003,8 @@ async function deployValley(runToken) {
 
 async function deploySugar(runToken) {
   if (!hasNodeAvailable()) {
+    state.yoshikoDrive = true;
+    state.yoshikoCranky = true;
     setLocation("sugar", "skipped", t("locations.sugar.no_nodes_status"));
     await typeLine(t("locations.sugar.no_nodes_line"), "alert", runToken);
     return;
@@ -1260,6 +1265,11 @@ async function actDeployment(runToken) {
     const pendingLocations = locationDefinitions.filter((location) => !state.locationStatuses[location.key].resolved);
 
     if (!pendingLocations.length) {
+      break;
+    }
+
+    if (state.nodesAvailable === 0) {
+      await typeLine(t("act2.no_devices_left"), "system", runToken);
       break;
     }
 

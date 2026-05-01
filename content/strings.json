@@ -74,7 +74,8 @@
     ]
   },
   "travel": {
-    "free_ride": "Yoshiko gives you a free ride to {title}. No travel fee charged.",
+    "free_ride": "Yoshiko picks you up on the way. No travel fee charged.",
+    "cranky_ride": "Yoshiko is driving. She has not said much since the store.",
     "prompt": "Travel planning for {title}: choose how to get there.",
     "ride_label": "Pay for a ride",
     "ride_description": "Fast trip outside town for $10.",
@@ -222,34 +223,35 @@
     "sugar": {
       "title": "International Grocery",
       "elevation": "Medium elevation",
-      "detail": "Classmate with a hatchback and a full gas tank.",
+      "detail": "Your girlfriend's family store — a neighborhood anchor since before you were born.",
       "no_nodes_status": "No devices left to give at this site.",
-      "no_nodes_line": "No devices left to give. Yoshiko keeps her keys.",
+      "no_nodes_line": "No devices left to spare. You stop in just long enough to explain. Yoshiko listens, nods once, and tells you to get in the car.",
       "intro": [
         "Destination: International Grocery.",
-        "Yoshiko eyes your gear, then your empty wallet, then tosses you her keys.",
-        "\"You give a device to the store, I drive you wherever else you need to go,\" she says."
+        "Yoshiko is already waiting outside when you arrive, arms folded, watching the sky.",
+        "\"I know you are stretched thin,\" she says, \"but this store is where everyone comes during a crisis. Families, elders, people who do not know where else to go.\"",
+        "\"If the mesh is going to mean anything, it has to be here.\""
       ],
-      "prompt": "Accept Yoshiko's deal?",
+      "prompt": "Leave a device at International Grocery?",
       "choices": {
-        "deploy_label": "Give a device for logistics support",
-        "deploy_description": "Place a device at International Grocery, earn supplies, and let Yoshiko absorb later travel costs.",
+        "deploy_label": "Leave a device with the store",
+        "deploy_description": "Place a device at International Grocery. It becomes a community anchor on the mesh — and Yoshiko offers to drive you to your remaining sites.",
         "deploy_meta": "Gives 1 device",
-        "highgain_label": "Device + high-gain antenna for the rooftop",
-        "highgain_description": "Yoshiko climbs up with you and helps mount the directional antenna above the awning for a cleaner city-wide signal.",
+        "highgain_label": "Device + directional antenna on the roof",
+        "highgain_description": "Yoshiko climbs up with you and holds the bracket while you mount the antenna above the awning. The store becomes one of the strongest relay points in town.",
         "highgain_meta": "Gives 1 device // no add-on cost",
-        "skip_label": "Skip International Grocery",
-        "skip_description": "Save the device, but lose transport help and a busy community stop.",
+        "skip_label": "Skip the store this time",
+        "skip_description": "You cannot spare a device right now. Yoshiko nods, but the store stays off the mesh.",
         "skip_meta": "No cost"
       },
-      "skip_status": "No device placed at International Grocery. Yoshiko keeps her keys.",
-      "skip_line": "You pass on International Grocery. The next deployments stay slower and more expensive in spirit, if not on paper.",
-      "deploy_node_note": "International Grocery device online; Yoshiko now gives you free rides outside town (+{gain}% coverage)",
-      "deploy_status": "International Grocery linked. Yoshiko starts driving your route.",
-      "deploy_line": "Yoshiko tops off her tank and waves you in. The market goes live, and your out-of-town travel rides are now free.",
-      "highgain_node_note": "rooftop directional antenna above the market awning (+{gain}% coverage)",
-      "highgain_status": "International Grocery rooftop antenna broadcasts farther than the block.",
-      "highgain_line": "Yoshiko climbs up beside you and holds the bracket steady. The antenna clears the awning and the signal finally reaches the next district."
+      "skip_status": "International Grocery not on the mesh.",
+      "skip_line": "Yoshiko watches you walk past the door and doesn't follow. The store stays off the mesh, and you are on your own for the rest of the route.",
+      "deploy_node_note": "International Grocery device online; Yoshiko driving your remaining route (+{gain}% coverage)",
+      "deploy_status": "International Grocery linked. Community hub on the mesh.",
+      "deploy_line": "Yoshiko smiles and holds the door. The store goes live on the mesh — and she insists on driving you to every site you have left.",
+      "highgain_node_note": "rooftop directional antenna above International Grocery (+{gain}% coverage)",
+      "highgain_status": "International Grocery rooftop antenna — strongest relay on the block.",
+      "highgain_line": "Yoshiko holds the bracket steady while you tighten the mount. When it locks in, the signal clears the awning and reaches the next district. She squeezes your hand before climbing back down."
     },
     "apartments": {
       "title": "Tesseract Apartments",
@@ -364,7 +366,8 @@
     "finish_label": "Run diagnostics now",
     "finish_description": "Stop deploying and find out whether the current mesh can survive the storm.",
     "finish_meta": "Advance to Act III",
-    "finish_line": "You close the deployment ledger and queue a town-wide ping test."
+    "finish_line": "You close the deployment ledger and queue a town-wide ping test.",
+    "no_devices_left": "All devices have been placed. Closing the deployment ledger and running diagnostics."
   },
   "diagnostics": {
     "intro": [
@@ -382,19 +385,19 @@
   },
   "mutual_aid": {
     "intro": [
-      "Mina from two streets over stops you on your way back.",
+      "Nina — from your engineering class — stops you on your way back.",
       "Her family hasn't heard from her since the alerts started. She asks if you have a spare device — she wants to join the mesh and reach them."
     ],
-    "prompt": "Give Mina one of your devices?",
+    "prompt": "Give Nina one of your devices?",
     "grant_label": "Give her a device",
     "grant_description": "She becomes a node in the network. The mesh grows by one more person who can relay messages across the neighborhood.",
     "grant_meta": "Costs 1 device // Earns supplies",
     "grant_meta_no_device": "No devices left to give",
     "deny_label": "You cannot spare one",
-    "deny_description": "You need every device for your planned sites. Mina nods and walks away.",
+      "deny_description": "You need every device for your planned sites. Nina nods and walks away.",
     "deny_meta": "No cost",
-    "grant_line": "Mina's face changes the moment the device lights up. She hands you a jar of honey from her kitchen. The mesh just got one person wider.",
-    "deny_line": "You keep moving. Mina watches you go. The mesh stays exactly as planned, and so does the silence on her street."
+    "grant_line": "Nina's face changes the moment the device lights up. She hands you a jar of honey from her kitchen. The mesh just got one person wider.",
+    "deny_line": "You keep moving. Nina watches you go. The mesh stays exactly as planned, and so does the silence on her street."
   },
   "endings": {
     "A": {

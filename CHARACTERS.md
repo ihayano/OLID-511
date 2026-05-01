@@ -17,7 +17,7 @@ Source of truth: `content/strings.json`. UI prose and system lines are excluded.
 | Dalia | Apartment resident, community garden steward | Tesseract Apartments | Act II (player's choice) |
 | Geo | Radio station contact | Radio Station | Act II (player's choice) |
 | Yasmin | Women's Health Clinic contact | Women's Health Clinic | Act II (player's choice) |
-| Mina | Neighbor, mutual aid encounter | Mid-deployment (after first site) | Act II, fires once |
+| Nina | Neighbor, mutual aid encounter | Mid-deployment (after first site) | Act II, fires once |
 | The Stray Cat | Unnamed stray | Mid-deployment (cat carrier required) | Act II, fires once |
 
 ---
@@ -196,23 +196,23 @@ Deployment order is player-chosen. Encounters fire after the player's first comp
 
 ---
 
-### Mina
+### Nina
 **Encounter:** Mid-deployment mutual aid — fires after the player's first completed site deployment
 **Condition:** Always fires once (flag: `state.minaEncounterFired`). Grant option disabled if no devices remain.
 
 **Intro (narrator):**
-> Mina from two streets over stops you on your way back.
+> Nina — from your engineering class — stops you on your way back.
 > Her family hasn't heard from her since the alerts started. She asks if you have a spare device — she wants to join the mesh and reach them.
 
-**Prompt:** *Give Mina one of your devices?*
+**Prompt:** *Give Nina one of your devices?*
 
 ---
 
 **Branch A — Give her a device** *(costs 1 device, earns +1 supplies)*
-> Mina's face changes the moment the device lights up. She hands you a jar of honey from her kitchen. The mesh just got one person wider.
+> Nina's face changes the moment the device lights up. She hands you a jar of honey from her kitchen. The mesh just got one person wider.
 
 **Branch B — You cannot spare one**
-> You keep moving. Mina watches you go. The mesh stays exactly as planned, and so does the silence on her street.
+> You keep moving. Nina watches you go. The mesh stays exactly as planned, and so does the silence on her street.
 
 ---
 
@@ -276,5 +276,5 @@ Deployment order is player-chosen. Encounters fire after the player's first comp
 | Dalia | No | Yes | +3 (deploy) | −1 | — |
 | Geo | No spoken | Yes | — | −1 | Tower requires WisMesh |
 | Yasmin | Yes — 1 line | Yes | — | −1 | — |
-| Mina | No | Yes | +1 (grant) | −1 (grant) | — |
+| Nina | No | Yes | +1 (grant) | −1 (grant) | — |
 | Stray Cat | No | No | — | — | Requires cat carrier |
