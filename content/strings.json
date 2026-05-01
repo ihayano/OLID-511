@@ -420,5 +420,21 @@
     "replay_label": "Start a new run",
     "replay_description": "Reset the terminal and try to secure the city with a different route.",
     "replay_meta": "Replay"
+  },
+  "cat_encounter": {
+    "intro": [
+      "A rustle in the shadows. Something small is watching you.",
+      "A stray cat sits at the edge of the alley, tail twitching."
+    ],
+    "prompt": "What do you do?",
+    "pickup_label": "Try to pick it up",
+    "pickup_description": "Reach out slowly and hope for the best.",
+    "pspsps_label": "Whisper \"psss psss psss\"",
+    "pspsps_description": "The universal language.",
+    "scratches": "The cat flattens its ears, swipes at your hand, and bolts into the dark. You have a small scratch and a lesson.",
+    "joins": [
+      "The cat sniffs the air once, then walks straight to you and headbutts your shin.",
+      "You have a companion."
+    ]
   }
 }

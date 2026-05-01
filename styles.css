@@ -465,6 +465,13 @@ h1 {
 .terminal-line.warn    { color: var(--warn);         text-shadow: 0 0 6px var(--warn); }
 .terminal-line.alert   { color: var(--danger);       text-shadow: 0 0 6px var(--danger); }
 .terminal-line.success { color: var(--text-bright);  text-shadow: 0 0 5px var(--glow-strong); }
+.terminal-line.ascii-art {
+  white-space: pre;
+  line-height: 1.2;
+  font-size: 0.78rem;
+  opacity: 0.85;
+  margin: 6px 0;
+}
 
 .terminal::-webkit-scrollbar        { width: 4px; }
 .terminal::-webkit-scrollbar-track  { background: transparent; }

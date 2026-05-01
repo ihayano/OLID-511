@@ -1,6 +1,35 @@
 const locationKeys = ["science", "valley", "sugar", "apartments", "radio", "health"];
 const outsideTownKeys = new Set(["valley", "health"]);
 
+const CAT_ASCII = `       ,
+       \`-._           __
+        \\  \`-..____,.'  \`.
+         :\`. /    \`.
+         :  )       :      : \\
+          ;'        '   ;  |  :
+          )..      .. .:.  \`.;  :
+         /::...  .:::...   \` ;
+         ; _ '    __        /:\\
+         \`:o>   /\\o_>      ;:. \`.
+        \`-\`.__ ;   __..--- /:.   \\
+        === \\_/   ;=====_.':.     ;
+         ,/\`--'...\`--....        ;
+              ;                    ;
+            .'                      ;
+          .'                        ;
+        .'     ..     ,      .       ;
+       :       ::..  /      ;::.     |
+      /      \`.; :.  |       ;:..    ;
+     :         |:.   :       ;:.    ;
+     :         ::     ;:..   |.    ;
+      :       :;      :::....|     |
+      /\\     ,/ \\      ;:::::;     ;
+    .:. \\:..|    :     ; '.--|     ;
+   ::.  :''  \`-.,,;     ;'   ;     ;
+.-'. _.'\\ /    \` ;      \\,__:      \\
+\`---'    \`----'   ;      /    \\,.,,,/
+                   \`----\`             `;
+
 let locationDefinitions = locationKeys.map((key) => ({
   key,
   title: key,
@@ -96,6 +125,8 @@ function createInitialState() {
     housingUnit: false,
     wisMeshRepeater: false,
     catCarrier: false,
+    catEncounterFired: false,
+    catJoined: false,
     locationStatuses,
   };
 }
@@ -158,6 +189,13 @@ function appendLineElement(className = "") {
   dom.terminal.appendChild(row);
   dom.terminal.scrollTop = dom.terminal.scrollHeight;
   return row;
+}
+
+function displayAsciiArt(text, runToken) {
+  if (runToken !== currentRunToken) return;
+  const el = appendLineElement("ascii-art");
+  el.textContent = text;
+  dom.terminal.scrollTop = dom.terminal.scrollHeight;
 }
 
 async function typeLine(text, className = "", runToken = currentRunToken) {
@@ -1160,6 +1198,11 @@ async function actDeployment(runToken) {
     const handler = handlers[selected];
     await handler(runToken);
 
+    if (state.catCarrier && !state.catEncounterFired) {
+      state.catEncounterFired = true;
+      await actStrayCat(runToken);
+    }
+
     if (window.IntermeshAnalytics) {
       const status = state.locationStatuses[selected];
       window.IntermeshAnalytics.locationResolved(selected, {
@@ -1171,6 +1214,37 @@ async function actDeployment(runToken) {
         node_consumed: state.nodesDeployed.length > before.nodesDeployed,
       });
     }
+  }
+}
+
+async function actStrayCat(runToken) {
+  await typeBlock(t("cat_encounter.intro"), "system", runToken);
+
+  await promptChoice(
+    [t("cat_encounter.prompt")],
+    [
+      {
+        value: "pickup",
+        label: t("cat_encounter.pickup_label"),
+        description: t("cat_encounter.pickup_description"),
+      },
+      {
+        value: "pspsps",
+        label: t("cat_encounter.pspsps_label"),
+        description: t("cat_encounter.pspsps_description"),
+      },
+    ]
+  );
+
+  const catJoins = Math.random() < 0.5;
+
+  if (catJoins) {
+    state.catJoined = true;
+    await typeBlock(t("cat_encounter.joins"), "success", runToken);
+    displayAsciiArt(CAT_ASCII, runToken);
+    await wait(4000);
+  } else {
+    await typeBlock([t("cat_encounter.scratches")], "warn", runToken);
   }
 }
 
