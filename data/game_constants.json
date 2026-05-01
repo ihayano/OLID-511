@@ -4,7 +4,7 @@
     "version": "1.0.0"
   },
   "global": {
-    "starting_budget": 400,
+    "starting_budget": 420,
     "deployable_location_count": 6,
     "finish_early_probability": 0.05
   },
@@ -23,7 +23,7 @@
       "meshpocket": {
         "label": "Heltec MeshPocket",
         "node_cost": 60,
-        "link_quality_delta": 1
+        "link_quality_delta": 2
       }
     },
     "node_purchase": {
@@ -82,7 +82,7 @@
         "fee": 20
       },
       "wis_mesh_repeater": {
-        "fee": 99
+        "fee": 79
       },
       "wis_mesh_required_for": {
         "science_roof": true,
@@ -170,7 +170,7 @@
         "deploy": {
           "uses_node": true,
           "coverage_base": 5,
-          "supplies_delta": 3
+          "supplies_delta": 2
         },
         "skip": {
           "uses_node": false

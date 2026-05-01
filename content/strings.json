@@ -37,8 +37,7 @@
     },
     "hardware_unselected": "Not selected",
     "encryption_off": "OFF",
-    "encryption_secure": "AES-256",
-    "encryption_public": "PUBLIC"
+    "encryption_secure": "AES-256"
   },
   "intro": {
     "prologue": [
@@ -125,7 +124,7 @@
     "repeater_title": "WisMesh Mini Solar Repeater (optional)",
     "repeater_label": "WisMesh Mini Solar Repeater",
     "repeater_description": "Expands the reach of Meshtastic networks with reliable, solar-powered devices designed for off-grid communication. Built for outdoor deployment, these devices offer durable enclosures, efficient power management, and flexible mounting options. Required for rooftop and tower installs.",
-    "repeater_meta": "$99"
+    "repeater_meta": "$79"
   },
   "choice_button": {
     "cost_default": "Awaiting choice",
@@ -385,19 +384,11 @@
         "The city survives in pockets. The people close to you make it through the night together, and the people just beyond your best signal do not hear the call."
       ]
     },
-    "C": {
-      "title": "ENDING C // THE OPEN FREQUENCY",
-      "body": [
-        "The mesh spreads across town, and people absolutely use it.",
-        "But the public channel means every anxious rumor, supply handoff, and family check-in leaks into the open air for anyone listening.",
-        "You built a lifeline, then left it unshielded. The city remembers the help and the vulnerability in equal measure."
-      ]
-    },
     "D": {
       "title": "ENDING D // THE DARK AGE",
       "body": [
-        "Coverage never reached far enough, supplies stayed thin, and your weakest hardware choices fail exactly when the storm settles in.",
-        "Basic batteries drain, unstable links vanish, and the terminal log fills with silence faster than messages.",
+        "Coverage never spread far enough, supplies ran thin, and too many deployments were skipped or left incomplete.",
+        "The network goes silent sector by sector as the storm settles in and demand spikes past what you built.",
         "Project Intermesh collapses before people can rely on it. Everyone waits in the dark for outside help that is still days away."
       ]
     },

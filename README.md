@@ -2,7 +2,9 @@
 
 **Repository:** https://github.com/ihayano/OLID-511
 
-A single-page, choice-driven survival story in which a student racing a major storm builds a decentralized community mesh network by placing Meshtastic devices with neighbors. Budget, device inventory, travel spending, add-ons, and install choices shape coverage, supplies, and which ending you get.
+**Learning goals:** teach players how decentralized communication networks are built using mesh technology, and introduce concepts of disaster preparedness and mutual aid through hands-on decision-making.
+
+A single-page, choice-driven survival story in which a student racing a major storm builds a decentralized community mesh network by placing Meshtastic devices with neighbors. Budget, device inventory, travel spending, add-ons, and install choices shape coverage, supplies, and which of three endings you get.
 
 ## Play
 
@@ -24,8 +26,8 @@ Then open [http://localhost:8000](http://localhost:8000).
 - **Intro primer** on Meshtastic, LoRa, and why a local mesh matters in outages.
 - **Single-screen workbench checkout (Act I):** choose a mesh device (ThinkNode M1 / LilyGO T-Echo / Heltec MeshPocket), how many units to buy (1–6), and optional add-ons — all in one scrollable panel with a live cart total and a `► COMMIT RESOURCES` confirm action.
 - **Six deployment sites (Act II):** each location has a distinct community contact, deployment branch, and coverage outcome. Deploying means giving one of your devices to the person there, widening the mesh. Some sites are outside town and require a travel decision.
-- **Diagnostics (Act III):** a ping sweep reveals dead zones; a $30 emergency fix can restore coverage before the storm lands.
-- **Four endings (A / B / C / D)** driven by coverage percentage, encryption, supplies, dead zones, and key deployment decisions.
+- **Diagnostics (Act III):** a full ping sweep reveals any dead zones before the storm lands.
+- **Three endings (A / B / D)** driven by coverage percentage, supplies, dead zones, and key deployment decisions.
 
 ## Shop — Mesh Enabled Devices
 
@@ -33,7 +35,7 @@ Then open [http://localhost:8000](http://localhost:8000).
 |--------|---------------|-------|
 | ThinkNode M1 | $40/unit | Walkie-talkie style LoRa transceiver, 1.54" screen, GPS, case included |
 | LilyGO T-Echo | $50/unit | All-in-one with screen, GPS, and battery; nRF52840 for long battery life |
-| Heltec MeshPocket | $60/unit | Magnetic wireless charging, 2.13" display, +1 link quality bonus |
+| Heltec MeshPocket | $60/unit | Magnetic wireless charging, 2.13" display; best signal propagation |
 
 Buy 1–6 units; maximum affordable by remaining budget.
 
@@ -41,9 +43,10 @@ Buy 1–6 units; maximum affordable by remaining budget.
 
 | Add-on | Price | Effect |
 |--------|-------|--------|
-| Weatherproof Housing | $20 | Protects devices in exposed installations |
+| Weatherproof Housing | $20 | Ruggedized protection for devices in exposed locations |
+| High-Gain Antennas | $20 | Directional antennas for dense urban environments |
 | Portable Cat Carrier | $20 | Optional field accessory |
-| WisMesh Mini Solar Repeater | $99 | Enables certain high-elevation installs |
+| WisMesh Mini Solar Repeater | $79 | Solar-powered off-grid repeater for demanding deployments |
 
 ## Interface
 
@@ -54,7 +57,7 @@ The game runs as a zero-dependency, pure HTML/CSS/JS application — no framewor
 - **Phosphor CRT aesthetic:** VT323 monospace font, animated scanlines, phosphor glow on all text, screen-flicker animation, noise grain overlay, vignette, and a power-on sweep when the game loads.
 - **Two phosphor themes** toggled from the top bar: **GREEN** (default) and **AMBER**; the choice persists across runs via `localStorage`.
 - **Full TUI layout:** no cards or tile grids. Every interactive element is a vertical list item — choices are numbered menu rows, workbench options are `( )` / `(●)` radio lines, and the commit action is a `►`-prefixed command row.
-- **Compact status bar:** a single line at the top of the terminal reading `BUDGET $400 │ COV 0% │ ENC OFF │ HW — │ DEVICES 0/0`, updated live as resources change.
+- **Compact status bar:** a single line at the top of the terminal reading `BUDGET $420 │ COV 0% │ ENC OFF │ HW — │ DEVICES 0/0`, updated live as resources change.
 - **Responsive:** collapses cleanly on narrower screens; the CRT border is removed on mobile to maximise the terminal area.
 
 ### Keyboard navigation
@@ -79,7 +82,7 @@ The first enabled option in each panel receives automatic focus when it appears,
 | `styles.css` | All styling: CRT effects, phosphor palettes, TUI list layout, keyboard focus indicators, scanlines, animations, ASCII art display, and responsive rules. Zero-dependency — no Bootstrap. |
 | `script.js` | All game state, workbench UI, keyboard navigation, theme toggle, encounter logic, and ending logic. All player-facing prose is read from `content/strings.json` via `t("key")` lookups. |
 | `strings.js` | Tiny loader: fetches `content/strings.json`, exposes `window.GameStrings` with `t(key, vars)` + `format(template, vars)`, and populates static HTML labels tagged with `data-string="key"`. |
-| `content/strings.json` | Every player-visible string: boot lines, status labels, navigation help, workbench rows, location handlers, encounters, diagnostics, and all four endings. Edit this file to retune narration or labels without touching code. |
+| `content/strings.json` | Every player-visible string: boot lines, status labels, navigation help, workbench rows, location handlers, encounters, diagnostics, and all three endings. Edit this file to retune narration or labels without touching code. |
 | `analytics.js` | Lightweight run-log analytics: buffers structured events in `localStorage`, exposes `window.IntermeshAnalytics`, and optionally POSTs to `INTERMESH_ANALYTICS_ENDPOINT` via `navigator.sendBeacon`. |
 | `data/game_constants.json` | Balancing data for the Python tools; kept in sync with the design intent of `script.js`. |
 | `tools/validate_constants.py` | Sanity-checks `game_constants.json` (required keys, non-negative costs, deployment coverage, ending thresholds, etc.). |
@@ -92,13 +95,13 @@ The first enabled option in each panel receives automatic focus when it appears,
 
 These defaults live in `data/game_constants.json` and are mirrored in `script.js`:
 
-- Starting budget: **$400**
+- Starting budget: **$420**
 - Deployable locations: **6**
-- Device prices per unit: ThinkNode M1 $40, LilyGO T-Echo $50, Heltec MeshPocket $60 (MeshPocket grants +1 link quality).
-- Add-on prices: weatherproof housing $20, portable cat carrier $20, WisMesh Mini Solar Repeater $99.
+- Device prices per unit: ThinkNode M1 $40, LilyGO T-Echo $50, Heltec MeshPocket $60.
+- Add-on prices: weatherproof housing $20, high-gain antennas $20, portable cat carrier $20, WisMesh Mini Solar Repeater $79.
 - Coverage thresholds for endings: low = 20, good = 22, strong = 30.
 
-Encryption is treated as a fixed-safe default; balancing focuses on device choice, add-ons, and deployment decisions.
+Encryption and firmware are fixed-safe defaults; balancing focuses on device choice, add-ons, and deployment decisions.
 
 ## Balancing with Python
 
@@ -187,7 +190,7 @@ The loader uses `fetch("content/strings.json")`, which does **not** work over `f
 
 `analytics.js` captures a structured log of every run directly in the browser. Nothing leaves the machine by default.
 
-- **Stored events per run:** `run_started`, `workbench_committed` (device type, unit count, weatherproof housing flag, cat-carrier flag, wis-mesh-repeater flag, cart total, budget after), `location_resolved` (one per deployment site), `diagnostic_triggered`, `run_ended` (coverage, budget, supplies, ending letter, and every workbench selection).
+- **Stored events per run:** `run_started`, `workbench_committed` (device type, unit count, weatherproof housing flag, high-gain antennas flag, cat-carrier flag, wis-mesh-repeater flag, cart total, budget after), `location_resolved` (one per deployment site), `diagnostic_triggered`, `run_ended` (coverage, budget, supplies, ending letter, and every workbench selection).
 - **Persistence:** the last 50 runs are kept in `localStorage` under `project-intermesh-runs`.
 - **`[ LOG ]` button** in the top bar exports all buffered runs as a single JSON file (`intermesh-runs-<timestamp>.json`). Ideal for class submissions.
 - **Optional cohort tag** via `?cohort=spring26` in the URL, or `window.INTERMESH_COHORT = "..."` before `analytics.js` loads.

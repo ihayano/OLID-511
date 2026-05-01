@@ -55,15 +55,11 @@ def determine_ending(state: RunState, thresholds: dict) -> str:
     science_ready = state.science_roof and (not state.science_missed)
     science_requirement_met = science_ready or coverage >= 38
 
-    if coverage_strong and state.encryption and state.supplies > 0 and (not state.dead_zones) and science_requirement_met:
+    if coverage_strong and state.supplies > 0 and (not state.dead_zones) and science_requirement_met:
         return "A"
-    if state.encryption and coverage >= thresholds["coverage_good"] and (
-        state.dead_zones or (not science_requirement_met)
-    ):
+    if coverage >= thresholds["coverage_good"] and (state.dead_zones or (not science_requirement_met)):
         return "B"
-    if (not state.encryption) and coverage >= thresholds["coverage_good"]:
-        return "C"
-    if low_coverage and supply_shortage and (state.battery_fragile or (not state.solar_support)):
+    if low_coverage and supply_shortage:
         return "D"
     return "B"
 
@@ -255,7 +251,7 @@ def run_simulation(constants: dict, runs: int, seed: int, overrides: dict | None
     return {
         "runs": runs,
         "endings": dict(endings),
-        "ending_rates": {k: endings.get(k, 0) / runs for k in ["A", "B", "C", "D"]},
+        "ending_rates": {k: endings.get(k, 0) / runs for k in ["A", "B", "D"]},
         "avg_budget": mean(o["budget"] for o in outcomes),
         "avg_coverage": mean(o["coverage"] for o in outcomes),
         "avg_supplies": mean(o["supplies"] for o in outcomes),
@@ -324,7 +320,6 @@ def sweep_tuning(constants: dict, seed: int) -> list[dict]:
                     "score": score,
                     "a_rate": rates["A"],
                     "b_rate": rates["B"],
-                    "c_rate": rates["C"],
                     "d_rate": rates["D"],
                     "avg_budget": result["avg_budget"],
                     "avg_supplies": result["avg_supplies"],
@@ -349,12 +344,12 @@ def _format_strata_section(strata: dict | None) -> list[str]:
     for variable, values in strata["variables"].items():
         lines.append(f"### {variable}")
         lines.append("")
-        lines.append("| value | A | B | C | D | avg coverage | avg budget | avg supplies |")
-        lines.append("|-------|---|---|---|---|--------------|------------|--------------|")
+        lines.append("| value | A | B | D | avg coverage | avg budget | avg supplies |")
+        lines.append("|-------|---|---|---|--------------|------------|--------------|")
         for value, result in values.items():
             rates = result["ending_rates"]
             lines.append(
-                f"| `{value}` | {rates['A']:.1%} | {rates['B']:.1%} | {rates['C']:.1%} | {rates['D']:.1%} | "
+                f"| `{value}` | {rates['A']:.1%} | {rates['B']:.1%} | {rates['D']:.1%} | "
                 f"{result['avg_coverage']:.2f} | ${result['avg_budget']:.0f} | {result['avg_supplies']:.2f} |"
             )
         lines.append("")
@@ -383,7 +378,6 @@ def write_report(
     rates = baseline["ending_rates"]
     lines.append(f"- Ending A: **{rates['A']:.1%}**")
     lines.append(f"- Ending B: **{rates['B']:.1%}**")
-    lines.append(f"- Ending C: **{rates['C']:.1%}**")
     lines.append(f"- Ending D: **{rates['D']:.1%}**")
     lines.append(f"- Avg coverage: **{baseline['avg_coverage']:.2f}**")
     lines.append(f"- Avg budget left: **${baseline['avg_budget']:.2f}**")
@@ -394,7 +388,7 @@ def write_report(
     for idx, item in enumerate(top, start=1):
         lines.append(
             f"{idx}. budget=${item['budget']}, fiona_supplies={item['fiona_supplies']} "
-            f"| score={item['score']:.3f} | A={item['a_rate']:.1%}, B={item['b_rate']:.1%}, C={item['c_rate']:.1%}, D={item['d_rate']:.1%}"
+            f"| score={item['score']:.3f} | A={item['a_rate']:.1%}, B={item['b_rate']:.1%}, D={item['d_rate']:.1%}"
         )
     lines.append("")
     lines.append("## Objective recommendation")
