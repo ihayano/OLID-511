@@ -70,7 +70,7 @@
       "{name} ready. Project Intermesh setup logged.",
       "Forty-eight hours. That is what the forecast gives you before Ridgecrest goes dark again.",
       "Main objective: spend your savings on Meshtastic hardware, then get out into the neighborhoods and place devices with real people — every handoff widens the mesh.",
-      "The town does not know it needs this yet. That is your problem to solve before the storm arrives."
+      "Forty-eight hours. The town does not know it needs this yet."
     ]
   },
   "travel": {
@@ -125,13 +125,13 @@
     "housing_label": "Weatherproof housing",
     "carrier_title": "Cat Carrier (optional)",
     "carrier_label": "Portable cat carrier",
-    "antennas_title": "High-Gain Antennas (optional — up to 6)",
+    "antennas_title": "High-Gain Antennas (optional — up to 2)",
     "antennas_label_singular": "1 high-gain antenna",
     "antennas_label_plural": "{n} high-gain antennas",
     "antennas_description": "Ruggedized directional antennas that push your signal further through concrete, foliage, and urban interference. Each one can be deployed at a separate site.",
     "repeater_title": "WisMesh Mini Solar Repeater (optional)",
     "repeater_label": "WisMesh Mini Solar Repeater",
-    "repeater_description": "Expands the reach of Meshtastic networks with reliable, solar-powered devices designed for off-grid communication. Built for outdoor deployment, these devices offer durable enclosures, efficient power management, and flexible mounting options. Required for rooftop and tower installs.",
+    "repeater_description": "Expands the reach of Meshtastic networks with reliable, solar-powered devices designed for off-grid communication. Built for outdoor deployment, these devices offer durable enclosures, efficient power management, and flexible mounting options.",
     "repeater_meta": "$79"
   },
   "choice_button": {
@@ -157,8 +157,8 @@
       "choices": {
         "data_label": "Appeal to telemetry and survival data",
         "data_description": "Promise live weather relays, outage mapping, and a resilient data path for the whole town.",
-        "data_meta_ready": "Uses 1 unit // WisMesh Repeater installed // Roof install enabled",
-        "data_meta_locked": "Requires WisMesh Mini Solar Repeater for roof install",
+        "data_meta_ready": "Gives 1 device",
+        "data_meta_locked": "Not available with current loadout",
         "emotion_label": "Make an emotional plea",
         "emotion_description": "Ask him to do it because people are scared and you need kindness right now.",
         "emotion_meta": "Gives 1 device",
@@ -169,11 +169,11 @@
         "highgain_description": "Skip the roof argument entirely — mount on the courtyard wall with your directional antenna for a solid mid-elevation link.",
         "highgain_meta": "Gives 1 device // no add-on cost",
         "skip_label": "Skip this site",
-        "skip_description": "Walk away from the town's best elevation point.",
+        "skip_description": "Move on without deploying here.",
         "skip_meta": "No cost"
       },
-      "skip_status": "Critical high-elevation site abandoned.",
-      "skip_line": "You leave the science building dark. Full town coverage is no longer achievable.",
+      "skip_status": "No device placed at the science building.",
+      "skip_line": "You leave the science building and move on to the next site.",
       "deploy_roof_node_note": "roof mount secured with professor approval (+{gain}% coverage)",
       "deploy_roof_status": "Roof access granted. The network now has a real spine.",
       "deploy_roof_line": "\"Ansari nods once. \"That is an actual argument.\" He unlocks the roof hatch for you.",
@@ -198,13 +198,13 @@
       "prompt": "Choose the Valley West deployment package.",
       "choices": {
         "basic_label": "Basic device placement",
-        "basic_description": "Cheapest path, but the hills will likely carve out a dead zone.",
+        "basic_description": "Place a device at the residential site.",
         "basic_meta": "Gives 1 device // no add-on cost",
         "highgain_label": "Device + high-gain antenna",
         "highgain_description": "Stabilizes the valley link and pushes farther toward rural outskirts.",
         "highgain_meta": "Gives 1 device // no add-on cost",
         "solar_label": "Device + solar repeater",
-        "solar_description": "Best reach and long-tail resilience when the outage stretches past the first night.",
+        "solar_description": "Solar-powered repeater that keeps the valley connected even as the outage stretches past the first night.",
         "skip_label": "Skip this site",
         "skip_description": "Leave the valley district isolated behind terrain.",
         "skip_meta": "No cost"
@@ -212,8 +212,8 @@
       "skip_status": "Valley West remains outside the mesh.",
       "skip_line": "You keep your cash, but the valley edge falls off the map.",
       "basic_node_note": "residential install, but the hills choke the signal (+{gain}% coverage)",
-      "basic_status": "Device placed, yet terrain still creates a valley dead zone.",
-      "basic_line": "The house line joins the mesh, and Luz hands you a warm mug from the kitchen. The western edge still drops packets into silence.",
+      "basic_status": "Valley West device online.",
+      "basic_line": "The device comes up and joins the mesh. Luz hands you a warm mug from the kitchen.",
       "highgain_node_note": "high-gain residential relay clears the hills (+{gain}% coverage)",
       "highgain_status": "High-gain antenna punches the valley back into town.",
       "highgain_line": "Diego helps you sight the antenna line. The western district finally links cleanly to the main network.",
@@ -229,9 +229,10 @@
       "no_nodes_line": "No devices left to spare. You stop in just long enough to explain. Yoshiko listens, nods once, and tells you to get in the car.",
       "intro": [
         "Destination: International Grocery.",
-        "Yoshiko is already waiting outside when you arrive, arms folded, watching the sky.",
-        "\"I know you are stretched thin,\" she says, \"but this store is where everyone comes during a crisis. Families, elders, people who do not know where else to go.\"",
-        "\"If the mesh is going to mean anything, it has to be here.\""
+        "Yoshiko is already outside when you arrive. She pulls you into a hug before you can say anything, then leans up and kisses you quickly.",
+        "\"You are going to fix this,\" she says, like it is already true.",
+        "Then she steps back and folds her arms, watching the sky turn the wrong color.",
+        "\"But this store needs to be on the mesh. It is where everyone comes when things go wrong.\""
       ],
       "prompt": "Leave a device at International Grocery?",
       "choices": {
@@ -239,7 +240,7 @@
         "deploy_description": "Place a device at International Grocery. It becomes a community anchor on the mesh — and Yoshiko offers to drive you to your remaining sites.",
         "deploy_meta": "Gives 1 device",
         "highgain_label": "Device + directional antenna on the roof",
-        "highgain_description": "Yoshiko climbs up with you and holds the bracket while you mount the antenna above the awning. The store becomes one of the strongest relay points in town.",
+        "highgain_description": "Yoshiko climbs up with you and holds the bracket while you mount the antenna above the awning.",
         "highgain_meta": "Gives 1 device // no add-on cost",
         "skip_label": "Skip the store this time",
         "skip_description": "You cannot spare a device right now. Yoshiko nods, but the store stays off the mesh.",
@@ -251,7 +252,7 @@
       "deploy_status": "International Grocery linked. Community hub on the mesh.",
       "deploy_line": "Yoshiko smiles and holds the door. The store goes live on the mesh — and she insists on driving you to every site you have left.",
       "highgain_node_note": "rooftop directional antenna above International Grocery (+{gain}% coverage)",
-      "highgain_status": "International Grocery rooftop antenna — strongest relay on the block.",
+      "highgain_status": "International Grocery rooftop antenna online.",
       "highgain_line": "Yoshiko holds the bracket steady while you tighten the mount. When it locks in, the signal clears the awning and reaches the next district. She squeezes your hand before climbing back down."
     },
     "apartments": {
@@ -277,10 +278,10 @@
         "deploy_description": "Extend the mesh to several families and bring home garden supplies.",
         "deploy_meta": "Gives 1 device",
         "highgain_label": "Device + high-gain antenna on the garden roof",
-        "highgain_description": "Dalia helps you mount the antenna at the highest corner of the rooftop garden for the best possible reach across the block.",
+        "highgain_description": "Dalia helps you mount the antenna at the highest corner of the rooftop garden.",
         "highgain_meta": "Gives 1 device // no add-on cost",
         "skip_label": "Skip this site",
-        "skip_description": "Leave student housing without a relay and forfeit the food trade.",
+        "skip_description": "Move on without deploying here.",
         "skip_meta": "No cost"
       },
       "skip_status": "Apartment block left off-network.",
@@ -309,7 +310,7 @@
         "deploy_description": "Chris shows you the roof hatch and helps you find a clear sightline above the surrounding buildings.",
         "deploy_meta": "Gives 1 device",
         "highgain_label": "Device + high-gain antenna on the rooftop",
-        "highgain_description": "Chris holds the mast while you bolt the directional antenna to the parapet wall. The extra height and gain push the signal well past the grid.",
+        "highgain_description": "Chris holds the mast while you bolt the directional antenna to the parapet wall.",
         "highgain_meta": "Gives 1 device // no add-on cost",
         "skip_label": "Skip this site",
         "skip_description": "Save the device. Chris shrugs and says he will keep the frequencies clear for you.",
@@ -346,20 +347,20 @@
       "prompt": "Choose the clinic deployment package.",
       "choices": {
         "basic_label": "Basic device placement",
-        "basic_description": "Cheaper, but leaves the clinic half-hidden behind the trees.",
+        "basic_description": "Place a device at the clinic site.",
         "basic_meta": "Gives 1 device // no add-on cost",
         "highgain_label": "Device + high-gain antenna",
         "highgain_description": "Cuts through the foliage and gives the clinic a dependable route.",
         "highgain_meta": "Gives 1 device // no add-on cost",
         "skip_label": "Skip this site",
-        "skip_description": "Save money and accept a medical blind spot during the outage.",
+        "skip_description": "Move on without deploying here.",
         "skip_meta": "No cost"
       },
       "skip_status": "Health center left outside the mesh.",
       "skip_line": "You save the device. The clinic vanishes behind branches and static — Yasmin's patients unreachable when it matters most.",
       "basic_node_note": "clinic device placed, but the foliage still blocks clean traffic (+{gain}% coverage)",
-      "basic_status": "Device placed, yet foliage still causes a medical dead zone.",
-      "basic_line": "Yasmin thanks you anyway. The clinic joins the map, but every tree between you and town remains an enemy.",
+      "basic_status": "Women's Health Clinic device online.",
+      "basic_line": "Yasmin thanks you. The clinic joins the mesh.",
       "highgain_node_note": "high-gain clinic relay clears the tree line (+{gain}% coverage)",
       "highgain_status": "Clinic relay pushes cleanly through the canopy.",
       "highgain_line": "The upgraded antenna slices through the foliage. Women's Health Clinic now has a reliable lifeline."
@@ -406,6 +407,7 @@
     "deny_label": "You cannot spare one",
       "deny_description": "You need every device for your planned sites. Nina nods and walks away.",
     "deny_meta": "No cost",
+    "grant_node_note": "Nina's neighborhood relay — mutual aid node (+{gain}% coverage)",
     "grant_line": "Nina's face changes the moment the device lights up. She hands you a jar of honey from her kitchen. The mesh just got one person wider.",
     "deny_line": "You keep moving. Nina watches you go. The mesh stays exactly as planned, and so does the silence on her street."
   },
@@ -452,16 +454,16 @@
   "cat_encounter": {
     "intro": [
       "A rustle in the shadows. Something small is watching you.",
-      "A stray cat sits at the edge of the alley, tail twitching."
+      "An all-black cat sits at the edge of the alley, tail twitching — nearly invisible except for two amber eyes."
     ],
     "prompt": "What do you do?",
     "pickup_label": "Try to pick it up",
     "pickup_description": "Reach out slowly and hope for the best.",
     "pspsps_label": "Whisper \"psss psss psss\"",
     "pspsps_description": "The universal language.",
-    "scratches": "The cat flattens its ears, swipes at your hand, and bolts into the dark. You have a small scratch and a lesson.",
+    "scratches": "The black cat flattens its ears, swipes at your hand, and vanishes back into the dark. You have a small scratch and a lesson.",
     "joins": [
-      "The cat sniffs the air once, then walks straight to you and headbutts your shin.",
+      "The black cat sniffs the air once, then walks straight to you and headbutts your shin.",
       "You have a companion."
     ]
   }

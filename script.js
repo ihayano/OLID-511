@@ -700,7 +700,7 @@ function renderWorkbenchCheckout(draft, budgetStart, autoFocus = false) {
   );
 
   const antennaOptions = [];
-  for (let n = 1; n <= 6; n++) {
+  for (let n = 1; n <= 2; n++) {
     antennaOptions.push({
       value: n,
       label: n === 1
@@ -800,8 +800,11 @@ function runWorkbenchCheckout() {
 
     dom.workbenchConfirm.onclick = () => {
       if (dom.workbenchConfirm.disabled) return;
-      closeWorkbenchPanel();
-      resolve({ ...draft });
+      dom.workbenchConfirm.classList.add("workbench-confirm--flash");
+      setTimeout(() => {
+        closeWorkbenchPanel();
+        resolve({ ...draft });
+      }, 320);
     };
   });
 }
@@ -1270,10 +1273,6 @@ async function actDeployment(runToken) {
         ...pendingLocations.map((location) => ({
           value: location.key,
           label: location.title,
-          description: t("act2.location_description", {
-            detail: location.detail,
-          }),
-          meta: location.elevation,
         })),
         {
           value: "finish",
@@ -1414,8 +1413,8 @@ async function actMutualAid(runToken) {
   );
 
   if (choice === "grant") {
-    state.nodesAvailable = Math.max(0, state.nodesAvailable - 1);
-    refreshUi();
+    const gain = addCoverage(3);
+    addNode("nina", t("mutual_aid.grant_node_note", { gain }));
     addSupplies(1);
     await typeLine(t("mutual_aid.grant_line"), "success", runToken);
   } else {
