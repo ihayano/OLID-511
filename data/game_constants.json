@@ -68,8 +68,7 @@
         "fee": 79
       },
       "wis_mesh_required_for": {
-        "science_roof": true,
-        "radio_tower": true
+        "science_roof": true
       }
     }
   },
@@ -178,13 +177,9 @@
     },
     "radio": {
       "options": {
-        "tower": {
+        "deploy": {
           "uses_node": true,
-          "coverage_base": 7
-        },
-        "lobby": {
-          "uses_node": true,
-          "coverage_base": 4
+          "coverage_base": 5
         },
         "highgain": {
           "uses_node": true,
