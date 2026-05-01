@@ -74,8 +74,8 @@ const dom = {
   bootScreen: document.getElementById("boot-screen"),
 };
 
-const typingDelay = 22;
-const pauseBetweenLines = 220;
+const typingDelay = 32;
+const pauseBetweenLines = 300;
 const bootLineRevealDelay = 420;
 const bootExitDelay = 1100;
 const themeStorageKey = "project-intermesh-theme";
