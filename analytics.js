@@ -139,10 +139,9 @@
       pushEvent("workbench_committed", {
         hardware: selections.hardware,
         nodes_purchased: selections.nodes,
-        weatherproof_cases: selections.cases,
-        solar_panels: selections.solar,
+        weatherproof_housing: selections.housing === "yes",
         cat_carrier: selections.catCarrier === "yes",
-        firmware: selections.firmware,
+        wis_mesh_repeater: selections.wisMeshRepeater === "yes",
         cart_total: cartTotal,
         budget_after: budgetAfter,
       });

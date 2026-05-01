@@ -681,6 +681,24 @@ h1 {
 }
 .workbench-section:last-child { border-bottom: none; }
 
+/* ══[ SECTION GROUP HEADER ]══ top-level divider between Devices and Add-Ons */
+.workbench-group-header {
+  padding: 8px 14px 4px;
+  color: var(--text-dim);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  border-top: 1px solid rgba(38, 122, 38, 0.40);
+  border-bottom: 1px solid rgba(38, 122, 38, 0.20);
+  background: var(--panel-2);
+  margin-top: 4px;
+}
+.workbench-group-header:first-child {
+  border-top: none;
+  margin-top: 0;
+}
+
 /* ──[ HARDWARE ]────────── separator */
 .workbench-section-title {
   display: flex;
